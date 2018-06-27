@@ -1,13 +1,8 @@
 class AppDelegate
   def application(application, didFinishLaunchingWithOptions:launchOptions)
-    rootViewController = ARViewController.alloc.init
-    rootViewController.title = 'survivAR'
-    rootViewController.view.backgroundColor = UIColor.whiteColor
-
     @window = UIWindow.alloc.initWithFrame(UIScreen.mainScreen.bounds)
-    @window.rootViewController = rootViewController
+    @window.rootViewController = MasterViewController.alloc.init
     @window.makeKeyAndVisible
-
     true
   end
 end
