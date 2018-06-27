@@ -15,24 +15,19 @@ class ARViewController < UIViewController
     @scene_view.session.runWithConfiguration(@scene_config)
     @scene_view.session.delegate = self
     self.view = @scene_view
-    add_enemy
-  end
 
-  def add_enemy
     @scene = SCNScene.scene
-    target_geometry = SCNSphere.sphereWithRadius(enemy_radius)
-    target_material = SCNMaterial.material
-    target_material.diffuse.contents = NSColor.colorWithRed(1, green: 0, blue: 0, alpha: 1)
-    target_material.doubleSided = false
-    target_geometry.materials = [target_material]
-    target = SCNNode.nodeWithGeometry(target_geometry)
-    target.position = @target_pos = SCNVector3Make(0, 0, -1.5)
-    @scene.rootNode.addChildNode(target)
+    entity_manager = EntityManager.alloc.init(@scene)
+
+    enemy = Enemy.new
+    node_index = enemy.components.index{|comp| comp.is_a?(VisualComponent)}
+    entity_manager.add(enemy.components[node_index].node)
+
     @scene_view.scene = @scene
   end
 
   def session(_, didUpdateFrame: _)
-    player_dies if touching_enemy
+    # player_dies if touching_enemy
   end
 
   def player_dies
