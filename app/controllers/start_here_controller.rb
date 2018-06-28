@@ -1,4 +1,6 @@
 class StartHereController < UIViewController
+  include CDQ
+
   def loadView
     @layout = StartHereLayout.new
     self.view = @layout.view
@@ -14,8 +16,12 @@ class StartHereController < UIViewController
 
   def create_account
     return if @username.text == ''
+    Player.create(username: @username.text)
+    cdq.save
+    push_user_to_menu
+  end
 
-    # Save info to device
-    # Push user to Menu Screen
+  def push_user_to_menu
+    parentViewController.set_controller(parentViewController.menu_controller, from: self)
   end
 end

@@ -1,14 +1,16 @@
 class MasterViewController < UIViewController
-  def init
-    super
-
-    self
-  end
+  attr_accessor :menu_controller
 
   def viewDidLoad
     @start_here_controller = StartHereController.new
-    self.addChildViewController(@start_here_controller)
-    set_controller(@start_here_controller, from: nil)
+    @menu_controller = MenuController.new
+    addChildViewController(@start_here_controller)
+    addChildViewController(@menu_controller)
+    if Player.count > 0
+      set_controller(@menu_controller, from: nil)
+    else
+      set_controller(@start_here_controller, from: nil)
+    end
   end
 
   def set_controller(new_controller, from: old_controller)
