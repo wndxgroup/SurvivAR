@@ -2,14 +2,14 @@ class MasterViewController < UIViewController
   attr_accessor :menu_controller
 
   def viewDidLoad
-    @start_here_controller = StartHereController.new
+    @create_an_account_controller = CreateAnAccountController.new
     @menu_controller = MenuController.new
-    addChildViewController(@start_here_controller)
+    addChildViewController(@create_an_account_controller)
     addChildViewController(@menu_controller)
     if Player.count > 0
       set_controller(@menu_controller, from: nil)
     else
-      set_controller(@start_here_controller, from: nil)
+      set_controller(@create_an_account_controller, from: nil)
     end
   end
 

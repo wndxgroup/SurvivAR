@@ -1,4 +1,4 @@
-class StartHereController < UIViewController
+class CreateAnAccountController < UIViewController
   include CDQ
 
   def loadView
