@@ -27,7 +27,7 @@ class CreateAnAccountController < UIViewController
     parentViewController.set_controller(parentViewController.menu_controller, from: self)
   end
 
-  def textFieldShouldReturn(textField)
+  def textFieldShouldReturn(_)
     create_account
   end
 end

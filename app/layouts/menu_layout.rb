@@ -30,11 +30,11 @@ class MenuLayout < MotionKit::Layout
       title 'Map'
     end
 
-    add UIButton, :first_person_button do
+    add UIButton, :vision_button do
       font UIFont.systemFontOfSize(24)
       background_color UIColor.blueColor
       title_color UIColor.whiteColor
-      title 'First-person'
+      title 'Vision'
     end
 
     add UIButton, :settings_button do
@@ -79,7 +79,7 @@ class MenuLayout < MotionKit::Layout
       height 80
     end
 
-    constraints(:first_person_button) do
+    constraints(:vision_button) do
       top.equals(:map_button, NSLayoutAttributeBottom).plus(button_vertical_padding)
       left.equals(:map_button)
       width.equals(:map_button)
@@ -87,7 +87,7 @@ class MenuLayout < MotionKit::Layout
     end
 
     constraints(:settings_button) do
-      top.equals(:first_person_button, NSLayoutAttributeBottom).plus(button_vertical_padding)
+      top.equals(:vision_button, NSLayoutAttributeBottom).plus(button_vertical_padding)
       left.equals(:map_button)
       width.equals(:map_button)
       height.equals(:map_button)

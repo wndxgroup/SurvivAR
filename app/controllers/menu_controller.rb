@@ -7,6 +7,16 @@ class MenuController < UIViewController
     account = Player.first.accounts[Player.first.current_account]
     @layout.get(:username).text = account.username
     @layout.get(:survival_time).text = survival_time(account)
+
+    @vision_button = @layout.get(:vision_button)
+  end
+
+  def viewDidLoad
+    @vision_button.addTarget(self, action: 'push_user_to_vision', forControlEvents: UIControlEventTouchUpInside)
+  end
+
+  def push_user_to_vision
+    parentViewController.start_vision(self)
   end
 
   def survival_time(account)

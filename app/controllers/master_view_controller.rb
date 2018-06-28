@@ -1,11 +1,13 @@
 class MasterViewController < UIViewController
-  attr_accessor :menu_controller
+  attr_accessor :menu_controller, :ar_view_controller
 
   def viewDidLoad
     @create_an_account_controller = CreateAnAccountController.new
     @menu_controller = MenuController.new
+    @ar_view_controller = ARViewController.new
     addChildViewController(@create_an_account_controller)
     addChildViewController(@menu_controller)
+    addChildViewController(@ar_view_controller)
 
     player = Player.first || Player.create
     if player.current_account
@@ -27,5 +29,9 @@ class MasterViewController < UIViewController
     new_controller.view.topAnchor.constraintEqualToAnchor(view.safeAreaLayoutGuide.topAnchor).active = true
     new_controller.view.bottomAnchor.constraintEqualToAnchor(view.safeAreaLayoutGuide.bottomAnchor).active = true
     new_controller.didMoveToParentViewController(self)
+  end
+
+  def start_vision(old_controller)
+    set_controller(@ar_view_controller, from: old_controller)
   end
 end

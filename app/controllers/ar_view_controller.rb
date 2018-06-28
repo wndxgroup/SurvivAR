@@ -1,4 +1,6 @@
 class ARViewController < UIViewController
+  attr_accessor :scene_view, :scene_config
+
   def enemy_radius; 0.2; end
 
   def init
@@ -17,13 +19,35 @@ class ARViewController < UIViewController
     self.view = @scene_view
 
     @scene = SCNScene.scene
-    entity_manager = EntityManager.alloc.init(@scene)
+    @entity_manager = EntityManager.alloc.init(@scene)
+    @scene_view.scene = @scene
+    add_enemies
+    add_ui
+  end
 
+  def viewDidAppear(_)
+    @scene_view.session.runWithConfiguration(@scene_config, options: ARSessionRunOptionResetTracking)
+    add_enemies
+  end
+
+  def add_ui
+    @menu_view = UIView.new
+    view.addSubview(@menu_view)
+    @menu_view.translatesAutoresizingMaskIntoConstraints = false
+    @menu_view.widthAnchor.constraintEqualToConstant(70).active = true
+    @menu_view.heightAnchor.constraintEqualToConstant(70).active = true
+    @menu_view.bottomAnchor.constraintEqualToAnchor(view.safeAreaLayoutGuide.bottomAnchor).active = true
+
+    menu_icon = UIImage.imageNamed('menu-button')
+    menu_icon_view = UIImageView.alloc.initWithImage(menu_icon)
+    menu_icon_view.frame = [[0 ,0], [70, 70]]
+    @menu_view.addSubview(menu_icon_view)
+  end
+
+  def add_enemies
     enemy = Enemy.new
     node_index = enemy.components.index{|comp| comp.is_a?(VisualComponent)}
-    entity_manager.add(enemy.components[node_index].node)
-
-    @scene_view.scene = @scene
+    @entity_manager.add(enemy.components[node_index].node)
   end
 
   def session(_, didUpdateFrame: _)
@@ -42,6 +66,21 @@ class ARViewController < UIViewController
   end
 
   def touchesEnded(_, withEvent: event)
+    if event.touchesForView(@menu_view)
+      push_user_to_menu
+    else
+      shoot
+    end
+  end
+
+  def push_user_to_menu
+    @scene_view.pointOfView.childNodes.each {|node| node.removeFromParentNode}
+    @scene.rootNode.childNodes.each {|node| node.removeFromParentNode}
+    @scene_view.session.pause
+    parentViewController.set_controller(parentViewController.menu_controller, from: self)
+  end
+
+  def shoot
     bullet_geometry = SCNSphere.sphereWithRadius(0.01)
     bullet_material = SCNMaterial.material
     bullet_material.diffuse.contents = NSColor.colorWithRed(0, green: 0, blue: 0, alpha: 1)
