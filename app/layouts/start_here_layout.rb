@@ -22,6 +22,8 @@ class StartHereLayout < MotionKit::Layout
       text_alignment UITextAlignmentCenter
       font UIFont.systemFontOfSize(20)
       text_color UIColor.blackColor
+      spell_checking_type UITextSpellCheckingTypeNo
+      autocorrection_type UITextAutocorrectionTypeNo
       become_first_responder
     end
 

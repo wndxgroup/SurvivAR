@@ -8,6 +8,7 @@ class StartHereController < UIViewController
 
     @start_button = @layout.get(:start_button)
     @username = @layout.get(:username)
+    @username.delegate = self
   end
 
   def viewDidLoad
@@ -23,5 +24,9 @@ class StartHereController < UIViewController
 
   def push_user_to_menu
     parentViewController.set_controller(parentViewController.menu_controller, from: self)
+  end
+
+  def textFieldShouldReturn(textField)
+    create_account
   end
 end
