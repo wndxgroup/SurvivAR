@@ -9,6 +9,10 @@ schema "0001 initial" do
 
   entity "Account" do
     string :username, optional: false
+    integer16 :days
+    integer16 :hours
+    integer16 :minutes
+    integer16 :seconds
 
     belongs_to :player
   end

@@ -8,18 +8,11 @@ class MasterViewController < UIViewController
     addChildViewController(@menu_controller)
 
     player = Player.first || Player.create
-    puts "Current: #{player.current_account}"
     if player.current_account
       set_controller(@menu_controller, from: nil)
     else
       set_controller(@create_an_account_controller, from: nil)
     end
-
-    # if Player.count > 0
-    #   set_controller(@menu_controller, from: nil)
-    # else
-    #   set_controller(@create_an_account_controller, from: nil)
-    # end
   end
 
   def set_controller(new_controller, from: old_controller)

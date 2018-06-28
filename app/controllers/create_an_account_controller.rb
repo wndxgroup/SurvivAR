@@ -19,7 +19,6 @@ class CreateAnAccountController < UIViewController
     return if @username.text == ''
     Player.first.accounts << Account.create(username: @username.text)
     Player.first.current_account = Player.first.accounts.count - 1
-    # Player.create(username: @username.text)
     cdq.save
     push_user_to_menu
   end

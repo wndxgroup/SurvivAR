@@ -21,7 +21,6 @@ class MenuLayout < MotionKit::Layout
       text_alignment UITextAlignmentCenter
       font UIFont.systemFontOfSize(24)
       text_color UIColor.whiteColor
-      text '00:00:00'
     end
 
     add UIButton, :map_button do
