@@ -2,7 +2,15 @@
 schema "0001 initial" do
 
   entity "Player" do
+    integer16 :current_account, default: nil
+
+    has_many :accounts
+  end
+
+  entity "Account" do
     string :username, optional: false
+
+    belongs_to :player
   end
 
   # Examples:

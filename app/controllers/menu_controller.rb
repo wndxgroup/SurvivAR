@@ -4,6 +4,7 @@ class MenuController < UIViewController
     self.view = @layout.view
     @layout.add_constraints
 
-    @layout.get(:username).text = Player.first.username
+    username = Player.first.accounts[Player.first.current_account].username
+    @layout.get(:username).text = username
   end
 end
