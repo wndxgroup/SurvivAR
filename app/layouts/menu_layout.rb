@@ -37,10 +37,17 @@ class MenuLayout < MotionKit::Layout
       title 'Vision'
     end
 
-    add UIButton, :settings_button do
-      font UIFont.systemFontOfSize(24)
+    add UIButton, :availability_button do
+      font UIFont.systemFontOfSize(20)
       background_color UIColor.whiteColor
-      title 'Settings'
+      title 'Availability'
+      title_color UIColor.blackColor
+    end
+
+    add UIButton, :accounts_button do
+      font UIFont.systemFontOfSize(20)
+      background_color UIColor.whiteColor
+      title 'Accounts'
       title_color UIColor.blackColor
     end
   end
@@ -70,25 +77,32 @@ class MenuLayout < MotionKit::Layout
       left(:username)
     end
 
-    button_vertical_padding = 20
+    button_padding = 20
 
     constraints(:map_button) do
-      top.equals(:survival_time, NSLayoutAttributeBottom).plus(button_vertical_padding + 20)
+      top.equals(:survival_time, NSLayoutAttributeBottom).plus(button_padding + 20)
       left.equals(:survival_time, NSLayoutAttributeLeft)
-      width.equals(:survival_time)
-      height 80
+      width.equals(:survival_time).divided_by(2).minus(button_padding / 4)
+      height 120
     end
 
     constraints(:vision_button) do
-      top.equals(:map_button, NSLayoutAttributeBottom).plus(button_vertical_padding)
+      top.equals(:map_button, NSLayoutAttributeTop)
+      left.equals(:map_button, NSLayoutAttributeRight).plus(button_padding / 2)
+      width.equals(:map_button)
+      height.equals(:map_button)
+    end
+
+    constraints(:availability_button) do
+      top.equals(:map_button, NSLayoutAttributeBottom).plus(button_padding / 2)
       left.equals(:map_button)
       width.equals(:map_button)
       height.equals(:map_button)
     end
 
-    constraints(:settings_button) do
-      top.equals(:vision_button, NSLayoutAttributeBottom).plus(button_vertical_padding)
-      left.equals(:map_button)
+    constraints(:accounts_button) do
+      top.equals(:availability_button)
+      left.equals(:vision_button)
       width.equals(:map_button)
       height.equals(:map_button)
     end
