@@ -1,13 +1,21 @@
 class MasterViewController < UIViewController
-  attr_accessor :menu_controller, :ar_view_controller
+  attr_accessor :menu_controller, :ar_view_controller, :map_view_controller, :current_map_location
+
+  def init
+    super
+    @location_manager = CLLocationManager.alloc.init
+    @location_manager.startUpdatingLocation
+    @location_manager.delegate = self
+    @location_manager.desiredAccuracy = KCLLocationAccuracyBestForNavigation
+    @location_manager.requestAlwaysAuthorization
+    self
+  end
 
   def viewDidLoad
     @create_an_account_controller = CreateAnAccountController.new
     @menu_controller = MenuController.new
-    @ar_view_controller = ARViewController.new
     addChildViewController(@create_an_account_controller)
     addChildViewController(@menu_controller)
-    addChildViewController(@ar_view_controller)
 
     player = Player.first || Player.create
     if player.current_account
@@ -32,6 +40,22 @@ class MasterViewController < UIViewController
   end
 
   def start_vision(old_controller)
+    unless @ar_view_controller
+      @ar_view_controller = ARViewController.new
+      addChildViewController(@ar_view_controller)
+    end
     set_controller(@ar_view_controller, from: old_controller)
+  end
+
+  def start_map(old_controller)
+    unless @map_view_controller
+      @map_view_controller = MapViewController.new
+      addChildViewController(@map_view_controller)
+    end
+    set_controller(@map_view_controller, from: old_controller)
+  end
+
+  def locationManager(_, didUpdateLocations: locations)
+    @current_map_location = locations.last
   end
 end
