@@ -1,5 +1,6 @@
 class MasterViewController < UIViewController
-  attr_accessor :menu_controller, :ar_view_controller, :map_view_controller, :current_map_location
+  attr_accessor :menu_controller, :ar_view_controller, :map_view_controller, :current_map_location,
+                :create_an_account_controller
 
   def init
     super
@@ -53,6 +54,14 @@ class MasterViewController < UIViewController
       addChildViewController(@map_view_controller)
     end
     set_controller(@map_view_controller, from: old_controller)
+  end
+
+  def start_accounts_page(old_controller)
+    unless @accounts_list_controller
+      @accounts_list_controller = AccountsListController.new
+      addChildViewController(@accounts_list_controller)
+    end
+    set_controller(@accounts_list_controller, from: old_controller)
   end
 
   def locationManager(_, didUpdateLocations: locations)

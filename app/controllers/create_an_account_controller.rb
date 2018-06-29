@@ -7,8 +7,8 @@ class CreateAnAccountController < UIViewController
     @layout.add_constraints
 
     @start_button = @layout.get(:start_button)
-    @username = @layout.get(:username)
-    @username.delegate = self
+    @username_field = @layout.get(:username)
+    @username_field.delegate = self
   end
 
   def viewDidLoad
@@ -16,8 +16,11 @@ class CreateAnAccountController < UIViewController
   end
 
   def create_account
-    return if @username.text == ''
-    Player.first.accounts << Account.create(username: @username.text)
+    @username = @username_field.text
+    @username_field.text = ''
+    return if @username == ''
+    return if username_already_exists
+    Player.first.accounts << Account.create(username: @username)
     Player.first.current_account = Player.first.accounts.count - 1
     cdq.save
     push_user_to_menu
@@ -29,5 +32,20 @@ class CreateAnAccountController < UIViewController
 
   def textFieldShouldReturn(_)
     create_account
+  end
+
+  def username_already_exists
+    Player.first.accounts.each do |acct|
+      if @username == acct.username
+        alert = UIAlertController.alertControllerWithTitle('Username Unavailable',
+                                                           message: "You already have an account with the username '#{@username}'",
+                                                           preferredStyle: UIAlertControllerStyleAlert)
+        action = UIAlertAction.actionWithTitle('Try again', style: UIAlertActionStyleDefault, handler: nil)
+        alert.addAction(action)
+        self.presentViewController(alert, animated: true, completion: nil)
+        return true
+      end
+    end
+    false
   end
 end
