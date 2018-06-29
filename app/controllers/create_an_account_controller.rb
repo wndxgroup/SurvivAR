@@ -26,6 +26,10 @@ class CreateAnAccountController < UIViewController
     push_user_to_menu
   end
 
+  def didMoveToParentViewController(_)
+    @username_field.becomeFirstResponder
+  end
+
   def push_user_to_menu
     parentViewController.set_controller(parentViewController.menu_controller, from: self)
   end

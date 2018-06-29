@@ -10,6 +10,7 @@
     <attribute optional="YES" syncable="YES" attributeType="Integer 16" name="hours" defaultValueString="0"/>
     <attribute optional="YES" syncable="YES" attributeType="Integer 16" name="minutes" defaultValueString="0"/>
     <attribute optional="YES" syncable="YES" attributeType="Integer 16" name="seconds" defaultValueString="0"/>
+    <attribute optional="YES" syncable="YES" attributeType="Boolean" name="state" defaultValueString="NO"/>
     <relationship optional="YES" deletionRule="Nullify" syncable="YES" name="player" inverseEntity="Player" destinationEntity="Player" inverseName="accounts" maxCount="1"/>
   </entity>
 </model>

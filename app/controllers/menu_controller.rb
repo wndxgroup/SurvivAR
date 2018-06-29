@@ -6,21 +6,25 @@ class MenuController < UIViewController
     self.view = @layout.view
     @layout.add_constraints
 
-    @vision_button = @layout.get(:vision_button)
-    @map_button = @layout.get(:map_button)
+    @vision_button   = @layout.get(:vision_button)
+    @map_button      = @layout.get(:map_button)
     @accounts_button = @layout.get(:accounts_button)
+    @state_button    = @layout.get(:state_button)
   end
 
   def viewDidLoad
-    @vision_button.addTarget(self, action: 'push_user_to_vision', forControlEvents: UIControlEventTouchUpInside)
-    @map_button.addTarget(self, action: 'push_user_to_map', forControlEvents: UIControlEventTouchUpInside)
+    @vision_button  .addTarget(self, action: 'push_user_to_vision',   forControlEvents: UIControlEventTouchUpInside)
+    @map_button     .addTarget(self, action: 'push_user_to_map',      forControlEvents: UIControlEventTouchUpInside)
     @accounts_button.addTarget(self, action: 'push_user_to_accounts', forControlEvents: UIControlEventTouchUpInside)
+    @state_button   .addTarget(self, action: 'toggle_state',          forControlEvents: UIControlEventTouchUpInside)
   end
 
-  def didMoveToParentViewController(parent)
+  def didMoveToParentViewController(_)
     account = Player.first.accounts[Player.first.current_account]
-    @layout.get(:username).text = account.username
-    @layout.get(:survival_time).text = survival_time(account)
+    @current_state = account.state
+    @layout.get(:username).text          = account.username
+    @layout.get(:survival_time).text     = survival_time(account)
+    set_state_image
   end
 
   def push_user_to_vision
@@ -33,5 +37,18 @@ class MenuController < UIViewController
 
   def push_user_to_accounts
     parentViewController.start_accounts_page(self)
+  end
+
+  def toggle_state
+    @current_state = !@current_state
+    set_state_image
+  end
+
+  def set_state_image
+    if @current_state == true
+      @layout.get(:state_image_view).image = UIImage.imageNamed('pause')
+    else
+      @layout.get(:state_image_view).image = UIImage.imageNamed('play')
+    end
   end
 end

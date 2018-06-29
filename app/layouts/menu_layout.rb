@@ -37,11 +37,9 @@ class MenuLayout < MotionKit::Layout
       title 'Vision'
     end
 
-    add UIButton, :availability_button do
-      font UIFont.systemFontOfSize(20)
+    add UIButton, :state_button do
       background_color UIColor.whiteColor
-      title 'Availability'
-      title_color UIColor.blackColor
+      add UIImageView, :state_image_view
     end
 
     add UIButton, :accounts_button do
@@ -93,7 +91,7 @@ class MenuLayout < MotionKit::Layout
       height.equals(:map_button)
     end
 
-    constraints(:availability_button) do
+    constraints(:state_button) do
       top.equals(:map_button, NSLayoutAttributeBottom).plus(button_padding / 2)
       left.equals(:map_button)
       width.equals(:map_button)
@@ -101,10 +99,16 @@ class MenuLayout < MotionKit::Layout
     end
 
     constraints(:accounts_button) do
-      top.equals(:availability_button)
+      top.equals(:state_button)
       left.equals(:vision_button)
       width.equals(:map_button)
       height.equals(:map_button)
+    end
+
+    constraints(:state_image_view) do
+      center.equals(:state_button)
+      width.equals(70)
+      height.equals(70)
     end
   end
 end
