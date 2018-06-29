@@ -40,8 +40,13 @@ class MenuController < UIViewController
 
   def toggle_state
     @account.state = !@account.state?
+    pause_other_accounts
     cdq.save
     set_state_image
+  end
+
+  def pause_other_accounts
+    Player.first.accounts.each {|acct| acct.state = false if acct != @account}
   end
 
   def set_state_image
