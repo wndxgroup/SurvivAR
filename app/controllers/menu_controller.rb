@@ -20,10 +20,9 @@ class MenuController < UIViewController
   end
 
   def didMoveToParentViewController(_)
-    account = Player.first.accounts[Player.first.current_account]
-    @current_state = account.state
-    @layout.get(:username).text          = account.username
-    @layout.get(:survival_time).text     = survival_time(account)
+    @account = Player.first.accounts[Player.first.current_account]
+    @layout.get(:username).text      = @account.username
+    @layout.get(:survival_time).text = survival_time(@account)
     set_state_image
   end
 
@@ -40,12 +39,13 @@ class MenuController < UIViewController
   end
 
   def toggle_state
-    @current_state = !@current_state
+    @account.state = !@account.state?
+    cdq.save
     set_state_image
   end
 
   def set_state_image
-    if @current_state == true
+    if @account.state?
       @layout.get(:state_image_view).image = UIImage.imageNamed('pause')
     else
       @layout.get(:state_image_view).image = UIImage.imageNamed('play')
