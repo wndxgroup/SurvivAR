@@ -1,6 +1,8 @@
 class MenuController < UIViewController
   include SurvivalTime
 
+  attr_accessor :queue
+
   def loadView
     @layout = MenuLayout.new
     self.view = @layout.view
@@ -10,6 +12,7 @@ class MenuController < UIViewController
     @map_button      = @layout.get(:map_button)
     @accounts_button = @layout.get(:accounts_button)
     @state_button    = @layout.get(:state_button)
+    @survival_clock  = @layout.get(:survival_time)
   end
 
   def viewDidLoad
@@ -21,8 +24,9 @@ class MenuController < UIViewController
 
   def didMoveToParentViewController(_)
     @account = Player.first.accounts[Player.first.current_account]
-    @layout.get(:username).text      = @account.username
-    @layout.get(:survival_time).text = survival_time(@account)
+    @layout.get(:username).text = @account.username
+    calculate_survival_time_increase(@account) unless @account.start_time.nil?
+    @survival_clock.text = survival_time(@account)
     set_state_image
   end
 
@@ -49,11 +53,31 @@ class MenuController < UIViewController
     Player.first.accounts.each {|acct| acct.state = false if acct != @account}
   end
 
+  def tick_survival_clock
+    loop do
+      sleep 1
+      break if @tick == false
+      calculate_survival_time_increase(@account)
+      Dispatch::Queue.main.sync do
+        cdq.save
+        @survival_clock.text = survival_time(@account)
+      end
+    end
+  end
+
   def set_state_image
     if @account.state?
       @layout.get(:state_image_view).image = UIImage.imageNamed('pause')
+      @account.start_time = Time.now if @account.start_time.nil?
+      unless @tick == true
+        @tick = true
+        queue = Dispatch::Queue.new('tick_tock')
+        queue.async { tick_survival_clock }
+      end
     else
       @layout.get(:state_image_view).image = UIImage.imageNamed('play')
+      @account.start_time = nil
+      @tick = false
     end
   end
 end

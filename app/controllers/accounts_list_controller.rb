@@ -1,7 +1,7 @@
 class AccountsListController < UIViewController
   include SurvivalTime
 
-  attr_accessor :add_icon_view
+  attr_accessor :add_icon_view, :table_view
 
   def viewDidLoad
     add_header
@@ -10,6 +10,30 @@ class AccountsListController < UIViewController
 
   def didMoveToParentViewController(_)
     @table.reloadData
+    unless @updating_survival_timer
+      @updating_survival_timer = true
+      Player.first.accounts.each.with_index do |acct, i|
+        if acct.state?
+          queue = Dispatch::Queue.new('update_cell_survival_timer')
+          queue.async { update_cell_survival_timer(acct, i) }
+        end
+      end
+    end
+  end
+
+  def update_cell_survival_timer(account, account_index)
+    loop do
+      break if @break_survival_timer_loop
+      sleep 1
+      @table_view.indexPathsForVisibleRows.each do |path|
+        if path.row == account_index
+          Dispatch::Queue.main.sync do
+            cell = @table_view.cellForRowAtIndexPath(path)
+            cell.detailTextLabel.text = survival_time(account)
+          end
+        end
+      end
+    end
   end
 
   def add_header
@@ -63,6 +87,7 @@ class AccountsListController < UIViewController
 
   CELLID = 'CellIdentifier'
   def tableView(tableView, cellForRowAtIndexPath:indexPath)
+    @table_view = tableView
     cell = tableView.dequeueReusableCellWithIdentifier(CELLID) || begin
       cell = UITableViewCell.alloc.initWithStyle(UITableViewCellStyleSubtitle, reuseIdentifier:CELLID)
       cell
@@ -74,6 +99,8 @@ class AccountsListController < UIViewController
   end
 
   def tableView(_, didSelectRowAtIndexPath: indexpath)
+    @break_survival_timer_loop = true
+    @updating_survival_timer = false
     Player.first.current_account = indexpath.row
     parentViewController.set_controller(parentViewController.menu_controller, from: self)
   end

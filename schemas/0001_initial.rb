@@ -14,6 +14,7 @@ schema "0001 initial" do
     integer16 :minutes
     integer16 :seconds
     boolean :state, default: false
+    datetime :start_time, default: nil
 
     belongs_to :player
   end
