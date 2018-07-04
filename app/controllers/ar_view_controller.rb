@@ -21,7 +21,6 @@ class ARViewController < UIViewController
     @scene = SCNScene.scene
     @entity_manager = EntityManager.alloc.init(@scene)
     @scene_view.scene = @scene
-    add_enemies
     add_ui
   end
 
@@ -58,6 +57,7 @@ class ARViewController < UIViewController
   end
 
   def add_enemies
+    puts 'adding enemies'
     enemy = Enemy.new
     node_index = enemy.components.index{ |comp| comp.is_a?(VisualComponent) }
     @entity_manager.add(enemy.components[node_index].node)
