@@ -45,7 +45,6 @@ class MenuController < UIViewController
   def toggle_state
     @account.state = !@account.state?
     pause_other_accounts
-    cdq.save
     set_state_image
   end
 
@@ -79,5 +78,6 @@ class MenuController < UIViewController
       @account.start_time = nil
       @tick = false
     end
+    cdq.save
   end
 end

@@ -12,6 +12,7 @@ class AccountsListController < UIViewController
     @table.reloadData
     unless @updating_survival_timer
       @updating_survival_timer = true
+      @break_survival_timer_loop = false
       Player.first.accounts.each.with_index do |acct, i|
         if acct.state?
           queue = Dispatch::Queue.new('update_cell_survival_timer')
@@ -107,8 +108,12 @@ class AccountsListController < UIViewController
 
   def touchesEnded(_, withEvent: event)
     if event.touchesForView(@add_icon_view)
+      @break_survival_timer_loop = true
+      @updating_survival_timer = false
       parentViewController.set_controller(parentViewController.create_an_account_controller, from: self)
     elsif event.touchesForView(@back_icon_view)
+      @break_survival_timer_loop = true
+      @updating_survival_timer = false
       parentViewController.set_controller(parentViewController.menu_controller, from: self)
     end
   end
