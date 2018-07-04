@@ -14,5 +14,6 @@ class EntityManager
 
   def remove(entity)
     @entites -= entity
+    #remove from scene
   end
 end

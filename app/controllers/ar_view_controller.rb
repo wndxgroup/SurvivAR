@@ -59,12 +59,12 @@ class ARViewController < UIViewController
 
   def add_enemies
     enemy = Enemy.new
-    node_index = enemy.components.index{|comp| comp.is_a?(VisualComponent)}
+    node_index = enemy.components.index{ |comp| comp.is_a?(VisualComponent) }
     @entity_manager.add(enemy.components[node_index].node)
   end
 
   def session(_, didUpdateFrame: _)
-    # player_dies if touching_enemy
+    #player_dies if touching_enemy
   end
 
   def player_dies
