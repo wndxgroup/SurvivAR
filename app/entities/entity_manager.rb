@@ -3,17 +3,15 @@ class EntityManager
 
   def init(scene)
     @scene = scene
-    @entites = []
+    @entities = []
     self
   end
 
   def add(entity)
-    @entites << entity
-    @scene.rootNode.addChildNode(entity)
+    @entities << entity
   end
 
   def remove(entity)
-    @entites -= entity
-    #remove from scene
+    @entities -= entity
   end
 end

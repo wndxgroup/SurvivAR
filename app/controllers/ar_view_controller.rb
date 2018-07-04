@@ -26,7 +26,11 @@ class ARViewController < UIViewController
 
   def viewDidAppear(_)
     @scene_view.session.runWithConfiguration(@scene_config, options: ARSessionRunOptionResetTracking)
-    add_enemies
+    if @entity_manager.entities.count > 0
+      display_enemies
+    else
+      add_enemies
+    end
   end
 
   def add_ui
@@ -57,10 +61,14 @@ class ARViewController < UIViewController
   end
 
   def add_enemies
-    puts 'adding enemies'
     enemy = Enemy.new
     node_index = enemy.components.index{ |comp| comp.is_a?(VisualComponent) }
     @entity_manager.add(enemy.components[node_index].node)
+    display_enemies
+  end
+
+  def display_enemies
+    @entity_manager.entities.each { |entity| @scene.rootNode.addChildNode(entity)}
   end
 
   def session(_, didUpdateFrame: _)
