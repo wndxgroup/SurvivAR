@@ -8,16 +8,20 @@ class AccountsListController < UIViewController
     add_table
   end
 
+  def viewWillAppear(_)
+    @table.reloadData
+  end
+
   def didMoveToParentViewController(_)
     @table.reloadData
     unless @updating_survival_timer
       @updating_survival_timer = true
       @break_survival_timer_loop = false
-      @player.accounts.each.with_index do |acct, i|
-        puts "In didMove #{acct.username}, #{i}"
+      @player.sorted_accounts.each.with_index do |acct, i|
         if acct.state?
           queue = Dispatch::Queue.new('update_cell_survival_timer')
           queue.async { update_cell_survival_timer(acct, i) }
+          break
         end
       end
     end
@@ -30,9 +34,9 @@ class AccountsListController < UIViewController
       @table_view.indexPathsForVisibleRows.each do |path|
         if path.row == account_index
           Dispatch::Queue.main.sync do
-            cell = @table_view.cellForRowAtIndexPath(path)
-            cell.detailTextLabel.text = survival_time(account)
+            @table_view.cellForRowAtIndexPath(path).detailTextLabel.text = survival_time(account)
           end
+          break
         end
       end
     end
@@ -90,22 +94,21 @@ class AccountsListController < UIViewController
 
   CELLID = 'CellIdentifier'
   def tableView(tableView, cellForRowAtIndexPath:indexPath)
-    puts "In cell #{@player.accounts[indexPath.row].username}, #{indexPath.row}"
     @table_view = tableView
     cell = tableView.dequeueReusableCellWithIdentifier(CELLID) || begin
       cell = UITableViewCell.alloc.initWithStyle(UITableViewCellStyleSubtitle, reuseIdentifier:CELLID)
       cell
     end
-    account = @player.accounts[indexPath.row]
+    account = @player.sorted_accounts[indexPath.row]
     cell.textLabel.text = account.username
     cell.detailTextLabel.text = survival_time(account)
     cell
   end
 
-  def tableView(_, didSelectRowAtIndexPath: indexpath)
+  def tableView(_, didSelectRowAtIndexPath: indexPath)
     @break_survival_timer_loop = true
     @updating_survival_timer = false
-    @player.current_account = indexpath.row
+    @player.current_account = indexPath.row
     cdq.save
     parentViewController.set_controller(parentViewController.menu_controller, from: self)
   end

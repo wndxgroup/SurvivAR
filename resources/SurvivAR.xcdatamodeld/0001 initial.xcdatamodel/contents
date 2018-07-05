@@ -2,16 +2,19 @@
 <model name="" userDefinedModelVersionIdentifier="0001 initial" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="2061" systemVersion="12D78" minimumToolsVersion="Xcode 4.3" macOSVersion="Automatic" iOSVersion="Automatic">
   <entity name="Player" syncable="YES" representedClassName="Player" codeGenerationType="class">
     <attribute optional="YES" syncable="YES" attributeType="Integer 16" name="current_account"/>
+    <relationship optional="YES" deletionRule="Nullify" syncable="YES" name="account" inverseEntity="Account" destinationEntity="Account" inverseName="player" maxCount="1"/>
     <relationship optional="YES" deletionRule="Nullify" syncable="YES" name="accounts" inverseEntity="Account" destinationEntity="Account" inverseName="player" toMany="YES"/>
   </entity>
   <entity name="Account" syncable="YES" representedClassName="Account" codeGenerationType="class">
     <attribute optional="NO" syncable="YES" attributeType="String" name="username"/>
+    <attribute optional="NO" syncable="YES" attributeType="Date" name="created_on"/>
     <attribute optional="YES" syncable="YES" attributeType="Integer 16" name="days" defaultValueString="0"/>
     <attribute optional="YES" syncable="YES" attributeType="Integer 16" name="hours" defaultValueString="0"/>
     <attribute optional="YES" syncable="YES" attributeType="Integer 16" name="minutes" defaultValueString="0"/>
     <attribute optional="YES" syncable="YES" attributeType="Integer 16" name="seconds" defaultValueString="0"/>
     <attribute optional="YES" syncable="YES" attributeType="Boolean" name="state" defaultValueString="NO"/>
     <attribute optional="YES" syncable="YES" attributeType="Date" name="start_time"/>
+    <attribute optional="YES" syncable="YES" attributeType="Integer 16" name="seconds_to_next_wave"/>
     <relationship optional="YES" deletionRule="Nullify" syncable="YES" name="player" inverseEntity="Player" destinationEntity="Player" inverseName="accounts" maxCount="1"/>
   </entity>
   <entity name="Wave" syncable="YES" representedClassName="Wave" codeGenerationType="class">

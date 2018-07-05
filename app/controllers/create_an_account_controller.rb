@@ -19,9 +19,7 @@ class CreateAnAccountController < UIViewController
     @username = @username_field.text
     @username_field.text = ''
     return if @username == '' || username_already_exists(player = Player.first)
-    player.accounts.each {|acct| puts "Before appending: #{acct.username}"}
-    player.accounts << Account.create(username: @username)
-    player.accounts.each {|acct| puts "After appending: #{acct.username}"}
+    player.accounts.create(username: @username, created_on: Time.now)
     player.current_account = player.accounts.count - 1
     cdq.save
     push_user_to_menu

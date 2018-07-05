@@ -24,10 +24,11 @@ class MenuController < UIViewController
 
   def didMoveToParentViewController(_)
     @player = Player.first
-    @account = @player.accounts[@player.current_account]
-    @layout.get(:username).text = @account.username
-    calculate_survival_time_increase(@account) unless @account.start_time.nil?
-    @survival_clock.text = survival_time(@account)
+    @logged_in_account = @player.sorted_accounts[@player.current_account]
+    @player.sorted_accounts.each {|acct| @ticking_account = acct if acct.state? }
+    @layout.get(:username).text = @logged_in_account.username
+    calculate_survival_time_increase(@logged_in_account) unless @logged_in_account.start_time.nil?
+    @survival_clock.text = survival_time(@logged_in_account)
     set_state_image
   end
 
@@ -44,43 +45,53 @@ class MenuController < UIViewController
   end
 
   def toggle_state
-    @account.state = !@account.state?
+    @logged_in_account.state = !@logged_in_account.state?
     pause_other_accounts
     set_state_image
   end
 
   def pause_other_accounts
-    @player.accounts.each {|acct| acct.state = false if acct != @account}
+    @player.accounts.each {|acct| acct.state = false if acct != @logged_in_account}
   end
 
-  def tick_survival_clock
+  def tick_survival_clock(account)
     loop do
       sleep 1
       break if @tick == false
-      calculate_survival_time_increase(@account)
+      calculate_survival_time_increase(account)
       Dispatch::Queue.main.sync do
         cdq.save
-        @survival_clock.text = survival_time(@account)
+        @survival_clock.text = survival_time(account) if account == @logged_in_account
       end
     end
   end
 
   def set_state_image
-    if @account.state?
+    if @logged_in_account.state?
       @layout.get(:state_image_view).image = UIImage.imageNamed('pause')
-      @account.start_time = Time.now if @account.start_time.nil?
+      @logged_in_account.start_time = Time.now if @logged_in_account.start_time.nil?
       # set_wave_time
       unless @tick == true
         @tick = true
         queue = Dispatch::Queue.new('tick_tock')
-        queue.async { tick_survival_clock }
+        queue.async { tick_survival_clock(@logged_in_account) }
       end
     else
       @layout.get(:state_image_view).image = UIImage.imageNamed('play')
-      @account.start_time = nil
+      @logged_in_account.start_time = nil
       @tick = false
+      if @ticking_account
+        queue = Dispatch::Queue.new('start_a_new_ticker')
+        queue.async { start_a_new_ticker}
+      end
     end
     cdq.save
+  end
+
+  def start_a_new_ticker
+    sleep 1.01
+    @tick = true
+    tick_survival_clock(@ticking_account)
   end
 
   # def set_wave_time
