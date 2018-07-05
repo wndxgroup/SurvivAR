@@ -15,29 +15,22 @@ schema "0001 initial" do
     integer16 :seconds
     boolean :state, default: false
     datetime :start_time, default: nil
+    integer16 :seconds_to_next_wave, default: nil
 
     belongs_to :player
   end
 
-  # Examples:
-  #
-  # entity "Person" do
-  #   string :name, optional: false
-  #
-  #   has_many :posts
-  # end
-  #
-  # entity "Post" do
-  #   string :title, optional: false
-  #   string :body
-  #
-  #   datetime :created_at
-  #   datetime :updated_at
-  #
-  #   has_many :replies, inverse: "Post.parent"
-  #   belongs_to :parent, inverse: "Post.replies"
-  #
-  #   belongs_to :person
-  # end
+  entity "Wave" do
+    integer16 :wave_number, default: 1
 
+    has_many :enemies
+  end
+
+  entity "Enemy" do
+    double :longitude
+    double :latitude
+    double :altitude
+
+    belongs_to :wave
+  end
 end

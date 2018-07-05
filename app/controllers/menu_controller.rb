@@ -23,7 +23,8 @@ class MenuController < UIViewController
   end
 
   def didMoveToParentViewController(_)
-    @account = Player.first.accounts[Player.first.current_account]
+    @player = Player.first
+    @account = @player.accounts[@player.current_account]
     @layout.get(:username).text = @account.username
     calculate_survival_time_increase(@account) unless @account.start_time.nil?
     @survival_clock.text = survival_time(@account)
@@ -49,7 +50,7 @@ class MenuController < UIViewController
   end
 
   def pause_other_accounts
-    Player.first.accounts.each {|acct| acct.state = false if acct != @account}
+    @player.accounts.each {|acct| acct.state = false if acct != @account}
   end
 
   def tick_survival_clock
@@ -68,6 +69,7 @@ class MenuController < UIViewController
     if @account.state?
       @layout.get(:state_image_view).image = UIImage.imageNamed('pause')
       @account.start_time = Time.now if @account.start_time.nil?
+      # set_wave_time
       unless @tick == true
         @tick = true
         queue = Dispatch::Queue.new('tick_tock')
@@ -79,5 +81,25 @@ class MenuController < UIViewController
       @tick = false
     end
     cdq.save
+  end
+
+  # def set_wave_time
+  #   @player.accounts.each do |acct|
+  #     if acct.state
+  #   end
+  #   set_wave_notification(time)
+  # end
+
+  def set_wave_notification(seconds)
+    center = UNUserNotificationCenter.currentNotificationCenter
+    center.requestAuthorizationWithOptions(UNAuthorizationOptionAlert,
+                                           completionHandler: lambda { |granted, error| })
+    content = UNMutableNotificationContent.new
+    content.title = "Wave 2 Started"
+    content.body = "You've got 20 seconds"
+    trigger = UNTimeIntervalNotificationTrigger.triggerWithTimeInterval(seconds, repeats: false)
+    notification = UNNotificationRequest.requestWithIdentifier('asdf', content: content, trigger: trigger)
+    center.addNotificationRequest(notification,
+                                  withCompletionHandler: lambda { |error| })
   end
 end

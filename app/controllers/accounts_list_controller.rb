@@ -13,7 +13,8 @@ class AccountsListController < UIViewController
     unless @updating_survival_timer
       @updating_survival_timer = true
       @break_survival_timer_loop = false
-      Player.first.accounts.each.with_index do |acct, i|
+      @player.accounts.each.with_index do |acct, i|
+        puts "In didMove #{acct.username}, #{i}"
         if acct.state?
           queue = Dispatch::Queue.new('update_cell_survival_timer')
           queue.async { update_cell_survival_timer(acct, i) }
@@ -83,17 +84,19 @@ class AccountsListController < UIViewController
   end
 
   def tableView(_, numberOfRowsInSection: _)
-    Player.first.accounts.count
+    @player = Player.first
+    @player.accounts.count
   end
 
   CELLID = 'CellIdentifier'
   def tableView(tableView, cellForRowAtIndexPath:indexPath)
+    puts "In cell #{@player.accounts[indexPath.row].username}, #{indexPath.row}"
     @table_view = tableView
     cell = tableView.dequeueReusableCellWithIdentifier(CELLID) || begin
       cell = UITableViewCell.alloc.initWithStyle(UITableViewCellStyleSubtitle, reuseIdentifier:CELLID)
       cell
     end
-    account = Player.first.accounts[indexPath.row]
+    account = @player.accounts[indexPath.row]
     cell.textLabel.text = account.username
     cell.detailTextLabel.text = survival_time(account)
     cell
@@ -102,7 +105,8 @@ class AccountsListController < UIViewController
   def tableView(_, didSelectRowAtIndexPath: indexpath)
     @break_survival_timer_loop = true
     @updating_survival_timer = false
-    Player.first.current_account = indexpath.row
+    @player.current_account = indexpath.row
+    cdq.save
     parentViewController.set_controller(parentViewController.menu_controller, from: self)
   end
 

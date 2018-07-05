@@ -18,10 +18,11 @@ class CreateAnAccountController < UIViewController
   def create_account
     @username = @username_field.text
     @username_field.text = ''
-    return if @username == ''
-    return if username_already_exists
-    Player.first.accounts << Account.create(username: @username)
-    Player.first.current_account = Player.first.accounts.count - 1
+    return if @username == '' || username_already_exists(player = Player.first)
+    player.accounts.each {|acct| puts "Before appending: #{acct.username}"}
+    player.accounts << Account.create(username: @username)
+    player.accounts.each {|acct| puts "After appending: #{acct.username}"}
+    player.current_account = player.accounts.count - 1
     cdq.save
     push_user_to_menu
   end
@@ -38,8 +39,8 @@ class CreateAnAccountController < UIViewController
     create_account
   end
 
-  def username_already_exists
-    Player.first.accounts.each do |acct|
+  def username_already_exists(player)
+    player.accounts.each do |acct|
       if @username == acct.username
         alert = UIAlertController.alertControllerWithTitle('Username Unavailable',
                                                            message: "You already have an account with the username '#{@username}'",

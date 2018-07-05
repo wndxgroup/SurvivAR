@@ -1,0 +1,3 @@
+class Wave < CDQManagedObject
+
+end
