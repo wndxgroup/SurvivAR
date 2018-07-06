@@ -13,10 +13,11 @@ schema "0001 initial" do
     integer16 :days
     integer16 :hours
     integer16 :minutes
-    integer16 :seconds
+    double :seconds
     boolean :state, default: false
     datetime :start_time, default: nil
     integer16 :seconds_to_next_wave, default: nil
+    integer16 :wave, default: 0
 
     belongs_to :player
   end

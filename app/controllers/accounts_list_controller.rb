@@ -1,7 +1,13 @@
 class AccountsListController < UIViewController
   include SurvivalTime
 
-  attr_accessor :add_icon_view, :table_view
+  attr_accessor :add_icon_view
+
+  def init
+    super
+    @table = UITableView.new
+    self
+  end
 
   def viewDidLoad
     add_header
@@ -30,11 +36,10 @@ class AccountsListController < UIViewController
   def update_cell_survival_timer(account, account_index)
     loop do
       break if @break_survival_timer_loop
-      sleep 1
-      @table_view.indexPathsForVisibleRows.each do |path|
+      @table.indexPathsForVisibleRows.each do |path|
         if path.row == account_index
           Dispatch::Queue.main.sync do
-            @table_view.cellForRowAtIndexPath(path).detailTextLabel.text = survival_time(account)
+            @table.cellForRowAtIndexPath(path).detailTextLabel.text = survival_time(account)
           end
           break
         end
@@ -81,7 +86,6 @@ class AccountsListController < UIViewController
   end
 
   def add_table
-    @table = UITableView.new
     @table.frame = [[0, 70], [view.frame.size.width, view.frame.size.height - 70]]
     view.addSubview(@table)
     @table.dataSource = @table.delegate = self
@@ -94,13 +98,12 @@ class AccountsListController < UIViewController
 
   CELLID = 'CellIdentifier'
   def tableView(tableView, cellForRowAtIndexPath:indexPath)
-    @table_view = tableView
     cell = tableView.dequeueReusableCellWithIdentifier(CELLID) || begin
       cell = UITableViewCell.alloc.initWithStyle(UITableViewCellStyleSubtitle, reuseIdentifier:CELLID)
       cell
     end
     account = @player.sorted_accounts[indexPath.row]
-    cell.textLabel.text = account.username
+    cell.textLabel.text = "#{account.username} (#{account.wave})"
     cell.detailTextLabel.text = survival_time(account)
     cell
   end

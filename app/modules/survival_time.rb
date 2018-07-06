@@ -3,7 +3,7 @@ module SurvivalTime
     [account.days,
      account.hours,
      account.minutes,
-     account.seconds].map {|time|
+     account.seconds.floor].map {|time|
       time_str = time.to_s
       time_str = '0' + time_str if time_str.length == 1
       time_str
@@ -15,8 +15,9 @@ module SurvivalTime
   def secs_per_day; secs_per_hour * 24; end
 
   def calculate_survival_time_increase(account)
-    secs = (Time.now - account.start_time).floor
-    account.start_time = Time.now
+    current_time = Time.now
+    secs = (current_time - account.start_time)
+    account.start_time = current_time
     mins = hours = days = 0
 
     if secs >= secs_per_day

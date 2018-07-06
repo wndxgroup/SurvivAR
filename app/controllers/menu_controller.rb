@@ -30,6 +30,8 @@ class MenuController < UIViewController
     calculate_survival_time_increase(@logged_in_account) unless @logged_in_account.start_time.nil?
     @survival_clock.text = survival_time(@logged_in_account)
     set_state_image
+    initiate_survival_clock
+    #set_wave_time if @ticking_account
   end
 
   def push_user_to_vision
@@ -46,71 +48,97 @@ class MenuController < UIViewController
 
   def toggle_state
     @logged_in_account.state = !@logged_in_account.state?
-    pause_other_accounts
+    cdq.save
     set_state_image
-  end
-
-  def pause_other_accounts
-    @player.accounts.each {|acct| acct.state = false if acct != @logged_in_account}
-  end
-
-  def tick_survival_clock(account)
-    loop do
-      sleep 1
-      break if @tick == false
-      calculate_survival_time_increase(account)
-      Dispatch::Queue.main.sync do
-        cdq.save
-        @survival_clock.text = survival_time(account) if account == @logged_in_account
-      end
-    end
+    initiate_survival_clock
   end
 
   def set_state_image
     if @logged_in_account.state?
       @layout.get(:state_image_view).image = UIImage.imageNamed('pause')
-      @logged_in_account.start_time = Time.now if @logged_in_account.start_time.nil?
-      # set_wave_time
-      unless @tick == true
-        @tick = true
-        queue = Dispatch::Queue.new('tick_tock')
-        queue.async { tick_survival_clock(@logged_in_account) }
-      end
     else
       @layout.get(:state_image_view).image = UIImage.imageNamed('play')
-      @logged_in_account.start_time = nil
-      @tick = false
-      if @ticking_account
-        queue = Dispatch::Queue.new('start_a_new_ticker')
-        queue.async { start_a_new_ticker}
+    end
+  end
+
+  def initiate_survival_clock
+    if @logged_in_account.state?
+      pause_other_accounts
+      unless @logged_in_account.start_time
+        @logged_in_account.start_time = Time.now
+      end
+      Dispatch::Queue.new('start survival session').async { @logged_in_account.start_survival_session }
+      Dispatch::Queue.new('update survival clock').async { update_survival_clock }
+    else
+      @logged_in_account.stop_survival_session
+    end
+  end
+
+  def pause_other_accounts
+    @player.accounts.each {|acct| acct.stop_survival_session if acct != @logged_in_account}
+  end
+
+  def update_survival_clock
+    while @logged_in_account.state? do
+      Dispatch::Queue.main.sync do
+        @survival_clock.text = survival_time(@logged_in_account)
       end
     end
-    cdq.save
   end
 
-  def start_a_new_ticker
-    sleep 1.01
-    @tick = true
-    tick_survival_clock(@ticking_account)
+  def set_wave_time
+    unless @ticking_account.seconds_to_next_wave
+      set_wave_notification(@ticking_account.seconds_to_next_wave = 5)#rand * 30)
+    end
   end
-
-  # def set_wave_time
-  #   @player.accounts.each do |acct|
-  #     if acct.state
-  #   end
-  #   set_wave_notification(time)
-  # end
 
   def set_wave_notification(seconds)
     center = UNUserNotificationCenter.currentNotificationCenter
-    center.requestAuthorizationWithOptions(UNAuthorizationOptionAlert,
+    center.requestAuthorizationWithOptions(UNAuthorizationOptionAlert | UNAuthorizationOptionSound,
                                            completionHandler: lambda { |granted, error| })
+    center.delegate = self
     content = UNMutableNotificationContent.new
-    content.title = "Wave 2 Started"
-    content.body = "You've got 20 seconds"
+    content.title = "Wave #{@ticking_account.wave + 1} Started"
+    content.body = 'You\'ve got 30 seconds until they get you.'
+    content.sound = UNNotificationSound.soundNamed('wave-sound.wav')
     trigger = UNTimeIntervalNotificationTrigger.triggerWithTimeInterval(seconds, repeats: false)
     notification = UNNotificationRequest.requestWithIdentifier('asdf', content: content, trigger: trigger)
     center.addNotificationRequest(notification,
                                   withCompletionHandler: lambda { |error| })
+  end
+
+  def userNotificationCenter(center, willPresentNotification: notification, withCompletionHandler: completion_handler)
+    increase_wave_number
+    play_wave_sound
+    alert_user_of_wave
+  end
+
+  def userNotificationCenter(center, didReceiveNotificationResponse: response, withCompletionHandler: completion_handler)
+    increase_wave_number
+    push_user_to_map
+  end
+
+  def play_wave_sound
+    path = NSBundle.mainBundle.pathForResource('wave-sound', ofType:'wav')
+    pathURL = NSURL.fileURLWithPath(path)
+    sound_id = Pointer.new('I')
+    AudioServicesCreateSystemSoundID(pathURL, sound_id)
+    AudioServicesPlaySystemSound(sound_id[0])
+  end
+
+  def alert_user_of_wave
+    alert = UIAlertController.alertControllerWithTitle("Wave #{@ticking_account.wave} Started",
+                                                       message: 'You\'ve got 20 seconds until they get you.',
+                                                       preferredStyle: UIAlertControllerStyleAlert)
+    action = UIAlertAction.actionWithTitle('See Map',
+                                           style: UIAlertActionStyleDefault,
+                                           handler: lambda {|_| push_user_to_map})
+    alert.addAction(action)
+    self.presentViewController(alert, animated: true, completion: nil)
+  end
+
+  def increase_wave_number
+    @ticking_account.wave += 1
+    cdq.save
   end
 end
