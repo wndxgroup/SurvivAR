@@ -17,7 +17,7 @@ class MenuController < UIViewController
     @vision_button   = @layout.get(:vision_button)
     @map_button      = @layout.get(:map_button)
     @accounts_button = @layout.get(:accounts_button)
-    @state_button    = @layout.get(:state_button)
+    @ticking_button    = @layout.get(:ticking_button)
     @survival_clock  = @layout.get(:survival_time)
   end
 
@@ -25,17 +25,18 @@ class MenuController < UIViewController
     @vision_button  .addTarget(self, action: 'push_user_to_vision',   forControlEvents: UIControlEventTouchUpInside)
     @map_button     .addTarget(self, action: 'push_user_to_map',      forControlEvents: UIControlEventTouchUpInside)
     @accounts_button.addTarget(self, action: 'push_user_to_accounts', forControlEvents: UIControlEventTouchUpInside)
-    @state_button   .addTarget(self, action: 'toggle_state',          forControlEvents: UIControlEventTouchUpInside)
+    @ticking_button .addTarget(self, action: 'toggle_ticking',        forControlEvents: UIControlEventTouchUpInside)
   end
 
   def didMoveToParentViewController(_)
     @player = Player.first
-    @logged_in_account = @player.sorted_accounts[@player.current_account]
-    @player.sorted_accounts.each {|acct| @ticking_account = acct if acct.state? }
-    @layout.get(:username).text = @logged_in_account.username
-    calculate_survival_time_increase(@logged_in_account) unless @logged_in_account.start_time.nil?
-    @survival_clock.text = survival_time(@logged_in_account)
-    set_state_image
+    @current_account = @player.sorted_accounts[@player.current_account]
+    @ticking_account = nil
+    @player.sorted_accounts.each {|acct| @ticking_account = acct if acct.ticking? }
+    @layout.get(:username).text = @current_account.username
+    calculate_survival_time_increase(@current_account) unless @current_account.start_time.nil?
+    @survival_clock.text = survival_time(@current_account)
+    set_ticking_image
     initiate_survival_clock
   end
 
@@ -51,16 +52,20 @@ class MenuController < UIViewController
     parentViewController.start_accounts_page(self)
   end
 
-  def toggle_state
+  def push_user_to_death_screen
+    parentViewController.set_controller(parentViewController.death_controller, from: self)
+  end
+
+  def toggle_ticking
     if @ticking_account && @ticking_account.seconds_to_next_wave <= 0
       alert_user_of_ongoing_wave
       return
     end
-    @logged_in_account.state = !@logged_in_account.state?
+    @current_account.ticking = !@current_account.ticking?
     cdq.save
-    set_new_ticking_and_live_accounts
+    set_new_ticking_and_current_accounts
     update_notifications
-    set_state_image
+    set_ticking_image
     initiate_survival_clock
   end
 
@@ -75,52 +80,53 @@ class MenuController < UIViewController
     self.presentViewController(alert, animated: true, completion: nil)
   end
 
-  def set_new_ticking_and_live_accounts
-    if @logged_in_account.state?
-      @ticking_account = @logged_in_account
-      @player.live_account = @player.sorted_accounts.index(@logged_in_account)
+  def set_new_ticking_and_current_accounts
+    if @current_account.ticking?
+      @ticking_account = @current_account
+      @player.ticking_account = @player.sorted_accounts.index(@current_account)
     else
-      @ticking_account = @player.live_account = nil
+      @ticking_account = @player.ticking_account = nil
     end
   end
 
   def update_notifications
     if @ticking_account
-      set_wave_notification(@logged_in_account.seconds_to_next_wave)
+      set_wave_notification(@current_account.seconds_to_next_wave)
     else
       @center.removeAllPendingNotificationRequests
     end
   end
 
-  def set_state_image
-    if @logged_in_account.state?
-      @layout.get(:state_image_view).image = UIImage.imageNamed('pause')
+  def set_ticking_image
+    if @current_account.ticking?
+      @layout.get(:ticking_image_view).image = UIImage.imageNamed('pause')
     else
-      @layout.get(:state_image_view).image = UIImage.imageNamed('play')
+      @layout.get(:ticking_image_view).image = UIImage.imageNamed('play')
     end
   end
 
   def initiate_survival_clock
-    if @logged_in_account.state?
+    if @current_account.ticking?
       pause_other_accounts
-      unless @logged_in_account.start_time
-        @logged_in_account.start_time = Time.now
+      unless @current_account.start_time
+        @current_account.start_time = Time.now
       end
-      Dispatch::Queue.new('start survival session').async { @logged_in_account.start_survival_session }
+      Dispatch::Queue.new('start survival session').async { @current_account.start_survival_session }
       Dispatch::Queue.new('update survival clock').async { update_survival_clock }
     else
-      @logged_in_account.stop_survival_session
+      @current_account.stop_survival_session
     end
   end
 
   def pause_other_accounts
-    @player.accounts.each {|acct| acct.stop_survival_session if acct != @logged_in_account}
+    @player.accounts.each {|acct| acct.stop_survival_session if acct != @current_account}
   end
 
   def update_survival_clock
-    while @logged_in_account.state? do
+    while @current_account.ticking? do
       Dispatch::Queue.main.sync do
-        @survival_clock.text = survival_time(@logged_in_account)
+        @survival_clock.text = survival_time(@current_account)
+        push_user_to_death_screen unless @current_account.alive?
       end
     end
   end

@@ -37,9 +37,9 @@ class MenuLayout < MotionKit::Layout
       title 'Vision'
     end
 
-    add UIButton, :state_button do
+    add UIButton, :ticking_button do
       background_color UIColor.whiteColor
-      add UIImageView, :state_image_view
+      add UIImageView, :ticking_image_view
     end
 
     add UIButton, :accounts_button do
@@ -91,7 +91,7 @@ class MenuLayout < MotionKit::Layout
       height.equals(:map_button)
     end
 
-    constraints(:state_button) do
+    constraints(:ticking_button) do
       top.equals(:map_button, NSLayoutAttributeBottom).plus(button_padding / 2)
       left.equals(:map_button)
       width.equals(:map_button)
@@ -99,14 +99,14 @@ class MenuLayout < MotionKit::Layout
     end
 
     constraints(:accounts_button) do
-      top.equals(:state_button)
+      top.equals(:ticking_button)
       left.equals(:vision_button)
       width.equals(:map_button)
       height.equals(:map_button)
     end
 
-    constraints(:state_image_view) do
-      center.equals(:state_button)
+    constraints(:ticking_image_view) do
+      center.equals(:ticking_button)
       width.equals(70)
       height.equals(70)
     end

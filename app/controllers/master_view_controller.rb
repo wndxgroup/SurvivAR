@@ -1,6 +1,6 @@
 class MasterViewController < UIViewController
   attr_accessor :menu_controller, :ar_view_controller, :map_view_controller, :current_map_location,
-                :create_an_account_controller
+                :create_an_account_controller, :death_controller
 
   def init
     super
@@ -23,7 +23,7 @@ class MasterViewController < UIViewController
 
   def push_to_initial_controller
     if @player.current_account
-      if @player.sorted_accounts[@player.live_account].seconds_to_next_wave <= -30
+      if @player.ticking_account && @player.sorted_accounts[@player.ticking_account].seconds_to_next_wave <= -30 || @player.sorted_accounts[@player.current_account].seconds_to_next_wave <= -30
         set_controller(@death_controller, from: nil)
       else
         set_controller(@menu_controller, from: nil)

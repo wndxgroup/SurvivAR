@@ -4,7 +4,7 @@ class Account < CDQManagedObject
 
   def start_survival_session
     loop do
-      unless self.state?
+      unless self.ticking?
         self.start_time = nil
         break
       end
@@ -13,14 +13,14 @@ class Account < CDQManagedObject
         cdq.save
         if seconds_to_next_wave <= -20
           stop_survival_session
-          puts 'died'
+          self.alive = false
         end
       end
     end
   end
 
   def stop_survival_session
-    self.state = false
+    self.ticking = false
     self.start_time = nil
     cdq.save
   end

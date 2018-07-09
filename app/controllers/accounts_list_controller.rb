@@ -19,17 +19,26 @@ class AccountsListController < UIViewController
   end
 
   def didMoveToParentViewController(_)
+    update_header_buttons
     @table.reloadData
     unless @updating_survival_timer
       @updating_survival_timer = true
       @break_survival_timer_loop = false
       @player.sorted_accounts.each.with_index do |acct, i|
-        if acct.state?
+        if acct.ticking?
           queue = Dispatch::Queue.new('update_cell_survival_timer')
           queue.async { update_cell_survival_timer(acct, i) }
           break
         end
       end
+    end
+  end
+
+  def update_header_buttons
+    if view.subviews[0]
+      view.subviews[0].removeFromSuperview
+      add_header
+      add_table
     end
   end
 
@@ -67,14 +76,17 @@ class AccountsListController < UIViewController
     end
     bar.addSubview(title)
 
+    @player ||= Player.first
     icon_width = 40
-    @back_icon_view = UIView.new
-    @back_icon_view.frame = [[20, bar_height / 2 - icon_width / 2], [icon_width, icon_width]]
-    back_icon = UIImage.imageNamed('back')
-    back_icon_parent = UIImageView.alloc.initWithImage(back_icon)
-    back_icon_parent.frame = [[0, 0], [icon_width, icon_width]]
-    @back_icon_view.addSubview(back_icon_parent)
-    bar.addSubview(@back_icon_view)
+    if @player.sorted_accounts[@player.current_account].alive?
+      @back_icon_view = UIView.new
+      @back_icon_view.frame = [[20, bar_height / 2 - icon_width / 2], [icon_width, icon_width]]
+      back_icon = UIImage.imageNamed('back')
+      back_icon_parent = UIImageView.alloc.initWithImage(back_icon)
+      back_icon_parent.frame = [[0, 0], [icon_width, icon_width]]
+      @back_icon_view.addSubview(back_icon_parent)
+      bar.addSubview(@back_icon_view)
+    end
 
     @add_icon_view = UIView.new
     @add_icon_view.frame = [[view.frame.size.width - icon_width - 20, bar_height / 2 - icon_width / 2], [icon_width, icon_width]]
@@ -92,7 +104,6 @@ class AccountsListController < UIViewController
   end
 
   def tableView(_, numberOfRowsInSection: _)
-    @player = Player.first
     @player.accounts.count
   end
 
@@ -103,7 +114,8 @@ class AccountsListController < UIViewController
       cell
     end
     account = @player.sorted_accounts[indexPath.row]
-    cell.textLabel.text = "#{account.username} (#{account.wave})"
+    bracketed_info = account.alive? ? account.wave : 'RIP'
+    cell.textLabel.text = "#{account.username} (#{bracketed_info})"
     cell.detailTextLabel.text = survival_time(account)
     cell
   end
@@ -113,7 +125,11 @@ class AccountsListController < UIViewController
     @updating_survival_timer = false
     @player.current_account = indexPath.row
     cdq.save
-    parentViewController.set_controller(parentViewController.menu_controller, from: self)
+    if @player.sorted_accounts[@player.current_account].alive?
+      parentViewController.set_controller(parentViewController.menu_controller, from: self)
+    else
+      parentViewController.set_controller(parentViewController.death_controller, from: self)
+    end
   end
 
   def touchesEnded(_, withEvent: event)
