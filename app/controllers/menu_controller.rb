@@ -3,6 +3,12 @@ class MenuController < UIViewController
 
   attr_accessor :queue
 
+  def init
+    super
+      @center = UNUserNotificationCenter.currentNotificationCenter
+    self
+  end
+
   def loadView
     @layout = MenuLayout.new
     self.view = @layout.view
@@ -31,7 +37,6 @@ class MenuController < UIViewController
     @survival_clock.text = survival_time(@logged_in_account)
     set_state_image
     initiate_survival_clock
-    #set_wave_time if @ticking_account
   end
 
   def push_user_to_vision
@@ -47,10 +52,44 @@ class MenuController < UIViewController
   end
 
   def toggle_state
+    if @ticking_account && @ticking_account.seconds_to_next_wave <= 0
+      alert_user_of_ongoing_wave
+      return
+    end
     @logged_in_account.state = !@logged_in_account.state?
     cdq.save
+    set_new_ticking_and_live_accounts
+    update_notifications
     set_state_image
     initiate_survival_clock
+  end
+
+  def alert_user_of_ongoing_wave
+    alert = UIAlertController.alertControllerWithTitle('Wave In Progress',
+                                                       message: 'Nice try. You can\'t pause a wave.',
+                                                       preferredStyle: UIAlertControllerStyleAlert)
+    action = UIAlertAction.actionWithTitle('Continue battle',
+                                           style: UIAlertActionStyleDefault,
+                                           handler: nil)
+    alert.addAction(action)
+    self.presentViewController(alert, animated: true, completion: nil)
+  end
+
+  def set_new_ticking_and_live_accounts
+    if @logged_in_account.state?
+      @ticking_account = @logged_in_account
+      @player.live_account = @player.sorted_accounts.index(@logged_in_account)
+    else
+      @ticking_account = @player.live_account = nil
+    end
+  end
+
+  def update_notifications
+    if @ticking_account
+      set_wave_notification(@logged_in_account.seconds_to_next_wave)
+    else
+      @center.removeAllPendingNotificationRequests
+    end
   end
 
   def set_state_image
@@ -86,36 +125,42 @@ class MenuController < UIViewController
     end
   end
 
-  def set_wave_time
-    unless @ticking_account.seconds_to_next_wave
-      set_wave_notification(@ticking_account.seconds_to_next_wave = 5)#rand * 30)
-    end
-  end
-
   def set_wave_notification(seconds)
-    center = UNUserNotificationCenter.currentNotificationCenter
-    center.requestAuthorizationWithOptions(UNAuthorizationOptionAlert | UNAuthorizationOptionSound,
-                                           completionHandler: lambda { |granted, error| })
-    center.delegate = self
+    @center.requestAuthorizationWithOptions(UNAuthorizationOptionAlert | UNAuthorizationOptionSound,
+                                            completionHandler: lambda { |granted, error| })
+    @center.delegate = self
     content = UNMutableNotificationContent.new
     content.title = "Wave #{@ticking_account.wave + 1} Started"
     content.body = 'You\'ve got 30 seconds until they get you.'
     content.sound = UNNotificationSound.soundNamed('wave-sound.wav')
     trigger = UNTimeIntervalNotificationTrigger.triggerWithTimeInterval(seconds, repeats: false)
-    notification = UNNotificationRequest.requestWithIdentifier('asdf', content: content, trigger: trigger)
-    center.addNotificationRequest(notification,
-                                  withCompletionHandler: lambda { |error| })
+    notification = UNNotificationRequest.requestWithIdentifier('_', content: content, trigger: trigger)
+    @center.addNotificationRequest(notification, withCompletionHandler: lambda { |error| })
   end
 
-  def userNotificationCenter(center, willPresentNotification: notification, withCompletionHandler: completion_handler)
+  def userNotificationCenter(center, willPresentNotification: response, withCompletionHandler: completion_handler)
     increase_wave_number
     play_wave_sound
+    start_wave
     alert_user_of_wave
+
+    completion_handler.call(UNNotificationPresentationOptionSound)
   end
 
   def userNotificationCenter(center, didReceiveNotificationResponse: response, withCompletionHandler: completion_handler)
     increase_wave_number
     push_user_to_map
+
+    completion_handler.call
+  end
+
+  def increase_wave_number
+    @ticking_account.wave += 1
+    cdq.save
+  end
+
+  def start_wave
+
   end
 
   def play_wave_sound
@@ -128,17 +173,12 @@ class MenuController < UIViewController
 
   def alert_user_of_wave
     alert = UIAlertController.alertControllerWithTitle("Wave #{@ticking_account.wave} Started",
-                                                       message: 'You\'ve got 20 seconds until they get you.',
+                                                       message: 'You\'ve got 30 seconds until they get you.',
                                                        preferredStyle: UIAlertControllerStyleAlert)
     action = UIAlertAction.actionWithTitle('See Map',
                                            style: UIAlertActionStyleDefault,
                                            handler: lambda {|_| push_user_to_map})
     alert.addAction(action)
     self.presentViewController(alert, animated: true, completion: nil)
-  end
-
-  def increase_wave_number
-    @ticking_account.wave += 1
-    cdq.save
   end
 end

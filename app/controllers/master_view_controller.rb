@@ -13,14 +13,21 @@ class MasterViewController < UIViewController
   end
 
   def viewDidLoad
-    @create_an_account_controller = CreateAnAccountController.new
-    @menu_controller = MenuController.new
-    addChildViewController(@create_an_account_controller)
-    addChildViewController(@menu_controller)
+    addChildViewController(@create_an_account_controller = CreateAnAccountController.new)
+    addChildViewController(@menu_controller = MenuController.new)
+    addChildViewController(@death_controller = DeathController.new)
 
-    player = Player.first || Player.create
-    if player.current_account
-      set_controller(@menu_controller, from: nil)
+    @player = Player.first || Player.create
+    push_to_initial_controller
+  end
+
+  def push_to_initial_controller
+    if @player.current_account
+      if @player.sorted_accounts[@player.live_account].seconds_to_next_wave <= -30
+        set_controller(@death_controller, from: nil)
+      else
+        set_controller(@menu_controller, from: nil)
+      end
     else
       set_controller(@create_an_account_controller, from: nil)
     end

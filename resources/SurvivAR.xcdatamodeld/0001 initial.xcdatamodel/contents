@@ -2,6 +2,7 @@
 <model name="" userDefinedModelVersionIdentifier="0001 initial" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="2061" systemVersion="12D78" minimumToolsVersion="Xcode 4.3" macOSVersion="Automatic" iOSVersion="Automatic">
   <entity name="Player" syncable="YES" representedClassName="Player" codeGenerationType="class">
     <attribute optional="YES" syncable="YES" attributeType="Integer 16" name="current_account"/>
+    <attribute optional="YES" syncable="YES" attributeType="Integer 16" name="live_account"/>
     <relationship optional="YES" deletionRule="Nullify" syncable="YES" name="accounts" inverseEntity="Account" destinationEntity="Account" inverseName="player" toMany="YES"/>
   </entity>
   <entity name="Account" syncable="YES" representedClassName="Account" codeGenerationType="class">
@@ -13,7 +14,7 @@
     <attribute optional="YES" syncable="YES" attributeType="Double" name="seconds" defaultValueString="0.0"/>
     <attribute optional="YES" syncable="YES" attributeType="Boolean" name="state" defaultValueString="NO"/>
     <attribute optional="YES" syncable="YES" attributeType="Date" name="start_time"/>
-    <attribute optional="YES" syncable="YES" attributeType="Integer 16" name="seconds_to_next_wave"/>
+    <attribute optional="YES" syncable="YES" attributeType="Double" name="seconds_to_next_wave" defaultValueString="3.0"/>
     <attribute optional="YES" syncable="YES" attributeType="Integer 16" name="wave" defaultValueString="0"/>
     <relationship optional="YES" deletionRule="Nullify" syncable="YES" name="player" inverseEntity="Player" destinationEntity="Player" inverseName="accounts" maxCount="1"/>
   </entity>

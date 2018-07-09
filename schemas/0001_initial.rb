@@ -3,6 +3,7 @@ schema "0001 initial" do
 
   entity "Player" do
     integer16 :current_account, default: nil
+    integer16 :live_account, default: nil
 
     has_many :accounts
   end
@@ -16,7 +17,7 @@ schema "0001 initial" do
     double :seconds
     boolean :state, default: false
     datetime :start_time, default: nil
-    integer16 :seconds_to_next_wave, default: nil
+    double :seconds_to_next_wave, default: 3.0
     integer16 :wave, default: 0
 
     belongs_to :player

@@ -9,7 +9,13 @@ class Account < CDQManagedObject
         break
       end
       calculate_survival_time_increase(self)
-      Dispatch::Queue.main.sync { cdq.save }
+      Dispatch::Queue.main.sync do
+        cdq.save
+        if seconds_to_next_wave <= -20
+          stop_survival_session
+          puts 'died'
+        end
+      end
     end
   end
 
