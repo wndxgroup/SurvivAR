@@ -34,11 +34,27 @@ class ARViewController < UIViewController
   end
 
   def add_ui
+    @mini_map_view = MKMapView.alloc.init
+    @mini_map_view.showsUserLocation = true
+    @mini_map_view.rotateEnabled     = false
+    @mini_map_view.scrollEnabled     = false
+    @mini_map_view.showsCompass      = false
+    @mini_map_view.zoomEnabled       = false
+    @mini_map_view.delegate          = self
+
+    view.addSubview(@mini_map_view)
+    @mini_map_view.translatesAutoresizingMaskIntoConstraints = false
+    @mini_map_view.widthAnchor.constraintEqualToConstant(120).active = true
+    @mini_map_view.heightAnchor.constraintEqualToConstant(70).active = true
+    @mini_map_view.leftAnchor.constraintEqualToAnchor(view.safeAreaLayoutGuide.leftAnchor).active = true
+    @mini_map_view.bottomAnchor.constraintEqualToAnchor(view.safeAreaLayoutGuide.bottomAnchor).active = true
+
     @menu_view = UIView.new
     view.addSubview(@menu_view)
     @menu_view.translatesAutoresizingMaskIntoConstraints = false
     @menu_view.widthAnchor.constraintEqualToConstant(70).active = true
     @menu_view.heightAnchor.constraintEqualToConstant(70).active = true
+    @menu_view.rightAnchor.constraintEqualToAnchor(view.safeAreaLayoutGuide.rightAnchor).active = true
     @menu_view.bottomAnchor.constraintEqualToAnchor(view.safeAreaLayoutGuide.bottomAnchor).active = true
 
     menu_icon = UIImage.imageNamed('menu-button')
@@ -46,18 +62,28 @@ class ARViewController < UIViewController
     menu_icon_view.frame = [[0 ,0], [70, 70]]
     @menu_view.addSubview(menu_icon_view)
 
-    @map_view = UIView.new
-    view.addSubview(@map_view)
-    @map_view.translatesAutoresizingMaskIntoConstraints = false
-    @map_view.widthAnchor.constraintEqualToConstant(70).active = true
-    @map_view.heightAnchor.constraintEqualToConstant(70).active = true
-    @map_view.rightAnchor.constraintEqualToAnchor(view.safeAreaLayoutGuide.rightAnchor).active = true
-    @map_view.bottomAnchor.constraintEqualToAnchor(view.safeAreaLayoutGuide.bottomAnchor).active = true
+    # @map_view = UIView.new
+    # view.addSubview(@map_view)
+    # @map_view.translatesAutoresizingMaskIntoConstraints = false
+    # @map_view.widthAnchor.constraintEqualToConstant(70).active = true
+    # @map_view.heightAnchor.constraintEqualToConstant(70).active = true
+    # @map_view.rightAnchor.constraintEqualToAnchor(view.safeAreaLayoutGuide.rightAnchor).active = true
+    # @map_view.bottomAnchor.constraintEqualToAnchor(view.safeAreaLayoutGuide.bottomAnchor).active = true
 
-    map_icon = UIImage.imageNamed('map-button')
-    map_icon_view = UIImageView.alloc.initWithImage(map_icon)
-    map_icon_view.frame = [[0, 0], [70, 70]]
-    @map_view.addSubview(map_icon_view)
+    # map_icon = UIImage.imageNamed('map-button')
+    # map_icon_view = UIImageView.alloc.initWithImage(map_icon)
+    # map_icon_view.frame = [[0, 0], [70, 70]]
+    # @map_view.addSubview(map_icon_view)
+  end
+
+  def mapViewDidFinishLoadingMap(_)
+    Dispatch::Queue.new('set_map_region_and_tracking_mode').async do
+      while parentViewController.current_map_location.nil?; end
+      span = MKCoordinateSpanMake(0.0125, 0.0125)
+      region = MKCoordinateRegionMake(parentViewController.current_map_location.coordinate, span)
+      @mini_map_view.setRegion(region, animated: false)
+      @mini_map_view.setUserTrackingMode(MKUserTrackingModeFollowWithHeading, animated: false)
+    end
   end
 
   def add_enemies
@@ -89,8 +115,8 @@ class ARViewController < UIViewController
   def touchesEnded(_, withEvent: event)
     if event.touchesForView(@menu_view)
       push_user_to_menu
-    elsif event.touchesForView(@map_view)
-      push_user_to_map
+    # elsif event.touchesForView(@map_view)
+    #   push_user_to_map
     else
       shoot
     end

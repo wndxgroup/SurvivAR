@@ -1,9 +1,7 @@
-
 schema "0001 initial" do
 
   entity "Player" do
     integer16 :current_account, default: nil
-    integer16 :ticking_account, default: nil
 
     has_many :accounts
   end
@@ -15,12 +13,8 @@ schema "0001 initial" do
     integer16 :hours
     integer16 :minutes
     double :seconds
-    boolean :ticking, default: false
     boolean :alive, default: true
-    boolean :in_wave, default: false
     datetime :start_time, default: nil
-    double :seconds_to_next_wave, default: 3.0
-    integer16 :wave, default: 0
 
     belongs_to :player
   end

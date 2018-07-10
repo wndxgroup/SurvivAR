@@ -23,11 +23,7 @@ class MasterViewController < UIViewController
 
   def push_to_initial_controller
     if @player.current_account
-      if @player.ticking_account && @player.sorted_accounts[@player.ticking_account].seconds_to_next_wave <= -30 || @player.sorted_accounts[@player.current_account].seconds_to_next_wave <= -30
-        set_controller(@death_controller, from: nil)
-      else
-        set_controller(@menu_controller, from: nil)
-      end
+      set_controller(@menu_controller, from: nil)
     else
       set_controller(@create_an_account_controller, from: nil)
     end
@@ -69,6 +65,21 @@ class MasterViewController < UIViewController
       addChildViewController(@accounts_list_controller)
     end
     set_controller(@accounts_list_controller, from: old_controller)
+  end
+
+  def start_wave(account)
+    num_enemies = (1..2).sum
+    relative_locations = []
+    cl_locations = []
+
+    for i in num_enemies
+      x = rand * 500
+      x = -x if rand < 0.5
+      z = Math.sqrt(500**2 - x**2)
+      z = -z if rand < 0.5
+    end
+    # Calculate relative locations of each enemy
+    # Calculate CLLocations to each enemy
   end
 
   def locationManager(_, didUpdateLocations: locations)

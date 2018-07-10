@@ -36,9 +36,6 @@ module SurvivalTime
     end
 
     increase_survival_time(account, days: days, hours: hours, mins: mins, secs: secs)
-    if account.seconds_to_next_wave > 0
-      decrease_wave_time(account, days: days, hours: hours, mins: mins, secs: secs)
-    end
   end
 
   def increase_survival_time(account, days: days, hours: hours, mins: mins, secs: secs)
@@ -61,12 +58,5 @@ module SurvivalTime
     end
 
     account.days += days
-  end
-
-  def decrease_wave_time(account, days: days, hours: hours, mins: mins, secs: secs)
-    total_seconds = days * secs_per_day + hours * secs_per_hour + mins * secs_per_min + secs
-    account.seconds_to_next_wave -= total_seconds
-    account.seconds_to_next_wave = 0 if account.seconds_to_next_wave < 0
-    account.in_wave = true if account.seconds_to_next_wave == 0
   end
 end

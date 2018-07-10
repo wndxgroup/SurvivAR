@@ -5,7 +5,7 @@ class StartHereLayout < MotionKit::Layout
     add UIView, :header do
       background_color UIColor.colorWithRed(1, green: 189.0/255, blue: 74.0/255, alpha: 1)
       add UILabel, :header_title do
-        text 'Create an Account'
+        text 'Start a New Game'
         text_alignment UITextAlignmentCenter
         font UIFont.systemFontOfSize(24)
       end
@@ -18,7 +18,7 @@ class StartHereLayout < MotionKit::Layout
 
     add UITextField, :username do
       background_color UIColor.whiteColor
-      placeholder 'Enter your name'
+      placeholder 'Enter a name'
       text_alignment UITextAlignmentCenter
       font UIFont.systemFontOfSize(20)
       text_color UIColor.blackColor
@@ -28,7 +28,7 @@ class StartHereLayout < MotionKit::Layout
     end
 
     add UIButton, :start_button do
-      title 'Submit'
+      title 'Begin'
       background_color UIColor.redColor
       title_color UIColor.blackColor
       font UIFont.systemFontOfSize(20)

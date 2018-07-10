@@ -1,5 +1,6 @@
 class CreateAnAccountController < UIViewController
   include CDQ
+  include Survival
 
   def loadView
     @layout = StartHereLayout.new
@@ -19,18 +20,15 @@ class CreateAnAccountController < UIViewController
     @username = @username_field.text
     @username_field.text = ''
     return if @username == '' || username_already_exists(player = Player.first)
-    player.accounts.create(username: @username, created_on: Time.now)
+    @current_account = player.accounts.create(username: @username, created_on: Time.now)
     player.current_account = player.accounts.count - 1
     cdq.save
-    push_user_to_menu
+    Dispatch::Queue.new('start survival session').async { @current_account.start_survival_session }
+    parentViewController.start_vision(self)
   end
 
   def didMoveToParentViewController(_)
     @username_field.becomeFirstResponder
-  end
-
-  def push_user_to_menu
-    parentViewController.set_controller(parentViewController.menu_controller, from: self)
   end
 
   def textFieldShouldReturn(_)

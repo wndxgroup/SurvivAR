@@ -25,7 +25,7 @@ class AccountsListController < UIViewController
       @updating_survival_timer = true
       @break_survival_timer_loop = false
       @player.sorted_accounts.each.with_index do |acct, i|
-        if acct.ticking?
+        if acct.start_time
           queue = Dispatch::Queue.new('update_cell_survival_timer')
           queue.async { update_cell_survival_timer(acct, i) }
           break
@@ -114,8 +114,8 @@ class AccountsListController < UIViewController
       cell
     end
     account = @player.sorted_accounts[indexPath.row]
-    bracketed_info = account.alive? ? account.wave : 'RIP'
-    cell.textLabel.text = "#{account.username} (#{bracketed_info})"
+    additional_info = '(RIP)' if !account.alive?
+    cell.textLabel.text = "#{account.username} #{additional_info}"
     cell.detailTextLabel.text = survival_time(account)
     cell
   end
@@ -123,6 +123,7 @@ class AccountsListController < UIViewController
   def tableView(_, didSelectRowAtIndexPath: indexPath)
     @break_survival_timer_loop = true
     @updating_survival_timer = false
+    @player.sorted_accounts[@player.current_account].start_time = nil
     @player.current_account = indexPath.row
     cdq.save
     if @player.sorted_accounts[@player.current_account].alive?
@@ -134,6 +135,9 @@ class AccountsListController < UIViewController
 
   def touchesEnded(_, withEvent: event)
     if event.touchesForView(@add_icon_view)
+      @player.sorted_accounts[@player.current_account].start_time = nil
+      @player.current_account = nil
+      cdq.save
       @break_survival_timer_loop = true
       @updating_survival_timer = false
       parentViewController.set_controller(parentViewController.create_an_account_controller, from: self)

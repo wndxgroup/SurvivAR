@@ -27,14 +27,14 @@ class MenuLayout < MotionKit::Layout
       font UIFont.systemFontOfSize(24)
       background_color UIColor.greenColor
       title_color UIColor.whiteColor
-      title 'Map'
+      title '2D'
     end
 
     add UIButton, :vision_button do
       font UIFont.systemFontOfSize(24)
       background_color UIColor.blueColor
       title_color UIColor.whiteColor
-      title 'Vision'
+      title 'AR'
     end
 
     add UIButton, :ticking_button do
