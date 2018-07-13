@@ -7,7 +7,6 @@
   <entity name="Account" syncable="YES" representedClassName="Account" codeGenerationType="class">
     <attribute optional="NO" syncable="YES" attributeType="String" name="username"/>
     <attribute optional="NO" syncable="YES" attributeType="Date" name="created_on"/>
-    <attribute optional="YES" syncable="YES" attributeType="Integer 16" name="days" defaultValueString="0"/>
     <attribute optional="YES" syncable="YES" attributeType="Integer 16" name="hours" defaultValueString="0"/>
     <attribute optional="YES" syncable="YES" attributeType="Integer 16" name="minutes" defaultValueString="0"/>
     <attribute optional="YES" syncable="YES" attributeType="Double" name="seconds" defaultValueString="0.0"/>

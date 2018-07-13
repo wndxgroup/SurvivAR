@@ -9,7 +9,6 @@ schema "0001 initial" do
   entity "Account" do
     string :username, optional: false
     datetime :created_on, optional: false
-    integer16 :days
     integer16 :hours
     integer16 :minutes
     double :seconds

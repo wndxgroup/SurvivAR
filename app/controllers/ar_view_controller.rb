@@ -21,6 +21,12 @@ class ARViewController < UIViewController
     @scene = SCNScene.scene
     @entity_manager = EntityManager.alloc.init(@scene)
     @scene_view.scene = @scene
+
+    @survivor = Survivor.new
+    node = @survivor.survivor_node
+    @scene.rootNode.addChildNode(node)
+    @entity_manager.assign_survivor(@survivor)
+
     add_ui
   end
 
@@ -29,7 +35,7 @@ class ARViewController < UIViewController
     if @entity_manager.entities.count > 0
       display_enemies
     else
-      add_enemies
+      spawn_enemy
     end
   end
 
@@ -52,14 +58,13 @@ class ARViewController < UIViewController
     @menu_view = UIView.new
     view.addSubview(@menu_view)
     @menu_view.translatesAutoresizingMaskIntoConstraints = false
-    @menu_view.widthAnchor.constraintEqualToConstant(70).active = true
+    @menu_view.widthAnchor.constraintEqualToConstant(70 + 120).active = true
     @menu_view.heightAnchor.constraintEqualToConstant(70).active = true
-    @menu_view.rightAnchor.constraintEqualToAnchor(view.safeAreaLayoutGuide.rightAnchor).active = true
     @menu_view.bottomAnchor.constraintEqualToAnchor(view.safeAreaLayoutGuide.bottomAnchor).active = true
 
     menu_icon = UIImage.imageNamed('menu-button')
     menu_icon_view = UIImageView.alloc.initWithImage(menu_icon)
-    menu_icon_view.frame = [[0 ,0], [70, 70]]
+    menu_icon_view.frame = [[120 ,0], [70, 70]]
     @menu_view.addSubview(menu_icon_view)
 
     # @map_view = UIView.new
@@ -86,11 +91,12 @@ class ARViewController < UIViewController
     end
   end
 
-  def add_enemies
+  def spawn_enemy
     enemy = Enemy.new
-    node_index = enemy.components.index{ |comp| comp.is_a?(VisualComponent) }
-    @entity_manager.add(enemy.components[node_index].node)
-    display_enemies
+    enemy.add_components(@entity_manager)
+    node = enemy.set_spawning_location
+    @entity_manager.add(enemy)
+    @scene.rootNode.addChildNode(node)
   end
 
   def display_enemies
@@ -151,5 +157,23 @@ class ARViewController < UIViewController
     bullet = SCNNode.nodeWithGeometry(bullet_geometry)
     bullet.position = @scene_view.pointOfView.position
     @scene.rootNode.addChildNode(bullet)
+  end
+
+  # def session(_, didUpdateFrame: _)
+  #   current_update_time = Time.now
+  #   secs_since_last_frame = 0
+  #   if @previous_update_time
+  #     secs_since_last_frame = current_update_time - @previous_update_time
+  #   end
+  #
+  #
+  #
+  #   @previous_update_time = current_update_time
+  #   pos = @entity_manager.entities[0].componentForClass(VisualComponent).node.position
+  #   puts "X: #{pos.x}  Z: #{pos.z}"
+  # end
+
+  def renderer(renderer, updateAtTime: time)
+    @entity_manager.updateWithDeltaTime(time)
   end
 end
