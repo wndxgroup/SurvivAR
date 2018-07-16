@@ -1,7 +1,7 @@
 class ARViewController < UIViewController
   attr_accessor :scene_view, :scene_config
 
-  def enemy_radius; 0.2; end
+  def enemy_radius; 1.0; end
 
   def init
     super
@@ -19,7 +19,7 @@ class ARViewController < UIViewController
     self.view = @scene_view
 
     @scene = SCNScene.scene
-    @entity_manager = EntityManager.alloc.init(@scene)
+    @entity_manager = EntityManager.alloc.init(@scene, @scene_view)
     @scene_view.scene = @scene
 
     @survivor = Survivor.new
@@ -66,19 +66,6 @@ class ARViewController < UIViewController
     menu_icon_view = UIImageView.alloc.initWithImage(menu_icon)
     menu_icon_view.frame = [[120 ,0], [70, 70]]
     @menu_view.addSubview(menu_icon_view)
-
-    # @map_view = UIView.new
-    # view.addSubview(@map_view)
-    # @map_view.translatesAutoresizingMaskIntoConstraints = false
-    # @map_view.widthAnchor.constraintEqualToConstant(70).active = true
-    # @map_view.heightAnchor.constraintEqualToConstant(70).active = true
-    # @map_view.rightAnchor.constraintEqualToAnchor(view.safeAreaLayoutGuide.rightAnchor).active = true
-    # @map_view.bottomAnchor.constraintEqualToAnchor(view.safeAreaLayoutGuide.bottomAnchor).active = true
-
-    # map_icon = UIImage.imageNamed('map-button')
-    # map_icon_view = UIImageView.alloc.initWithImage(map_icon)
-    # map_icon_view.frame = [[0, 0], [70, 70]]
-    # @map_view.addSubview(map_icon_view)
   end
 
   def mapViewDidFinishLoadingMap(_)
@@ -104,25 +91,32 @@ class ARViewController < UIViewController
   end
 
   def session(_, didUpdateFrame: _)
-    #player_dies if touching_enemy
+    player_dies if touching_enemy
   end
 
   def player_dies
-    puts 'dead'
+    player = Player.first
+    current_player = player.accounts[player.current_account]
+    current_player.alive = false
+    current_player.start_time = nil
+    cdq.save
+    push_user_to_death_screen
   end
 
   def touching_enemy
     player = @scene_view.pointOfView.position
-    Math.sqrt((@target_pos.x - player.x)**2 +
-                  (@target_pos.y - player.y)**2 +
-                  (@target_pos.z - player.z)**2)  <= enemy_radius
+    @entity_manager.entities.any? do |entity|
+      entity_position = entity.componentForClass(VisualComponent).node.position
+      Math.sqrt((entity_position.x - player.x)**2 +
+                (entity_position.y - player.y)**2 +
+                (entity_position.z - player.z)**2)  <= enemy_radius
+
+    end
   end
 
   def touchesEnded(_, withEvent: event)
     if event.touchesForView(@menu_view)
       push_user_to_menu
-    # elsif event.touchesForView(@map_view)
-    #   push_user_to_map
     else
       shoot
     end
@@ -133,13 +127,9 @@ class ARViewController < UIViewController
     parentViewController.set_controller(parentViewController.menu_controller, from: self)
   end
 
-  def push_user_to_map
+  def push_user_to_death_screen
     pause_session
-    unless parentViewController.map_view_controller
-      parentViewController.start_map(self)
-    else
-      parentViewController.set_controller(parentViewController.map_view_controller, from: self)
-    end
+    parentViewController.set_controller(parentViewController.death_controller, from: self)
   end
 
   def pause_session
@@ -158,20 +148,6 @@ class ARViewController < UIViewController
     bullet.position = @scene_view.pointOfView.position
     @scene.rootNode.addChildNode(bullet)
   end
-
-  # def session(_, didUpdateFrame: _)
-  #   current_update_time = Time.now
-  #   secs_since_last_frame = 0
-  #   if @previous_update_time
-  #     secs_since_last_frame = current_update_time - @previous_update_time
-  #   end
-  #
-  #
-  #
-  #   @previous_update_time = current_update_time
-  #   pos = @entity_manager.entities[0].componentForClass(VisualComponent).node.position
-  #   puts "X: #{pos.x}  Z: #{pos.z}"
-  # end
 
   def renderer(renderer, updateAtTime: time)
     @entity_manager.updateWithDeltaTime(time)

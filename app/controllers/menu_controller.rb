@@ -44,10 +44,6 @@ class MenuController < UIViewController
     parentViewController.start_vision(self)
   end
 
-  def push_user_to_map
-    parentViewController.start_map(self)
-  end
-
   def push_user_to_accounts
     parentViewController.start_accounts_page(self)
   end
@@ -126,7 +122,7 @@ class MenuController < UIViewController
   end
 
   def userNotificationCenter(center, didReceiveNotificationResponse: response, withCompletionHandler: completion_handler)
-    push_user_to_map
+    #push_user_to_map
 
     completion_handler.call
   end
@@ -145,7 +141,7 @@ class MenuController < UIViewController
                                                        preferredStyle: UIAlertControllerStyleAlert)
     action = UIAlertAction.actionWithTitle('See Map',
                                            style: UIAlertActionStyleDefault,
-                                           handler: lambda {|_| push_user_to_map})
+                                           handler: lambda {|_| }) #push_user_to_map})
     alert.addAction(action)
     self.presentViewController(alert, animated: true, completion: nil)
   end

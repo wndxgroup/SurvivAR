@@ -1,5 +1,5 @@
 class LocationComponent < GKComponent
-  attr_accessor :node
+  attr_accessor :node, :position
 
   def init
     super

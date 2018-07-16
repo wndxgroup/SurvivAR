@@ -1,8 +1,9 @@
 class EntityManager
-  attr_accessor :entities, :scene, :survivor
+  attr_accessor :entities, :scene, :survivor, :scene_view
 
-  def init(scene)
+  def init(scene, scene_view)
     @scene = scene
+    @scene_view = scene_view
     @entities = []
     @to_remove = []
     @component_systems = begin
@@ -18,10 +19,6 @@ class EntityManager
 
   def add(entity)
     @entities << entity
-
-    # node = entity.componentForClass(VisualComponent).node
-    # @scene.rootNode.addChildNode(node)
-
     @component_systems.each {|comp_system| comp_system.addComponentWithEntity(entity)}
   end
 
@@ -36,9 +33,6 @@ class EntityManager
   end
 
   def updateWithDeltaTime(seconds)
-    # unless @entities[0].nil?
-    #   puts @entities[0].componentForClass(VisualComponent).node.position.x
-    # end
     @survivor.updateWithDeltaTime(seconds)
     @component_systems.each { |comp_system| comp_system.updateWithDeltaTime(seconds) }
     @to_remove.each do |current_remove|
@@ -47,9 +41,5 @@ class EntityManager
       end
     end
     @to_remove = []
-  end
-
-  def spawn_enemies
-
   end
 end

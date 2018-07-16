@@ -14,23 +14,11 @@ class MoveComponent < GKAgent3D
   end
 
   def agentWillUpdate(agent)
-    vector3_position = entity.componentForClass(VisualComponent).node.position
-    puts "WillUpdate initial: #{vector3_position.inspect}"
     PositionUpdater.scn_vec_to_float(agent, toPosition: entity.componentForClass(VisualComponent).node.position)
-    puts "WillUpdate agent: #{agent.position.inspect}"
   end
 
   def agentDidUpdate(agent)
-    puts "DidUpdate initial: #{agent.position.inspect}"
-    #agent.position = SCNVector3FromFloat3(agent.position)
-    entity.componentForClass(VisualComponent).node.position = [agent.position.x, agent.position.y, agent.position.z] #SCNVector3FromFloat3(agent.position)
-    puts "DidUpdate after: #{entity.componentForClass(VisualComponent).node.position.inspect}"
-
-    #puts PositionUpdater.make_scn_vector(agent.position).inspect
-    #entity.componentForClass(VisualComponent).node.position = PositionUpdater.make_scn_vector(agent.position)
-    # vector3_position = SCNVector3FromFloat3(self.position)
-    # entity.componentForClass(VisualComponent).node.position = scn_vector
-    # puts "Did update X: #{vector3_position.x} Y:  #{vector3_position.y} Z:  #{vector3_position.z}"
+    entity.componentForClass(VisualComponent).node.position = [agent.position.x, agent.position.y, agent.position.z]
   end
 
   def closest_move_component
@@ -59,8 +47,10 @@ class MoveComponent < GKAgent3D
 
   def updateWithDeltaTime(seconds)
     super
-    #entity = entity
+    @entity_manager.survivor.componentForClass(LocationComponent).node.position = @entity_manager.scene_view.pointOfView.position
+    loc = @entity_manager.survivor.componentForClass(LocationComponent).node.position
     agent = @entity_manager.survivor.componentForClass(SurvivorComponent)
+    PositionUpdater.scn_vec_to_float(agent, toPosition: loc)
 
     enemy_move_component = closest_move_component
     return if enemy_move_component.nil?

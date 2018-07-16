@@ -1,5 +1,5 @@
 class MasterViewController < UIViewController
-  attr_accessor :menu_controller, :ar_view_controller, :map_view_controller, :current_map_location,
+  attr_accessor :menu_controller, :ar_view_controller, :current_map_location,
                 :create_an_account_controller, :death_controller
 
   def init
@@ -51,35 +51,12 @@ class MasterViewController < UIViewController
     set_controller(@ar_view_controller, from: old_controller)
   end
 
-  def start_map(old_controller)
-    unless @map_view_controller
-      @map_view_controller = MapViewController.new
-      addChildViewController(@map_view_controller)
-    end
-    set_controller(@map_view_controller, from: old_controller)
-  end
-
   def start_accounts_page(old_controller)
     unless @accounts_list_controller
       @accounts_list_controller = AccountsListController.new
       addChildViewController(@accounts_list_controller)
     end
     set_controller(@accounts_list_controller, from: old_controller)
-  end
-
-  def start_wave(account)
-    num_enemies = (1..2).sum
-    relative_locations = []
-    cl_locations = []
-
-    for i in num_enemies
-      x = rand * 500
-      x = -x if rand < 0.5
-      z = Math.sqrt(500**2 - x**2)
-      z = -z if rand < 0.5
-    end
-    # Calculate relative locations of each enemy
-    # Calculate CLLocations to each enemy
   end
 
   def locationManager(_, didUpdateLocations: locations)
