@@ -7,8 +7,10 @@ class Survivor < GKEntity
   end
 
   def survivor_node
+    survivor = self.componentForClass(SurvivorComponent)
     node = self.componentForClass(LocationComponent).node
-    node.position = SCNVector3Make(0, 0, -15)
+    node.position = [0, 0, -50]
+    survivor.position = node.position
     node
   end
 end

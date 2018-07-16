@@ -22,8 +22,9 @@ class MoveComponent < GKAgent3D
 
   def agentDidUpdate(agent)
     puts "DidUpdate initial: #{agent.position.inspect}"
-    entity.componentForClass(VisualComponent).node.position = SCNVector3FromFloat3(agent.position)
-    puts "DidUpdate after: #{agent.position.inspect}"
+    #agent.position = SCNVector3FromFloat3(agent.position)
+    entity.componentForClass(VisualComponent).node.position = [agent.position.x, agent.position.y, agent.position.z] #SCNVector3FromFloat3(agent.position)
+    puts "DidUpdate after: #{entity.componentForClass(VisualComponent).node.position.inspect}"
 
     #puts PositionUpdater.make_scn_vector(agent.position).inspect
     #entity.componentForClass(VisualComponent).node.position = PositionUpdater.make_scn_vector(agent.position)
@@ -59,11 +60,11 @@ class MoveComponent < GKAgent3D
   def updateWithDeltaTime(seconds)
     super
     #entity = entity
-    player = @entity_manager.survivor.componentForClass(SurvivorComponent)
+    agent = @entity_manager.survivor.componentForClass(SurvivorComponent)
 
     enemy_move_component = closest_move_component
     return if enemy_move_component.nil?
     allied_move_component = @entity_manager.move_components
-    self.behavior = MoveBehaviour.new.setupGoals(self.maxSpeed, seek: player)#, avoid: enemy_move_component)
+    self.behavior = MoveBehaviour.new.setupGoals(self.maxSpeed, seek: agent)#, avoid: enemy_move_component)
   end
 end
