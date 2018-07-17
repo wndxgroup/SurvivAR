@@ -3,4 +3,4 @@ This is an AR survival game where you are placed in the center of an arena and y
 
 The only way to survive is to shoot the enemy. However, everytime you shoot, another enemy is added to the arena. So choose your shots wisely and let's see how long you can last.
 
-Each arena battle is timed and a list of the best scores on your device will be accessable.
+Each arena battle is timed and a list of the best scores on your device are accessable.
