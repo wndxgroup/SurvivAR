@@ -11,4 +11,5 @@ class BulletComponent < GKComponent
     @node = SCNNode.nodeWithGeometry(geometry)
     self
   end
+
 end

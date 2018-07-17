@@ -13,4 +13,5 @@ class Bullet < GKEntity
     node.position = @position = position
     node
   end
+
 end
