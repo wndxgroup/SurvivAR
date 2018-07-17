@@ -16,6 +16,7 @@ class ARViewController < UIViewController
     @scene_config.worldAlignment = ARWorldAlignmentGravityAndHeading
     @scene_view.session.runWithConfiguration(@scene_config)
     @scene_view.session.delegate = self
+    @scene_view.debugOptions = ARSCNDebugOptionShowWorldOrigin
     self.view = @scene_view
 
     @scene = SCNScene.scene
@@ -31,7 +32,9 @@ class ARViewController < UIViewController
   end
 
   def viewDidAppear(_)
+    @bullets = []
     @scene_view.session.runWithConfiguration(@scene_config, options: ARSessionRunOptionResetTracking)
+    @currently_killing_player = false
     if @entity_manager.entities.count > 0
       display_enemies
     else
@@ -91,7 +94,10 @@ class ARViewController < UIViewController
   end
 
   def session(_, didUpdateFrame: _)
-    player_dies if touching_enemy
+    if touching_enemy && !@currently_killing_player
+      @currently_killing_player = true
+      player_dies
+    end
   end
 
   def player_dies
@@ -118,6 +124,7 @@ class ARViewController < UIViewController
     if event.touchesForView(@menu_view)
       push_user_to_menu
     else
+      spawn_enemy
       shoot
     end
   end
@@ -139,17 +146,19 @@ class ARViewController < UIViewController
   end
 
   def shoot
-    bullet_geometry = SCNSphere.sphereWithRadius(0.01)
-    bullet_material = SCNMaterial.material
-    bullet_material.diffuse.contents = NSColor.colorWithRed(0, green: 0, blue: 0, alpha: 1)
-    bullet_material.doubleSided = false
-    bullet_geometry.materials = [bullet_material]
-    bullet = SCNNode.nodeWithGeometry(bullet_geometry)
-    bullet.position = @scene_view.pointOfView.position
-    @scene.rootNode.addChildNode(bullet)
+    bullet = Bullet.new
+    @entity_manager.add_bullet(bullet)
+    node = bullet.set_firing_location(@scene_view.pointOfView.position)
+    @scene.rootNode.addChildNode(node)
   end
 
   def renderer(renderer, updateAtTime: time)
+    #rotation = @scene_view.pointOfView.rotation
+    #w = rotation.w * 180 / Math::PI
+    #puts "x: #{rotation.x * w} y: #{rotation.y * w} z: #{rotation.z * w}"
+
+    #rotation = @scene_view.pointOfView.eulerAngles
+    #puts "x: #{rotation.x * 180 / Math::PI} y: #{rotation.y * 180 / Math::PI} z: #{rotation.z * 180 / Math::PI}"
     @entity_manager.updateWithDeltaTime(time)
   end
 end

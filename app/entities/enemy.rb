@@ -4,7 +4,7 @@ class Enemy < GKEntity
   def add_components(entity_manager)
     addComponent(VisualComponent.new)
     move_component = MoveComponent.new
-    move_component.assign_properties(0.000005, maxAcceleration: 5, radius: 1, entityManager: entity_manager)
+    move_component.assign_properties(0.00000002, maxAcceleration: 5, radius: 1, entityManager: entity_manager)
     addComponent(move_component)
   end
 

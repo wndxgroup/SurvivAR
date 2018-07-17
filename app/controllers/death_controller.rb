@@ -15,6 +15,8 @@ class DeathController < UIViewController
     @layout.get(:accounts_button).addTarget(self,
                                             action: 'push_user_to_accounts',
                                             forControlEvents: UIControlEventTouchUpInside)
+    player.current_account = nil
+    cdq.save
   end
 
   def push_user_to_accounts

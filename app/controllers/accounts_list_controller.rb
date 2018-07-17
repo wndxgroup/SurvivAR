@@ -78,7 +78,7 @@ class AccountsListController < UIViewController
 
     @player ||= Player.first
     icon_width = 40
-    if @player.sorted_accounts[@player.current_account].alive?
+    if @player.current_account && @player.sorted_accounts[@player.current_account].alive?
       @back_icon_view = UIView.new
       @back_icon_view.frame = [[20, bar_height / 2 - icon_width / 2], [icon_width, icon_width]]
       back_icon = UIImage.imageNamed('back')
@@ -123,10 +123,10 @@ class AccountsListController < UIViewController
   def tableView(_, didSelectRowAtIndexPath: indexPath)
     @break_survival_timer_loop = true
     @updating_survival_timer = false
-    @player.sorted_accounts[@player.current_account].start_time = nil
+    @player.sorted_accounts[@player.current_account].start_time = nil if @player.current_account
     @player.current_account = indexPath.row
     cdq.save
-    if @player.sorted_accounts[@player.current_account].alive?
+    if @player.current_account && @player.sorted_accounts[@player.current_account].alive?
       parentViewController.set_controller(parentViewController.menu_controller, from: self)
     else
       parentViewController.set_controller(parentViewController.death_controller, from: self)
@@ -135,9 +135,11 @@ class AccountsListController < UIViewController
 
   def touchesEnded(_, withEvent: event)
     if event.touchesForView(@add_icon_view)
-      @player.sorted_accounts[@player.current_account].start_time = nil
-      @player.current_account = nil
-      cdq.save
+      if @player.current_account
+        @player.sorted_accounts[@player.current_account].start_time = nil
+        @player.current_account = nil
+        cdq.save
+      end
       @break_survival_timer_loop = true
       @updating_survival_timer = false
       parentViewController.set_controller(parentViewController.create_an_account_controller, from: self)
