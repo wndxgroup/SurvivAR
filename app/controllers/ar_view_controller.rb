@@ -2,9 +2,13 @@ class ARViewController < UIViewController
   attr_accessor :scene_view, :scene_config
 
   def enemy_radius; 1.0; end
+  def map_diameter; 120; end
+  def map_icon_diameter; 10; end
 
   def init
     super
+    @enemy_map_icons = []
+    self
   end
 
   def viewDidLoad
@@ -16,7 +20,6 @@ class ARViewController < UIViewController
     @scene_config.worldAlignment = ARWorldAlignmentGravityAndHeading
     @scene_view.session.runWithConfiguration(@scene_config)
     @scene_view.session.delegate = self
-    @scene_view.debugOptions = ARSCNDebugOptionShowWorldOrigin
     self.view = @scene_view
 
     @scene = SCNScene.scene
@@ -43,20 +46,26 @@ class ARViewController < UIViewController
   end
 
   def add_ui
-    @mini_map_view = MKMapView.alloc.init
-    @mini_map_view.showsUserLocation = true
-    @mini_map_view.rotateEnabled     = false
-    @mini_map_view.scrollEnabled     = false
-    @mini_map_view.showsCompass      = false
-    @mini_map_view.zoomEnabled       = false
-    @mini_map_view.delegate          = self
-
+    @mini_map_view = UIView.new
+    @mini_map_view.backgroundColor = UIColor.alloc.initWithWhite(0, alpha: 0.5)
+    @mini_map_view.layer.cornerRadius = map_diameter / 2
+    @mini_map_view.layer.masksToBounds = true
     view.addSubview(@mini_map_view)
     @mini_map_view.translatesAutoresizingMaskIntoConstraints = false
-    @mini_map_view.widthAnchor.constraintEqualToConstant(120).active = true
-    @mini_map_view.heightAnchor.constraintEqualToConstant(70).active = true
+    @mini_map_view.widthAnchor.constraintEqualToConstant(map_diameter).active = true
+    @mini_map_view.heightAnchor.constraintEqualToConstant(map_diameter).active = true
     @mini_map_view.leftAnchor.constraintEqualToAnchor(view.safeAreaLayoutGuide.leftAnchor).active = true
     @mini_map_view.bottomAnchor.constraintEqualToAnchor(view.safeAreaLayoutGuide.bottomAnchor).active = true
+
+
+    player_icon =  UIView.new
+    player_icon.frame = [[map_diameter / 2 - map_icon_diameter / 2, map_diameter / 2 - map_icon_diameter / 2],
+                         [map_icon_diameter, map_icon_diameter]]
+    player_icon.backgroundColor = UIColor.whiteColor
+    player_icon.layer.cornerRadius = map_icon_diameter / 2
+    player_icon.layer.masksToBounds = true
+    @mini_map_view.addSubview(player_icon)
+
 
     @menu_view = UIView.new
     view.addSubview(@menu_view)
@@ -71,22 +80,32 @@ class ARViewController < UIViewController
     @menu_view.addSubview(menu_icon_view)
   end
 
-  def mapViewDidFinishLoadingMap(_)
-    Dispatch::Queue.new('set_map_region_and_tracking_mode').async do
-      while parentViewController.current_map_location.nil?; end
-      span = MKCoordinateSpanMake(0.0125, 0.0125)
-      region = MKCoordinateRegionMake(parentViewController.current_map_location.coordinate, span)
-      @mini_map_view.setRegion(region, animated: false)
-      @mini_map_view.setUserTrackingMode(MKUserTrackingModeFollowWithHeading, animated: false)
-    end
-  end
-
   def spawn_enemy
     enemy = Enemy.new
     enemy.add_components(@entity_manager)
     node = enemy.set_spawning_location
     @entity_manager.add(enemy)
     @scene.rootNode.addChildNode(node)
+
+    @enemy_icon =  UIView.new
+    @enemy_icon.frame = calc_map_frame(node.position)
+    @enemy_icon.backgroundColor = UIColor.redColor
+    @enemy_icon.layer.cornerRadius = map_icon_diameter / 2
+    @enemy_icon.layer.masksToBounds = true
+    @mini_map_view.addSubview(@enemy_icon)
+    @enemy_map_icons << @enemy_icon
+  end
+
+  def calc_map_frame(position)
+    x_difference = position.x - @scene_view.pointOfView.position.x
+    z_difference = position.z - @scene_view.pointOfView.position.z
+    x_map_placement = map_location_to_mini_map_location(x_difference)
+    y_map_placement = map_location_to_mini_map_location(z_difference)
+    [[x_map_placement, y_map_placement], [map_icon_diameter, map_icon_diameter]]
+  end
+
+  def map_location_to_mini_map_location(map_location)
+    map_diameter / (Enemy.spawn_radius * 2.0) * map_location + map_diameter / 2.0 - map_icon_diameter / 2.0
   end
 
   def display_enemies
@@ -152,13 +171,24 @@ class ARViewController < UIViewController
     @scene.rootNode.addChildNode(node)
   end
 
-  def renderer(renderer, updateAtTime: time)
-    #rotation = @scene_view.pointOfView.rotation
-    #w = rotation.w * 180 / Math::PI
-    #puts "x: #{rotation.x * w} y: #{rotation.y * w} z: #{rotation.z * w}"
+  def update_icon_positions
+    Dispatch::Queue.main.sync do
+     @entity_manager.entities.each.with_index do |enemy, i|
+       @mini_map_view.subviews[i + 1].frame = calc_map_frame(enemy.componentForClass(VisualComponent).node.position)
+     end
+    end
+  end
 
-    #rotation = @scene_view.pointOfView.eulerAngles
-    #puts "x: #{rotation.x * 180 / Math::PI} y: #{rotation.y * 180 / Math::PI} z: #{rotation.z * 180 / Math::PI}"
+  def renderer(renderer, updateAtTime: time)
+    mat = @scene_view.pointOfView.transform
+    direction = SCNVector3Make(-3.6 * mat.m31, -3.6 * mat.m32, -3.6 * mat.m33)
+    bullet = Bullet.new
+    @entity_manager.add_bullet(bullet)
+    node = bullet.set_firing_location(direction)
+    @scene.rootNode.addChildNode(node)
+
+    update_icon_positions if @enemy_map_icons.count > 0
+
     @entity_manager.updateWithDeltaTime(time)
   end
 end
