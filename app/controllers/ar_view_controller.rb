@@ -8,6 +8,10 @@ class ARViewController < UIViewController
   def init
     super
     @enemy_map_icons = []
+    @location_manager = CLLocationManager.alloc.init
+    @location_manager.startUpdatingHeading
+    @location_manager.delegate = self
+    @location_manager.requestAlwaysAuthorization
     self
   end
 
@@ -56,7 +60,6 @@ class ARViewController < UIViewController
     @mini_map_view.heightAnchor.constraintEqualToConstant(map_diameter).active = true
     @mini_map_view.leftAnchor.constraintEqualToAnchor(view.safeAreaLayoutGuide.leftAnchor).active = true
     @mini_map_view.bottomAnchor.constraintEqualToAnchor(view.safeAreaLayoutGuide.bottomAnchor).active = true
-
 
     player_icon =  UIView.new
     player_icon.frame = [[map_diameter / 2 - map_icon_diameter / 2, map_diameter / 2 - map_icon_diameter / 2],
@@ -180,15 +183,18 @@ class ARViewController < UIViewController
   end
 
   def renderer(renderer, updateAtTime: time)
-    mat = @scene_view.pointOfView.transform
-    direction = SCNVector3Make(-3.6 * mat.m31, -3.6 * mat.m32, -3.6 * mat.m33)
-    bullet = Bullet.new
-    @entity_manager.add_bullet(bullet)
-    node = bullet.set_firing_location(direction)
-    @scene.rootNode.addChildNode(node)
-
+    # mat = @scene_view.pointOfView.transform
+    # direction = SCNVector3Make(-3.6 * mat.m31, -3.6 * mat.m32, -3.6 * mat.m33)
+    # bullet = Bullet.new
+    # @entity_manager.add_bullet(bullet)
+    # node = bullet.set_firing_location(direction)
+    # @scene.rootNode.addChildNode(node)
     update_icon_positions if @enemy_map_icons.count > 0
 
     @entity_manager.updateWithDeltaTime(time)
+  end
+
+  def locationManager(_, didUpdateHeading: new_heading)
+    @mini_map_view.layer.transform = CATransform3DMakeRotation((-new_heading.trueHeading + 5) / 180.0  * Math::PI, 0.0, 0.0, 1.0);
   end
 end

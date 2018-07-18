@@ -1,16 +1,6 @@
 class MasterViewController < UIViewController
-  attr_accessor :menu_controller, :ar_view_controller, :current_map_location,
+  attr_accessor :menu_controller, :ar_view_controller,
                 :create_an_account_controller, :death_controller
-
-  def init
-    super
-    @location_manager = CLLocationManager.alloc.init
-    @location_manager.startUpdatingLocation
-    @location_manager.delegate = self
-    @location_manager.desiredAccuracy = KCLLocationAccuracyBestForNavigation
-    @location_manager.requestAlwaysAuthorization
-    self
-  end
 
   def viewDidLoad
     addChildViewController(@create_an_account_controller = CreateAnAccountController.new)
@@ -57,9 +47,5 @@ class MasterViewController < UIViewController
       addChildViewController(@accounts_list_controller)
     end
     set_controller(@accounts_list_controller, from: old_controller)
-  end
-
-  def locationManager(_, didUpdateLocations: locations)
-    @current_map_location = locations.last
   end
 end
