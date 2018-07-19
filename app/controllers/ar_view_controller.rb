@@ -138,7 +138,6 @@ class ARViewController < UIViewController
       Math.sqrt((entity_position.x - player.x)**2 +
                 (entity_position.y - player.y)**2 +
                 (entity_position.z - player.z)**2)  <= enemy_radius
-
     end
   end
 
@@ -162,15 +161,26 @@ class ARViewController < UIViewController
   end
 
   def pause_session
-    @scene_view.pointOfView.childNodes.each {|node| node.removeFromParentNode}
+    @scene_view.pointOfView.childNodes.each {|node| node.removeFromParentNode} # does this do anything?
     @scene.rootNode.childNodes.each {|node| node.removeFromParentNode}
     @scene_view.session.pause
   end
 
   def shoot
+    target = SCNNode.node
+    target.position = [0, 0, -0.3]
+    @scene_view.pointOfView.addChildNode(target)
+    user_position = @scene_view.pointOfView.position
+    target_position = @scene_view.pointOfView.convertPosition(target.position, toNode: nil)
+    @scene_view.pointOfView.childNodes[0].removeFromParentNode
+    trajectory = {'x' => target_position.x - user_position.x,
+                  'y' => target_position.y - user_position.y,
+                  'z' => target_position.z - user_position.z}
+
     bullet = Bullet.new
     @entity_manager.add_bullet(bullet)
-    node = bullet.set_firing_location(@scene_view.pointOfView.position)
+    node = bullet.set_firing_location(user_position)
+    bullet.set_trajectory(trajectory, entity_manager: @entity_manager)
     @scene.rootNode.addChildNode(node)
   end
 
@@ -182,15 +192,16 @@ class ARViewController < UIViewController
     end
   end
 
-  def renderer(renderer, updateAtTime: time)
+  def renderer(_, updateAtTime: time)
     # mat = @scene_view.pointOfView.transform
     # direction = SCNVector3Make(-3.6 * mat.m31, -3.6 * mat.m32, -3.6 * mat.m33)
+    # puts direction.inspect
     # bullet = Bullet.new
     # @entity_manager.add_bullet(bullet)
     # node = bullet.set_firing_location(direction)
     # @scene.rootNode.addChildNode(node)
-    update_icon_positions if @enemy_map_icons.count > 0
 
+    update_icon_positions if @enemy_map_icons.count > 0
     @entity_manager.updateWithDeltaTime(time)
   end
 
