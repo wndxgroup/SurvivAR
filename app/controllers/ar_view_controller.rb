@@ -22,6 +22,7 @@ class ARViewController < UIViewController
     @scene_view.delegate = self
     @scene_config = ARWorldTrackingConfiguration.alloc.init
     @scene_config.worldAlignment = ARWorldAlignmentGravityAndHeading
+    # @scene_view.debugOptions = ARSCNDebugOptionShowWorldOrigin
     @scene_view.session.runWithConfiguration(@scene_config)
     @scene_view.session.delegate = self
     self.view = @scene_view
@@ -169,7 +170,8 @@ class ARViewController < UIViewController
 
   def shoot
     target = SCNNode.node
-    target.position = [0, 0, -0.3]
+    target.position = [0, 0, -80]
+
     @scene_view.pointOfView.addChildNode(target)
     user_position = @scene_view.pointOfView.position
     target_position = @scene_view.pointOfView.convertPosition(target.position, toNode: nil)
@@ -178,7 +180,7 @@ class ARViewController < UIViewController
     bullet = Bullet.new
     @entity_manager.add_bullet(bullet)
     node = bullet.set_firing_location(user_position)
-    force = [target_position.x * 100, target_position.y * 100, target_position.z * 100]
+    force = [target_position.x, target_position.y, target_position.z]
     node.physicsBody.applyForce(force, atPosition: [0, 0, 0], impulse: true)
     @scene.rootNode.addChildNode(node)
   end
@@ -206,7 +208,9 @@ class ARViewController < UIViewController
 
   def physicsWorld(world, didBeginContact: contact)
     @entity_manager.entities.each {|enemy| @enemy = enemy if enemy.node == contact.nodeA || enemy.node == contact.nodeB}
-    @entity_manager.bullets.each {|bullet| @bullet = bullet if bullet.node == contact.nodeA || bullet.node == contact.nodeB}
+    if @enemy
+      @enemy
+    end
   end
 
   def locationManager(_, didUpdateHeading: new_heading)
