@@ -214,6 +214,7 @@ class ARViewController < UIViewController
   end
 
   def locationManager(_, didUpdateHeading: new_heading)
+
     @mini_map_view.layer.transform = CATransform3DMakeRotation(-new_heading.trueHeading / 180.0  * Math::PI, 0.0, 0.0, 1.0);
   end
 end
