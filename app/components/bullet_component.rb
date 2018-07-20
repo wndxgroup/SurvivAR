@@ -3,7 +3,7 @@ class BulletComponent < GKComponent
 
   def init
     super
-    geometry = SCNSphere.sphereWithRadius(0.01)
+    geometry = SCNSphere.sphereWithRadius(0.1)
     material = SCNMaterial.material
     material.diffuse.contents = NSColor.colorWithRed(0, green: 0, blue: 0, alpha: 1)
     material.doubleSided = false

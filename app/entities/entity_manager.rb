@@ -18,6 +18,10 @@ class EntityManager
     self
   end
 
+  def bullet_component_system
+    @bullet_component_system
+  end
+
   def assign_survivor(survivor)
     @survivor = survivor
   end
@@ -35,6 +39,7 @@ class EntityManager
 
   def add_bullet(bullet)
     @bullets << bullet
+    bullet.add_entity_manager(self)
     @bullet_component_system.each {|comp_system| comp_system.addComponentWithEntity(bullet)}
   end
 

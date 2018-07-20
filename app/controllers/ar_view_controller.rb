@@ -27,6 +27,7 @@ class ARViewController < UIViewController
     self.view = @scene_view
 
     @scene = SCNScene.scene
+    @scene.physicsWorld.contactDelegate = self
     @entity_manager = EntityManager.alloc.init(@scene, @scene_view)
     @scene_view.scene = @scene
 
@@ -173,14 +174,12 @@ class ARViewController < UIViewController
     user_position = @scene_view.pointOfView.position
     target_position = @scene_view.pointOfView.convertPosition(target.position, toNode: nil)
     @scene_view.pointOfView.childNodes[0].removeFromParentNode
-    trajectory = {'x' => target_position.x - user_position.x,
-                  'y' => target_position.y - user_position.y,
-                  'z' => target_position.z - user_position.z}
 
     bullet = Bullet.new
     @entity_manager.add_bullet(bullet)
     node = bullet.set_firing_location(user_position)
-    bullet.set_trajectory(trajectory, entity_manager: @entity_manager)
+    force = [target_position.x * 100, target_position.y * 100, target_position.z * 100]
+    node.physicsBody.applyForce(force, atPosition: [0, 0, 0], impulse: true)
     @scene.rootNode.addChildNode(node)
   end
 
@@ -205,7 +204,12 @@ class ARViewController < UIViewController
     @entity_manager.updateWithDeltaTime(time)
   end
 
+  def physicsWorld(world, didBeginContact: contact)
+    @entity_manager.entities.each {|enemy| @enemy = enemy if enemy.node == contact.nodeA || enemy.node == contact.nodeB}
+    @entity_manager.bullets.each {|bullet| @bullet = bullet if bullet.node == contact.nodeA || bullet.node == contact.nodeB}
+  end
+
   def locationManager(_, didUpdateHeading: new_heading)
-    @mini_map_view.layer.transform = CATransform3DMakeRotation((-new_heading.trueHeading + 5) / 180.0  * Math::PI, 0.0, 0.0, 1.0);
+    @mini_map_view.layer.transform = CATransform3DMakeRotation(-new_heading.trueHeading / 180.0  * Math::PI, 0.0, 0.0, 1.0);
   end
 end

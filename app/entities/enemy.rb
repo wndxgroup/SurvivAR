@@ -1,5 +1,5 @@
 class Enemy < GKEntity
-  attr_accessor :position
+  attr_accessor :position, :node
 
   def self.spawn_radius; 120; end
   def spawn_radius; 120; end
@@ -17,8 +17,12 @@ class Enemy < GKEntity
     x = -x if rand < 0.5
     z = Math.sqrt(spawn_radius**2 - x**2)
     z = -z if rand < 0.5
-    node = self.componentForClass(VisualComponent).node
-    node.position = @position = SCNVector3Make(x, 0, z)
-    node
+    @node = self.componentForClass(VisualComponent).node
+    @node.position = @position = SCNVector3Make(x, 0, z)
+    @node.physicsBody = SCNPhysicsBody.bodyWithType(SCNPhysicsBodyTypeDynamic, shape: nil)
+    @node.physicsBody.categoryBitMask = 2
+    @node.physicsBody.collisionBitMask = 1
+    @node.physicsBody.contactTestBitMask = 1
+    @node
   end
 end
