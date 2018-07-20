@@ -1,4 +1,5 @@
 class MoveComponent < GKAgent3D
+  include Map
 
   def init
     super
@@ -45,6 +46,12 @@ class MoveComponent < GKAgent3D
     Math.sqrt((a_x - b_x)**2 + (a_z - b_z)**2)
   end
 
+  def distance_between_nodes(a, b)
+    Math.sqrt((a.position.x - b.position.x)**2 +
+              (a.position.y - b.position.y)**2 +
+              (a.position.z - b.position.z)**2)
+  end
+
   def updateWithDeltaTime(seconds)
     super
     @entity_manager.survivor.componentForClass(LocationComponent).node.position = @entity_manager.scene_view.pointOfView.position
@@ -55,6 +62,18 @@ class MoveComponent < GKAgent3D
     enemy_move_component = closest_move_component
     return if enemy_move_component.nil?
     allied_move_component = @entity_manager.move_components
-    self.behavior = MoveBehaviour.new.setupGoals(self.maxSpeed, seek: agent)#, avoid: enemy_move_component)
+    current_state = entity.componentForClass(VisualComponent).state_machine.currentState
+    if current_state.is_a?(EnemyChaseState)
+      self.behavior ||= MoveBehaviour.new.setupGoals(agent)#, avoid: enemy_move_component)
+    elsif self.behavior.is_a?(MoveBehaviour) && current_state.is_a?(EnemyFleeState)
+      self.behavior = EvadeBehaviour.new.setupGoals(agent)#, avoid: enemy_move_component)
+    end
+
+    if distance_between_nodes(entity.node.presentationNode, @entity_manager.scene_view.pointOfView) > spawn_radius + 5
+      entity.componentForClass(VisualComponent).node.removeFromParentNode
+      index = @entity_manager.entities.index(entity)
+      @entity_manager.entities -= [entity]
+      @entity_manager.ar_controller.mini_map_view.subviews[index + 1].removeFromSuperview
+    end
   end
 end

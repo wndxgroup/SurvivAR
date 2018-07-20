@@ -1,5 +1,5 @@
 class VisualComponent < GKComponent
-  attr_accessor :node
+  attr_accessor :node, :state_machine
 
   def init
     super
@@ -9,6 +9,17 @@ class VisualComponent < GKComponent
     target_material.doubleSided = true
     target_geometry.materials = [target_material]
     @node = SCNNode.nodeWithGeometry(target_geometry)
+
+    chase = EnemyChaseState.new
+    chase.assign_entity(entity)
+    flee = EnemyFleeState.new
+    flee.assign_entity(entity)
+    @state_machine = GKStateMachine.alloc.initWithStates([chase, flee])
+    @state_machine.enterState(EnemyChaseState)
     self
+  end
+
+  def updateWithDeltaTime(seconds)
+    @state_machine.updateWithDeltaTime(seconds)
   end
 end

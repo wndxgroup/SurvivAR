@@ -1,14 +1,12 @@
 class Enemy < GKEntity
+  include Map
+
   attr_accessor :position, :node
-
-  def self.spawn_radius; 120; end
-  def spawn_radius; 120; end
-
 
   def add_components(entity_manager)
     addComponent(VisualComponent.new)
     move_component = MoveComponent.new
-    move_component.assign_properties(0.00000025, maxAcceleration: 5, radius: 1, entityManager: entity_manager)
+    move_component.assign_properties(0.0000025, maxAcceleration: 5, radius: 1, entityManager: entity_manager)
     addComponent(move_component)
   end
 

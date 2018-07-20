@@ -1,7 +1,8 @@
 class EntityManager
-  attr_accessor :entities, :scene, :survivor, :scene_view, :bullets
+  attr_accessor :entities, :scene, :survivor, :scene_view, :bullets, :component_systems, :ar_controller
 
-  def init(scene, scene_view)
+  def init(scene, scene_view, ar_controller)
+    @ar_controller = ar_controller
     @scene = scene
     @scene_view = scene_view
     @entities = []
@@ -48,6 +49,7 @@ class EntityManager
   end
 
   def updateWithDeltaTime(seconds)
+    entities.each { |entity| entity.componentForClass(VisualComponent).updateWithDeltaTime(seconds) }
     @survivor.updateWithDeltaTime(seconds)
     @component_systems.each { |comp_system| comp_system.updateWithDeltaTime(seconds) }
     if @bullets.count > 0

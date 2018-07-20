@@ -1,8 +1,8 @@
 class ARViewController < UIViewController
-  attr_accessor :scene_view, :scene_config
+  include Map
+  attr_accessor :scene_view, :scene_config, :mini_map_view
 
   def enemy_radius; 1.0; end
-  def map_diameter; 120; end
   def map_icon_diameter; 10; end
 
   def init
@@ -29,7 +29,7 @@ class ARViewController < UIViewController
 
     @scene = SCNScene.scene
     @scene.physicsWorld.contactDelegate = self
-    @entity_manager = EntityManager.alloc.init(@scene, @scene_view)
+    @entity_manager = EntityManager.alloc.init(@scene, @scene_view, self)
     @scene_view.scene = @scene
 
     @survivor = Survivor.new
@@ -54,17 +54,17 @@ class ARViewController < UIViewController
   def add_ui
     @mini_map_view = UIView.new
     @mini_map_view.backgroundColor = UIColor.alloc.initWithWhite(0, alpha: 0.5)
-    @mini_map_view.layer.cornerRadius = map_diameter / 2
+    @mini_map_view.layer.cornerRadius = mini_map_diameter / 2
     @mini_map_view.layer.masksToBounds = true
     view.addSubview(@mini_map_view)
     @mini_map_view.translatesAutoresizingMaskIntoConstraints = false
-    @mini_map_view.widthAnchor.constraintEqualToConstant(map_diameter).active = true
-    @mini_map_view.heightAnchor.constraintEqualToConstant(map_diameter).active = true
+    @mini_map_view.widthAnchor.constraintEqualToConstant(mini_map_diameter).active = true
+    @mini_map_view.heightAnchor.constraintEqualToConstant(mini_map_diameter).active = true
     @mini_map_view.leftAnchor.constraintEqualToAnchor(view.safeAreaLayoutGuide.leftAnchor).active = true
     @mini_map_view.bottomAnchor.constraintEqualToAnchor(view.safeAreaLayoutGuide.bottomAnchor).active = true
 
     player_icon =  UIView.new
-    player_icon.frame = [[map_diameter / 2 - map_icon_diameter / 2, map_diameter / 2 - map_icon_diameter / 2],
+    player_icon.frame = [[mini_map_diameter / 2 - map_icon_diameter / 2, mini_map_diameter / 2 - map_icon_diameter / 2],
                          [map_icon_diameter, map_icon_diameter]]
     player_icon.backgroundColor = UIColor.whiteColor
     player_icon.layer.cornerRadius = map_icon_diameter / 2
@@ -110,7 +110,7 @@ class ARViewController < UIViewController
   end
 
   def map_location_to_mini_map_location(map_location)
-    map_diameter / (Enemy.spawn_radius * 2.0) * map_location + map_diameter / 2.0 - map_icon_diameter / 2.0
+    mini_map_diameter / (spawn_radius * 2.0) * map_location + mini_map_diameter / 2.0 - map_icon_diameter / 2.0
   end
 
   def display_enemies
@@ -209,7 +209,7 @@ class ARViewController < UIViewController
   def physicsWorld(world, didBeginContact: contact)
     @entity_manager.entities.each {|enemy| @enemy = enemy if enemy.node == contact.nodeA || enemy.node == contact.nodeB}
     if @enemy
-      @enemy
+      @enemy.componentForClass(VisualComponent).state_machine.enterState(EnemyFleeState)
     end
   end
 
