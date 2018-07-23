@@ -3,11 +3,13 @@ class VisualComponent < GKComponent
 
   def init
     super
-    target_geometry = SCNSphere.sphereWithRadius(2)
+    target_geometry = SCNSphere.sphereWithRadius(1)
     target_material = SCNMaterial.material
-    target_material.diffuse.contents = NSColor.colorWithRed(1, green: 0, blue: 0, alpha: 0.95)
+    target_material.diffuse.contents = NSColor.colorWithRed(0, green: 0, blue: 0, alpha: 1)
     target_geometry.materials = [target_material]
     @node = SCNNode.nodeWithGeometry(target_geometry)
+    particle_system = SCNParticleSystem.particleSystemNamed('fire.scnp', inDirectory: nil)
+    @node.addParticleSystem(particle_system)
 
     chase = EnemyChaseState.new
     chase.assign_entity(entity)
