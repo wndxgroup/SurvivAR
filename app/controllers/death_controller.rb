@@ -9,7 +9,7 @@ class DeathController < UIViewController
 
   def didMoveToParentViewController(_)
     player = Player.first
-    account = player.sorted_accounts[player.current_account]
+    account = player.sorted_accounts[player.current_account] # Sometimes `current_account` is nil
     @layout.get(:name_field).text = "#{account.username} survived for"
     @layout.get(:duration).text = survival_time(account)
     @layout.get(:accounts_button).addTarget(self,

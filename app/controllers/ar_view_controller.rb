@@ -187,9 +187,9 @@ class ARViewController < UIViewController
 
   def update_icon_positions
     Dispatch::Queue.main.sync do
-     @entity_manager.entities.each.with_index do |enemy, i|
-       @mini_map_view.subviews[i + 1].frame = calc_map_frame(enemy.componentForClass(VisualComponent).node.position)
-     end
+      @entity_manager.entities.each.with_index do |enemy, i|
+        @mini_map_view.subviews[i + 1].frame = calc_map_frame(enemy.componentForClass(VisualComponent).node.position)
+      end
     end
   end
 
@@ -202,6 +202,9 @@ class ARViewController < UIViewController
     # node = bullet.set_firing_location(direction)
     # @scene.rootNode.addChildNode(node)
 
+    # d = radians_away_from_facing_north
+    # puts d
+    # Dispatch::Queue.main.sync { @mini_map_view.layer.transform = CATransform3DMakeRotation(-d, 0.0, 0.0, 1.0) }
     update_icon_positions if @enemy_map_icons.count > 0
     @entity_manager.updateWithDeltaTime(time)
   end
@@ -214,7 +217,6 @@ class ARViewController < UIViewController
   end
 
   def locationManager(_, didUpdateHeading: new_heading)
-
     @mini_map_view.layer.transform = CATransform3DMakeRotation(-new_heading.trueHeading / 180.0  * Math::PI, 0.0, 0.0, 1.0);
   end
 end

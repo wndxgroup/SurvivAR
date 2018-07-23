@@ -11,7 +11,7 @@ class MoveComponent < GKAgent3D
     self.maxSpeed = max_speed
     self.maxAcceleration = max_acceleration
     self.radius = radius
-    self.mass = 0.01
+    self.mass = 10
   end
 
   def agentWillUpdate(agent)
@@ -20,21 +20,6 @@ class MoveComponent < GKAgent3D
 
   def agentDidUpdate(agent)
     entity.componentForClass(VisualComponent).node.position = [agent.position.x, agent.position.y, agent.position.z]
-  end
-
-  def closest_move_component
-    closest_component = nil
-    closest_distance = 0
-
-    enemy_move_components = @entity_manager.move_components
-    enemy_move_components.each do |enemy_move_component|
-      distance = distance_between_components(enemy_move_component, self)
-      if closest_component.nil? || distance < closest_distance
-        closest_component = enemy_move_component
-        closest_distance = distance
-      end
-    end
-    closest_component
   end
 
   def distance_between_components(a, b)
@@ -54,26 +39,26 @@ class MoveComponent < GKAgent3D
 
   def updateWithDeltaTime(seconds)
     super
-    @entity_manager.survivor.componentForClass(LocationComponent).node.position = @entity_manager.scene_view.pointOfView.position
-    loc = @entity_manager.survivor.componentForClass(LocationComponent).node.position
+    loc = @entity_manager.scene_view.pointOfView.position
+    @entity_manager.survivor.componentForClass(LocationComponent).node.position = loc
     agent = @entity_manager.survivor.componentForClass(SurvivorComponent)
     PositionUpdater.scn_vec_to_float(agent, toPosition: loc)
 
-    enemy_move_component = closest_move_component
-    return if enemy_move_component.nil?
     allied_move_component = @entity_manager.move_components
     current_state = entity.componentForClass(VisualComponent).state_machine.currentState
     if current_state.is_a?(EnemyChaseState)
-      self.behavior ||= MoveBehaviour.new.setupGoals(agent)#, avoid: enemy_move_component)
+      self.behavior ||= MoveBehaviour.new.setupGoals(agent, avoid: allied_move_component)
     elsif self.behavior.is_a?(MoveBehaviour) && current_state.is_a?(EnemyFleeState)
-      self.behavior = EvadeBehaviour.new.setupGoals(agent)#, avoid: enemy_move_component)
+      self.behavior = EvadeBehaviour.new.setupGoals(agent, avoid_agents: allied_move_component)
     end
 
     if distance_between_nodes(entity.node.presentationNode, @entity_manager.scene_view.pointOfView) > spawn_radius + 5
-      entity.componentForClass(VisualComponent).node.removeFromParentNode
       index = @entity_manager.entities.index(entity)
-      @entity_manager.entities -= [entity]
-      @entity_manager.ar_controller.mini_map_view.subviews[index + 1].removeFromSuperview
+      if index
+        entity.componentForClass(VisualComponent).node.removeFromParentNode
+        @entity_manager.entities -= [entity]
+        @entity_manager.ar_controller.mini_map_view.subviews[index + 1].removeFromSuperview
+      end
     end
   end
 end
