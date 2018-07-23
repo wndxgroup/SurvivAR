@@ -36,11 +36,10 @@ class ARViewController < UIViewController
     node = @survivor.survivor_node
     @scene.rootNode.addChildNode(node)
     @entity_manager.assign_survivor(@survivor)
-
-    add_ui
   end
 
   def viewDidAppear(_)
+    add_ui
     @bullets = []
     @scene_view.session.runWithConfiguration(@scene_config, options: ARSessionRunOptionResetTracking)
     @currently_killing_player = false
@@ -52,16 +51,19 @@ class ARViewController < UIViewController
   end
 
   def add_ui
+    scope_width = 120
+    scope_icon = UIImage.imageNamed('scope')
+    scope_icon_view = UIImageView.alloc.initWithImage(scope_icon)
+    scope_icon_view.frame = [[@scene_view.frame.size.width / 2 - scope_width / 2, @scene_view.frame.size.height / 2 - scope_width / 2],
+                             [scope_width, scope_width]]
+    @scene_view.addSubview(scope_icon_view)
+
     @mini_map_view = UIView.new
     @mini_map_view.backgroundColor = UIColor.alloc.initWithWhite(0, alpha: 0.5)
     @mini_map_view.layer.cornerRadius = mini_map_diameter / 2
     @mini_map_view.layer.masksToBounds = true
+    @mini_map_view.frame = [[0, @scene_view.frame.size.height - mini_map_diameter], [mini_map_diameter, mini_map_diameter]]
     view.addSubview(@mini_map_view)
-    @mini_map_view.translatesAutoresizingMaskIntoConstraints = false
-    @mini_map_view.widthAnchor.constraintEqualToConstant(mini_map_diameter).active = true
-    @mini_map_view.heightAnchor.constraintEqualToConstant(mini_map_diameter).active = true
-    @mini_map_view.leftAnchor.constraintEqualToAnchor(view.safeAreaLayoutGuide.leftAnchor).active = true
-    @mini_map_view.bottomAnchor.constraintEqualToAnchor(view.safeAreaLayoutGuide.bottomAnchor).active = true
 
     player_icon =  UIView.new
     player_icon.frame = [[mini_map_diameter / 2 - map_icon_diameter / 2, mini_map_diameter / 2 - map_icon_diameter / 2],
@@ -71,17 +73,12 @@ class ARViewController < UIViewController
     player_icon.layer.masksToBounds = true
     @mini_map_view.addSubview(player_icon)
 
-
     @menu_view = UIView.new
+    @menu_view.frame = [[0, 0], [70, 70]]
     view.addSubview(@menu_view)
-    @menu_view.translatesAutoresizingMaskIntoConstraints = false
-    @menu_view.widthAnchor.constraintEqualToConstant(70 + 120).active = true
-    @menu_view.heightAnchor.constraintEqualToConstant(70).active = true
-    @menu_view.bottomAnchor.constraintEqualToAnchor(view.safeAreaLayoutGuide.bottomAnchor).active = true
-
     menu_icon = UIImage.imageNamed('menu-button')
     menu_icon_view = UIImageView.alloc.initWithImage(menu_icon)
-    menu_icon_view.frame = [[120 ,0], [70, 70]]
+    menu_icon_view.frame = [[0 ,0], [70, 70]]
     @menu_view.addSubview(menu_icon_view)
   end
 

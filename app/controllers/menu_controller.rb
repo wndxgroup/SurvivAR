@@ -49,6 +49,7 @@ class MenuController < UIViewController
   end
 
   def push_user_to_death_screen
+    puts 'pushing from menu'
     parentViewController.set_controller(parentViewController.death_controller, from: self)
   end
 
