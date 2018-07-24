@@ -172,8 +172,9 @@ class ARViewController < UIViewController
 
   def touchesEnded(_, withEvent: event)
     if event.touchesForView(@toggle_button_view)
-      puts 'pause'
+      @scene.rootNode.paused = true
     else
+      @scene.rootNode.paused = false
       spawn_enemy
       shoot
     end
@@ -232,6 +233,7 @@ class ARViewController < UIViewController
     # d = radians_away_from_facing_north
     # puts d
     # Dispatch::Queue.main.sync { @mini_map_view.layer.transform = CATransform3DMakeRotation(-d, 0.0, 0.0, 1.0) }
+    return if @scene.rootNode.isPaused
     update_survival_clock_display
     update_icon_positions if @enemy_map_icons.count > 0
     @entity_manager.updateWithDeltaTime(time)
