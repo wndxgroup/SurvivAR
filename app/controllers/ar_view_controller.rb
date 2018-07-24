@@ -17,6 +17,7 @@ class ARViewController < UIViewController
 
   def viewDidLoad
     super
+    puts 'viewDidLoad'
     @scene_view = ARSCNView.alloc.init
     @scene_view.autoenablesDefaultLighting = true
     @scene_view.delegate = self
@@ -42,6 +43,7 @@ class ARViewController < UIViewController
   end
 
   def viewDidAppear(_)
+    puts 'viewDidAppear'
     add_ui
     @bullets = []
     @scene_view.session.runWithConfiguration(@scene_config, options: ARSessionRunOptionResetTracking)
@@ -82,24 +84,34 @@ class ARViewController < UIViewController
     scope_width = 120
     scope_icon = UIImage.imageNamed('scope')
     scope_icon_view = UIImageView.alloc.initWithImage(scope_icon)
-    scope_icon_view.frame = [[@scene_view.frame.size.width / 2 - scope_width / 2, @scene_view.frame.size.height / 2 - scope_width / 2],
+    scope_icon_view.frame = [[@scene_view.frame.size.width / 2.0 - scope_width / 2.0, @scene_view.frame.size.height / 2.0 - scope_width / 2.0],
                              [scope_width, scope_width]]
     @scene_view.addSubview(scope_icon_view)
 
     @mini_map_view = UIView.new
     @mini_map_view.backgroundColor = UIColor.alloc.initWithWhite(0, alpha: 0.5)
-    @mini_map_view.layer.cornerRadius = mini_map_diameter / 2
+    @mini_map_view.layer.cornerRadius = mini_map_diameter / 2.0
     @mini_map_view.layer.masksToBounds = true
     @mini_map_view.frame = [[0, @scene_view.frame.size.height - mini_map_diameter], [mini_map_diameter, mini_map_diameter]]
     view.addSubview(@mini_map_view)
 
     player_icon =  UIView.new
-    player_icon.frame = [[mini_map_diameter / 2 - map_icon_diameter / 2, mini_map_diameter / 2 - map_icon_diameter / 2],
+    player_icon.frame = [[mini_map_diameter / 2.0 - map_icon_diameter / 2.0, mini_map_diameter / 2.0 - map_icon_diameter / 2.0],
                          [map_icon_diameter, map_icon_diameter]]
     player_icon.backgroundColor = UIColor.whiteColor
-    player_icon.layer.cornerRadius = map_icon_diameter / 2
+    player_icon.layer.cornerRadius = map_icon_diameter / 2.0
     player_icon.layer.masksToBounds = true
     @mini_map_view.addSubview(player_icon)
+
+    toggle_button_width = 60
+    toggle_button = UIImage.imageNamed('pause')
+    @toggle_button_view = UIView.new
+    @toggle_button_view.frame = [[@scene_view.frame.size.width / 2.0 - toggle_button_width / 2.0, @scene_view.frame.size.height - toggle_button_width],
+                                 [toggle_button_width, toggle_button_width]]
+    toggle_image_view = UIImageView.alloc.initWithImage(toggle_button)
+    toggle_image_view.frame = [[0, 0], [toggle_button_width, toggle_button_width]]
+    @toggle_button_view.addSubview(toggle_image_view)
+    @scene_view.addSubview(@toggle_button_view)
   end
 
   def spawn_enemy
@@ -159,8 +171,12 @@ class ARViewController < UIViewController
   end
 
   def touchesEnded(_, withEvent: event)
-    spawn_enemy
-    shoot
+    if event.touchesForView(@toggle_button_view)
+      puts 'pause'
+    else
+      spawn_enemy
+      shoot
+    end
   end
 
   def push_user_to_menu
@@ -239,6 +255,18 @@ class ARViewController < UIViewController
       @enemy.componentForClass(VisualComponent).state_machine.enterState(EnemyFleeState)
       increment_kill_count
     end
+  end
+
+  def viewWillDisappear(_)
+    puts 'willDisappear'
+  end
+
+  def sessionWasInterrupted(_)
+    puts 'interupted'
+  end
+
+  def sessionInterruptionEnded(_)
+    puts 'ended'
   end
 
   def locationManager(_, didUpdateHeading: new_heading)
