@@ -17,10 +17,11 @@ class Enemy < GKEntity
     z = -z if rand < 0.5
     @node = self.componentForClass(VisualComponent).node
     @node.position = @position = SCNVector3Make(x, 0, z)
-    @node.physicsBody = SCNPhysicsBody.bodyWithType(SCNPhysicsBodyTypeDynamic, shape: nil)
-    @node.physicsBody.categoryBitMask = 2
-    @node.physicsBody.collisionBitMask = 1
-    @node.physicsBody.contactTestBitMask = 1
+    # @node.physicsBody = SCNPhysicsBody.bodyWithType(SCNPhysicsBodyTypeDynamic, shape: nil)#SCNPhysicsShape.shapeWithGeometry(SCNSphere.sphereWithRadius(1), options: nil))
+    # @node.physicsBody.categoryBitMask = 2
+    # @node.physicsBody.collisionBitMask = 1
+    # @node.physicsBody.contactTestBitMask = 1
+    # @node.physicsBody.affectedByGravity = false
     @node
   end
 end

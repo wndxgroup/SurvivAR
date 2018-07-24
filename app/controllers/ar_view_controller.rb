@@ -1,5 +1,5 @@
 class ARViewController < UIViewController
-  include Map
+  include Map, SurvivalTime
   attr_accessor :scene_view, :scene_config, :mini_map_view
 
   def enemy_radius; 1.0; end
@@ -36,6 +36,9 @@ class ARViewController < UIViewController
     node = @survivor.survivor_node
     @scene.rootNode.addChildNode(node)
     @entity_manager.assign_survivor(@survivor)
+
+    player = Player.first
+    @player = player.sorted_accounts[player.current_account]
   end
 
   def viewDidAppear(_)
@@ -51,6 +54,31 @@ class ARViewController < UIViewController
   end
 
   def add_ui
+    info_bar = UIView.new
+    info_bar.frame = [[0, 0], [@scene_view.frame.size.width, 40]]
+    info_bar.backgroundColor = UIColor.alloc.initWithRed(0, green: 0, blue: 0, alpha: 0.5)
+    @scene_view.addSubview(info_bar)
+
+    username = UILabel.new
+    username.text = @player.username
+    username.textColor = UIColor.whiteColor
+    username.frame = [[10, 0], [@scene_view.frame.size.width / 3.0 - 10, 40]]
+    info_bar.addSubview(username)
+
+    @kill_count = UILabel.new
+    @kill_count.text = @player.kills.to_s
+    @kill_count.textColor = UIColor.whiteColor
+    @kill_count.frame = [[@scene_view.frame.size.width / 3.0, 0], [@scene_view.frame.size.width / 3.0, 40]]
+    @kill_count.textAlignment = NSTextAlignmentCenter
+    info_bar.addSubview(@kill_count)
+
+    @survival_clock = UILabel.new
+    @survival_clock.text = survival_time(@player)
+    @survival_clock.textColor = UIColor.whiteColor
+    @survival_clock.frame = [[@scene_view.frame.size.width / 3.0 * 2, 0], [@scene_view.frame.size.width / 3.0 - 10, 40]]
+    @survival_clock.textAlignment = NSTextAlignmentRight
+    info_bar.addSubview(@survival_clock)
+
     scope_width = 120
     scope_icon = UIImage.imageNamed('scope')
     scope_icon_view = UIImageView.alloc.initWithImage(scope_icon)
@@ -72,14 +100,6 @@ class ARViewController < UIViewController
     player_icon.layer.cornerRadius = map_icon_diameter / 2
     player_icon.layer.masksToBounds = true
     @mini_map_view.addSubview(player_icon)
-
-    @menu_view = UIView.new
-    @menu_view.frame = [[0, 0], [70, 70]]
-    view.addSubview(@menu_view)
-    menu_icon = UIImage.imageNamed('menu-button')
-    menu_icon_view = UIImageView.alloc.initWithImage(menu_icon)
-    menu_icon_view.frame = [[0 ,0], [70, 70]]
-    @menu_view.addSubview(menu_icon_view)
   end
 
   def spawn_enemy
@@ -122,10 +142,8 @@ class ARViewController < UIViewController
   end
 
   def player_dies
-    player = Player.first
-    current_player = player.accounts[player.current_account]
-    current_player.alive = false
-    current_player.start_time = nil
+    @player.alive = false
+    @player.start_time = nil
     cdq.save
     push_user_to_death_screen
   end
@@ -141,12 +159,8 @@ class ARViewController < UIViewController
   end
 
   def touchesEnded(_, withEvent: event)
-    if event.touchesForView(@menu_view)
-      push_user_to_menu
-    else
-      spawn_enemy
-      shoot
-    end
+    spawn_enemy
+    shoot
   end
 
   def push_user_to_menu
@@ -202,14 +216,28 @@ class ARViewController < UIViewController
     # d = radians_away_from_facing_north
     # puts d
     # Dispatch::Queue.main.sync { @mini_map_view.layer.transform = CATransform3DMakeRotation(-d, 0.0, 0.0, 1.0) }
+    update_survival_clock_display
     update_icon_positions if @enemy_map_icons.count > 0
     @entity_manager.updateWithDeltaTime(time)
   end
 
+  def update_survival_clock_display
+    Dispatch::Queue.main.sync { @survival_clock.text = survival_time(@player) } if @survival_clock
+  end
+
+  def increment_kill_count
+    Dispatch::Queue.main.sync do
+      @player.kills += 1
+      cdq.save
+      @kill_count.text = @player.kills.to_s
+    end
+  end
+
   def physicsWorld(world, didBeginContact: contact)
     @entity_manager.entities.each {|enemy| @enemy = enemy if enemy.node == contact.nodeA || enemy.node == contact.nodeB}
-    if @enemy
+    if @enemy && @enemy.componentForClass(VisualComponent).state_machine.currentState.is_a?(EnemyChaseState)
       @enemy.componentForClass(VisualComponent).state_machine.enterState(EnemyFleeState)
+      increment_kill_count
     end
   end
 

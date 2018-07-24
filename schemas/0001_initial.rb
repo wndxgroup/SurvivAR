@@ -12,6 +12,7 @@ schema "0001 initial" do
     integer16 :hours
     integer16 :minutes
     double :seconds
+    integer16 :kills, default: 0
     boolean :alive, default: true
     datetime :start_time, default: nil
 
