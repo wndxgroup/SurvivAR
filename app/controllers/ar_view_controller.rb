@@ -153,28 +153,14 @@ class ARViewController < UIViewController
     @entity_manager.entities.each { |entity| @scene.rootNode.addChildNode(entity)}
   end
 
-  def session(_, didUpdateFrame: _)
-    if touching_enemy && !@currently_killing_player
-      @currently_killing_player = true
-      player_dies
-    end
-  end
-
   def player_dies
     @player.alive = false
     @player.start_time = nil
-    cdq.save
-    push_user_to_death_screen
-  end
-
-  def touching_enemy
-    player = @scene_view.pointOfView.position
-    @entity_manager.entities.any? do |entity|
-      entity_position = entity.componentForClass(VisualComponent).node.position
-      Math.sqrt((entity_position.x - player.x)**2 +
-                (entity_position.y - player.y)**2 +
-                (entity_position.z - player.z)**2)  <= enemy_radius
+    puts 'saving & pushing'
+    Dispatch::Queue.main.sync do
+      cdq.save
     end
+    push_user_to_death_screen
   end
 
   def set_play_pause_button
@@ -207,14 +193,21 @@ class ARViewController < UIViewController
   end
 
   def push_user_to_death_screen
+    puts 'pausing session'
     pause_session
+    puts 'session paused \n pushing from AR controller'
     parentViewController.set_controller(parentViewController.death_controller, from: self)
+    puts 'pushed'
   end
 
   def pause_session
-    @scene_view.pointOfView.childNodes.each {|node| node.removeFromParentNode} # does this do anything?
+    puts 'pause A'
+    # @scene_view.pointOfView.childNodes.each {|node| node.removeFromParentNode} # does this do anything?
+    puts 'pause B'
     @scene.rootNode.childNodes.each {|node| node.removeFromParentNode}
+    puts 'pause C'
     @scene_view.session.pause
+    puts 'pause D'
   end
 
   def shoot
@@ -274,7 +267,11 @@ class ARViewController < UIViewController
 
   def physicsWorld(world, didBeginContact: contact)
     @entity_manager.entities.each {|enemy| @enemy = enemy if enemy.node == contact.nodeA || enemy.node == contact.nodeB}
-    if @enemy && @enemy.componentForClass(VisualComponent).state_machine.currentState.is_a?(EnemyChaseState)
+    survivor_node = @survivor.componentForClass(LocationComponent).node
+    if (contact.nodeA == survivor_node || contact.nodeB == survivor_node) && !@currently_killing_player
+      @currently_killing_player = true
+      player_dies
+    elsif @enemy.componentForClass(VisualComponent).state_machine.currentState.is_a?(EnemyChaseState)
       @enemy.componentForClass(VisualComponent).state_machine.enterState(EnemyFleeState)
       increment_kill_count
     end

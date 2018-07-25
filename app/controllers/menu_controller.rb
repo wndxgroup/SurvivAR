@@ -94,7 +94,7 @@ class MenuController < UIViewController
       calculate_survival_time_increase(@current_account)
       Dispatch::Queue.main.sync do
         @survival_clock.text = survival_time(@current_account)
-        push_user_to_death_screen unless @current_account.alive?
+        # push_user_to_death_screen unless @current_account.alive?
       end
     end
   end
