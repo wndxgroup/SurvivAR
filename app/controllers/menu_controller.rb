@@ -90,7 +90,7 @@ class MenuController < UIViewController
   end
 
   def update_survival_clock
-    while @current_account.start_time do
+    while @current_account.start_time && @current_account.alive? do
       calculate_survival_time_increase(@current_account)
       Dispatch::Queue.main.sync do
         @survival_clock.text = survival_time(@current_account)

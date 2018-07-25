@@ -47,12 +47,19 @@ class ARViewController < UIViewController
     add_ui
     @bullets = []
     @scene_view.session.runWithConfiguration(@scene_config, options: ARSessionRunOptionResetTracking)
+    puts 'running'
     @currently_killing_player = false
+    puts 'Checking entity count'
     if @entity_manager.entities.count > 0
+      puts 'displaying enemies'
       display_enemies
+      puts 'done displaying enemies'
     else
+      puts 'spawning enemy'
       spawn_enemy
+      puts 'done spawning enemy'
     end
+    puts 'Done viewDidAppear'
   end
 
   def add_ui
@@ -170,13 +177,27 @@ class ARViewController < UIViewController
     end
   end
 
+  def set_play_pause_button
+    if @scene.rootNode.isPaused
+      @toggle_button_view.subviews[0].image = UIImage.imageNamed('play')
+    else
+      @toggle_button_view.subviews[0].image = UIImage.imageNamed('pause')
+    end
+  end
+
   def touchesEnded(_, withEvent: event)
     if event.touchesForView(@toggle_button_view)
-      @scene.rootNode.paused = true
+      if @scene.rootNode.isPaused
+        @scene.rootNode.paused = false
+      else
+        @scene.rootNode.paused = true
+      end
+      set_play_pause_button
     else
-      @scene.rootNode.paused = false
-      spawn_enemy
-      shoot
+      unless @scene.rootNode.isPaused
+        spawn_enemy
+        shoot
+      end
     end
   end
 
