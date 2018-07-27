@@ -6,7 +6,6 @@ class AccountsListController < UITableViewController
   def init
     super
     self.title = 'Accounts'
-    # @table = UITableView.new
     self
   end
 

@@ -16,7 +16,16 @@ schema "0001 initial" do
     boolean :alive, default: true
     datetime :start_time, default: nil
 
+    has_many :rounds
     belongs_to :player
+  end
+
+  entity "Round" do
+    integer16 :kills
+    string :survival_time
+    datetime :completed_on
+
+    belongs_to :account
   end
 
   entity "Wave" do

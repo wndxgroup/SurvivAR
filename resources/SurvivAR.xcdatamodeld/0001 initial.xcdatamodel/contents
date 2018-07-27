@@ -13,7 +13,14 @@
     <attribute optional="YES" syncable="YES" attributeType="Integer 16" name="kills" defaultValueString="0"/>
     <attribute optional="YES" syncable="YES" attributeType="Boolean" name="alive" defaultValueString="YES"/>
     <attribute optional="YES" syncable="YES" attributeType="Date" name="start_time"/>
+    <relationship optional="YES" deletionRule="Nullify" syncable="YES" name="rounds" inverseEntity="Round" destinationEntity="Round" inverseName="account" toMany="YES"/>
     <relationship optional="YES" deletionRule="Nullify" syncable="YES" name="player" inverseEntity="Player" destinationEntity="Player" inverseName="accounts" maxCount="1"/>
+  </entity>
+  <entity name="Round" syncable="YES" representedClassName="Round" codeGenerationType="class">
+    <attribute optional="YES" syncable="YES" attributeType="Integer 16" name="kills" defaultValueString="0"/>
+    <attribute optional="YES" syncable="YES" attributeType="String" name="survival_time"/>
+    <attribute optional="YES" syncable="YES" attributeType="Date" name="completed_on"/>
+    <relationship optional="YES" deletionRule="Nullify" syncable="YES" name="account" inverseEntity="Account" destinationEntity="Account" inverseName="rounds" maxCount="1"/>
   </entity>
   <entity name="Wave" syncable="YES" representedClassName="Wave" codeGenerationType="class">
     <attribute optional="YES" syncable="YES" attributeType="Integer 16" name="wave_number" defaultValueString="1"/>
