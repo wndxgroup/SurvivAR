@@ -2,15 +2,6 @@ class StartHereLayout < MotionKit::Layout
   def layout
     background_color UIColor.blackColor
 
-    add UIView, :header do
-      background_color UIColor.colorWithRed(1, green: 189.0/255, blue: 74.0/255, alpha: 1)
-      add UILabel, :header_title do
-        text 'Start a New Game'
-        text_alignment UITextAlignmentCenter
-        font UIFont.systemFontOfSize(24)
-      end
-    end
-
     add UIImageView, :logo do
       frame [[0, 10], [200, 200]]
       image UIImage.imageNamed('full-logo')
@@ -36,20 +27,8 @@ class StartHereLayout < MotionKit::Layout
   end
 
   def add_constraints
-    constraints(:header) do
-      top_left x: 0, y: 0
-      width.equals(view)
-      height 70
-    end
-
-    constraints(:header_title) do
-      top_left x: 0, y: 0
-      width.equals(:header)
-      height.equals(:header)
-    end
-
     constraints(:logo) do
-      top.equals(:header, NSLayoutAttributeBottom).plus(30)
+      top.equals(30)
       left.equals(view).plus(25)
       width.equals(view).minus(50)
       height :scale

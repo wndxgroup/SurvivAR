@@ -3,6 +3,7 @@ class CreateAnAccountController < UIViewController
   include Survival
 
   def loadView
+    self.title = 'Create Account'
     @layout = StartHereLayout.new
     self.view = @layout.view
     @layout.add_constraints
@@ -19,12 +20,13 @@ class CreateAnAccountController < UIViewController
   def create_account
     @username = @username_field.text
     @username_field.text = ''
-    return if @username == '' || username_already_exists(player = Player.first)
+    player = Player.first
+    return if @username == '' || username_already_exists(player ||= Player.create)
     @current_account = player.accounts.create(username: @username, created_on: Time.now)
     player.current_account = player.accounts.count - 1
     cdq.save
-    Dispatch::Queue.new('start survival session').async { @current_account.start_survival_session }
-    parentViewController.start_vision(self)
+    Dispatch::Queue.new('start survival session').async { @current_account.start_survival_session } #Move this to the AR controller
+    navigationController.setViewControllers([ARViewController.new], animated: true)
   end
 
   def didMoveToParentViewController(_)
@@ -43,7 +45,7 @@ class CreateAnAccountController < UIViewController
                                                            preferredStyle: UIAlertControllerStyleAlert)
         action = UIAlertAction.actionWithTitle('Try again', style: UIAlertActionStyleDefault, handler: nil)
         alert.addAction(action)
-        self.presentViewController(alert, animated: true, completion: nil)
+        presentViewController(alert, animated: true, completion: nil)
         return true
       end
     end

@@ -2,15 +2,6 @@ class DeathLayout < MotionKit::Layout
   def layout
     background_color UIColor.blackColor
 
-    add UIView, :header do
-      background_color UIColor.colorWithRed(1, green: 189.0/255, blue: 74.0/255, alpha: 1)
-      add UILabel, :header_title do
-        text 'You Died'
-        text_alignment UITextAlignmentCenter
-        font UIFont.systemFontOfSize(24)
-      end
-    end
-
     add UILabel, :name_field do
       text_alignment UITextAlignmentCenter
       font UIFont.systemFontOfSize(30)
@@ -45,31 +36,19 @@ class DeathLayout < MotionKit::Layout
   end
 
   def add_constraints
-    constraints(:header) do
-      top_left x: 0, y: 0
-      width.equals(view)
-      height 70
-    end
-
-    constraints(:header_title) do
-      top_left x: 0, y: 0
-      width.equals(:header)
-      height.equals(:header)
-    end
-
     constraints(:name_field) do
-      top.equals(:header_title, NSLayoutAttributeBottom).plus(40)
-      width.equals(:header)
+      top.equals(40)
+      width.equals(view)
     end
 
     constraints(:duration) do
       top.equals(:name_field, NSLayoutAttributeBottom).plus(15)
-      width.equals(:header)
+      width.equals(view)
     end
 
     constraints(:inspiration) do
       top.equals(:duration, NSLayoutAttributeBottom).plus(15)
-      width.equals(:header)
+      width.equals(view)
     end
 
     constraints(:logo) do

@@ -17,7 +17,7 @@ class ARViewController < UIViewController
 
   def viewDidLoad
     super
-    puts 'viewDidLoad'
+    navigationController.setNavigationBarHidden(true, animated: true)
     @scene_view = ARSCNView.alloc.init
     @scene_view.autoenablesDefaultLighting = true
     @scene_view.delegate = self
@@ -43,49 +43,47 @@ class ARViewController < UIViewController
   end
 
   def viewDidAppear(_)
-    puts 'viewDidAppear'
     add_ui
     @bullets = []
     @scene_view.session.runWithConfiguration(@scene_config, options: ARSessionRunOptionResetTracking)
-    puts 'running'
     @currently_killing_player = false
-    puts 'Checking entity count'
     if @entity_manager.entities.count > 0
-      puts 'displaying enemies'
       display_enemies
-      puts 'done displaying enemies'
     else
-      puts 'spawning enemy'
       spawn_enemy
-      puts 'done spawning enemy'
     end
-    puts 'Done viewDidAppear'
   end
 
   def add_ui
     info_bar = UIView.new
-    info_bar.frame = [[0, 0], [@scene_view.frame.size.width, 40]]
-    info_bar.backgroundColor = UIColor.alloc.initWithRed(0, green: 0, blue: 0, alpha: 0.5)
+    info_bar.backgroundColor = UIColor.alloc.initWithWhite(0, alpha: 0.5)
+    info_bar.layer.borderWidth = 2
+    info_bar.layer.borderColor = UIColor.blackColor.CGColor
     @scene_view.addSubview(info_bar)
+    info_bar.translatesAutoresizingMaskIntoConstraints = false
+    info_bar.leftAnchor.constraintEqualToAnchor(view.safeAreaLayoutGuide.leftAnchor).active = true
+    info_bar.rightAnchor.constraintEqualToAnchor(view.safeAreaLayoutGuide.rightAnchor).active = true
+    info_bar.topAnchor.constraintEqualToAnchor(view.safeAreaLayoutGuide.topAnchor).active = true
+    info_bar.bottomAnchor.constraintEqualToAnchor(view.safeAreaLayoutGuide.topAnchor, constant: 40).active = true
 
     username = UILabel.new
     username.text = @player.username
-    username.textColor = UIColor.whiteColor
     username.frame = [[10, 0], [@scene_view.frame.size.width / 3.0 - 10, 40]]
+    username.textColor = UIColor.whiteColor
     info_bar.addSubview(username)
 
     @kill_count = UILabel.new
     @kill_count.text = @player.kills.to_s
-    @kill_count.textColor = UIColor.whiteColor
     @kill_count.frame = [[@scene_view.frame.size.width / 3.0, 0], [@scene_view.frame.size.width / 3.0, 40]]
     @kill_count.textAlignment = NSTextAlignmentCenter
+    @kill_count.textColor = UIColor.whiteColor
     info_bar.addSubview(@kill_count)
 
     @survival_clock = UILabel.new
     @survival_clock.text = survival_time(@player)
-    @survival_clock.textColor = UIColor.whiteColor
     @survival_clock.frame = [[@scene_view.frame.size.width / 3.0 * 2, 0], [@scene_view.frame.size.width / 3.0 - 10, 40]]
     @survival_clock.textAlignment = NSTextAlignmentRight
+    @survival_clock.textColor = UIColor.whiteColor
     info_bar.addSubview(@survival_clock)
 
     scope_width = 120
@@ -100,6 +98,8 @@ class ARViewController < UIViewController
     @mini_map_view.layer.cornerRadius = mini_map_diameter / 2.0
     @mini_map_view.layer.masksToBounds = true
     @mini_map_view.frame = [[0, @scene_view.frame.size.height - mini_map_diameter], [mini_map_diameter, mini_map_diameter]]
+    @mini_map_view.layer.borderWidth = 2
+    @mini_map_view.layer.borderColor = UIColor.blackColor.CGColor
     view.addSubview(@mini_map_view)
 
     player_icon =  UIView.new
@@ -156,7 +156,6 @@ class ARViewController < UIViewController
   def player_dies
     @player.alive = false
     @player.start_time = nil
-    puts 'saving & pushing'
     Dispatch::Queue.main.sync do
       cdq.save
     end
@@ -189,25 +188,18 @@ class ARViewController < UIViewController
 
   def push_user_to_menu
     pause_session
-    parentViewController.set_controller(parentViewController.menu_controller, from: self)
+    navigationController.pushViewController(MenuController.new, animated: true)
   end
 
   def push_user_to_death_screen
-    puts 'pausing session'
     pause_session
-    puts 'session paused \n pushing from AR controller'
-    parentViewController.set_controller(parentViewController.death_controller, from: self)
-    puts 'pushed'
+    navigationController.setViewControllers([DeathController.new], animated: true)
   end
 
   def pause_session
-    puts 'pause A'
     # @scene_view.pointOfView.childNodes.each {|node| node.removeFromParentNode} # does this do anything?
-    puts 'pause B'
     @scene.rootNode.childNodes.each {|node| node.removeFromParentNode}
-    puts 'pause C'
     @scene_view.session.pause
-    puts 'pause D'
   end
 
   def shoot
@@ -290,6 +282,8 @@ class ARViewController < UIViewController
   end
 
   def locationManager(_, didUpdateHeading: new_heading)
-    @mini_map_view.layer.transform = CATransform3DMakeRotation(-new_heading.trueHeading / 180.0  * Math::PI, 0.0, 0.0, 1.0);
+    if @mini_map_view
+      @mini_map_view.layer.transform = CATransform3DMakeRotation(-new_heading.trueHeading / 180.0  * Math::PI, 0.0, 0.0, 1.0);
+    end
   end
 end

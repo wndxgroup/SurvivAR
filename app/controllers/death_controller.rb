@@ -3,11 +3,14 @@ class DeathController < UIViewController
 
   def loadView
     @layout = DeathLayout.new
+    navigationController.setNavigationBarHidden(false, animated: true)
+    self.title = 'You Died'
     self.view = @layout.view
     @layout.add_constraints
   end
 
-  def viewDidAppear(_)
+  def viewDidLoad
+    cdq.setup
     player = Player.first
     account = player.sorted_accounts[player.current_account]
     @layout.get(:name_field).text = "#{account.username} survived for"
@@ -20,6 +23,10 @@ class DeathController < UIViewController
   end
 
   def push_user_to_accounts
-    parentViewController.start_accounts_page(self)
+    if navigationController.viewControllers.count == 1
+      navigationController.setViewControllers([AccountsListController.new], animated: true)
+    else
+      navigationController.popViewControllerAnimated(true)
+    end
   end
 end
