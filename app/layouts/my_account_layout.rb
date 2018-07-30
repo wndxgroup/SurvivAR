@@ -38,9 +38,8 @@ class MyAccountLayout < MotionKit::Layout
             background_color UIColor.whiteColor
           end
 
-          add UILabel, :toggle_log do
+          add UIButton, :toggle_log do
             font UIFont.systemFontOfSize(24)
-            text_alignment UITextAlignmentCenter
           end
 
           add UILabel, :delete_account do

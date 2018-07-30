@@ -24,10 +24,11 @@ class MyAccountController < UIViewController
 
   def viewDidLoad
     @history_table.dataSource = @history_table.delegate = self
+    @toggle_log_button.addTarget(self, action: 'toggle_log', forControlEvents: UIControlEventTouchUpInside)
   end
 
   def tableView(_, numberOfRowsInSection: _)
-    13
+    @account.rounds.count
   end
 
   CELLID = 'CellIdentifier'
@@ -36,8 +37,7 @@ class MyAccountController < UIViewController
       cell = UITableViewCell.alloc.initWithStyle(UITableViewCellStyleSubtitle, reuseIdentifier:CELLID)
       cell
     end
-    account = @player.sorted_accounts[indexPath.row]
-    cell.textLabel.text = account.username
+    cell.textLabel.text = "#{@account.sorted_rounds[indexPath.row].kills} kills in #{@account.sorted_rounds[indexPath.row].survival_time}"
     cell
   end
 
@@ -51,20 +51,36 @@ class MyAccountController < UIViewController
       @quick_view_time.text += "\n#{survival_time(@account)}"
       @battleground_button.text = 'Continue Round'
     else
-      @quick_view_title.text = 'Best Round'
+      @quick_view_title.text = 'Most Kills Round'
+      round = @account.most_kills_round
+      @quick_view_kills.text += "\n#{@account.rounds[round].kills}"
+      @quick_view_time.text += "\n#{@account.rounds[round].survival_time}"
       @battleground_button.text = 'Start New Round'
     end
+    set_toggle_log_button
+  end
 
+  def set_toggle_log_button
     if logged_in_to_this_account
-      @toggle_log_button.text = 'Log Out'
+      @toggle_log_button.setTitle('Log Out', forState: UIControlStateNormal)
       @toggle_log_button.backgroundColor = UIColor.orangeColor
     else
-      @toggle_log_button.text = 'Log In'
+      @toggle_log_button.setTitle('Log In', forState: UIControlStateNormal)
       @toggle_log_button.backgroundColor = UIColor.alloc.initWithRed(66.0/255, green: 182.0/255, blue: 244.0/255, alpha: 1.0)
     end
   end
 
+  def toggle_log
+    if logged_in_to_this_account
+      @player.current_account = nil
+    else
+      @player.current_account = @player.sorted_accounts.index{|acct| acct.username == @username.text}
+    end
+    set_toggle_log_button
+  end
+
   def logged_in_to_this_account
+    return false if @player.current_account == nil
     @player.sorted_accounts[@player.current_account].username == @account.username
   end
 end

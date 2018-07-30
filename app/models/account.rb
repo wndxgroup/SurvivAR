@@ -27,4 +27,9 @@ class Account < CDQManagedObject
     self.rounds.array.sort{ |a,b| a.completed_on <=> b.completed_on }
   end
 
+  def most_kills_round
+    kills = sorted_rounds.map { |round| round.kills }
+    kills.index(kills.max)
+  end
+
 end
