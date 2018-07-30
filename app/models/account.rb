@@ -23,4 +23,8 @@ class Account < CDQManagedObject
     cdq.save
   end
 
+  def sorted_rounds
+    self.rounds.array.sort{ |a,b| a.completed_on <=> b.completed_on }
+  end
+
 end

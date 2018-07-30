@@ -45,7 +45,7 @@ class MyAccountController < UIViewController
     @quick_view_container.layer.cornerRadius = 10
     @quick_view_container.clipsToBounds = true
     @username.text = @account.username
-    if @account.alive
+    if @account.alive?
       @quick_view_title.text = 'Current Round'
       @quick_view_kills.text += "\n#{@account.kills}"
       @quick_view_time.text += "\n#{survival_time(@account)}"

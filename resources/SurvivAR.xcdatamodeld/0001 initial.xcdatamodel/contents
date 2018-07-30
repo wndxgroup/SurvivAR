@@ -18,7 +18,7 @@
   </entity>
   <entity name="Round" syncable="YES" representedClassName="Round" codeGenerationType="class">
     <attribute optional="YES" syncable="YES" attributeType="Integer 16" name="kills" defaultValueString="0"/>
-    <attribute optional="YES" syncable="YES" attributeType="String" name="survival_time"/>
+    <attribute optional="YES" syncable="YES" attributeType="String" name="survival_time" defaultValueString="abc"/>
     <attribute optional="YES" syncable="YES" attributeType="Date" name="completed_on"/>
     <relationship optional="YES" deletionRule="Nullify" syncable="YES" name="account" inverseEntity="Account" destinationEntity="Account" inverseName="rounds" maxCount="1"/>
   </entity>
