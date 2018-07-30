@@ -40,6 +40,7 @@ class ARViewController < UIViewController
 
     player = Player.first
     @player = player.sorted_accounts[player.current_account]
+    Dispatch::Queue.new('start survival session').async { @player.start_survival_session }
   end
 
   def viewDidAppear(_)
@@ -156,7 +157,6 @@ class ARViewController < UIViewController
   def player_dies
     Dispatch::Queue.main.sync do
       @player.alive = false
-      puts 'alive = false'
       @player.start_time = nil
       @player.rounds.create(kills: @player.kills, survival_time: survival_time(@player), completed_on: Time.now)
       cdq.save
@@ -173,19 +173,31 @@ class ARViewController < UIViewController
   end
 
   def touchesEnded(_, withEvent: event)
+    puts 'a'
     if event.touchesForView(@toggle_button_view)
+      puts 'b'
       if @scene.rootNode.isPaused
+        puts 'c'
         @scene.rootNode.paused = false
       else
+        puts 'd'
         @scene.rootNode.paused = true
       end
+      puts 'e'
       set_play_pause_button
+      puts 'f'
     else
+      puts 'g'
       unless @scene.rootNode.isPaused
+        puts 'h'
         spawn_enemy
+        puts 'i'
         shoot
+        puts 'j'
       end
+      puts 'k'
     end
+    puts 'l'
   end
 
   def push_user_to_menu
@@ -205,20 +217,32 @@ class ARViewController < UIViewController
   end
 
   def shoot
+    puts 'i.1'
     target = SCNNode.node
+    puts 'i.2'
     target.position = [0, 0, -80]
-
+    puts 'i.3'
     @scene_view.pointOfView.addChildNode(target)
+    puts 'i.4'
     user_position = @scene_view.pointOfView.position
+    puts 'i.5'
     target_position = @scene_view.pointOfView.convertPosition(target.position, toNode: nil)
+    puts 'i.6'
     @scene_view.pointOfView.childNodes[0].removeFromParentNode
+    puts 'i.7'
 
     bullet = Bullet.new
+    puts 'i.8'
     @entity_manager.add_bullet(bullet)
+    puts 'i.9'
     node = bullet.set_firing_location(user_position)
+    puts 'i.10'
     force = [target_position.x, target_position.y, target_position.z]
+    puts 'i.11'
     node.physicsBody.applyForce(force, atPosition: [0, 0, 0], impulse: true)
+    puts 'i.12'
     @scene.rootNode.addChildNode(node)
+    puts 'i.13'
   end
 
   def update_icon_positions

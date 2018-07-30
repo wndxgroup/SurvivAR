@@ -12,6 +12,7 @@ class MyAccountLayout < MotionKit::Layout
           end
 
           add UILabel, :quick_view_title do
+            text 'Overall Stats'
             font UIFont.systemFontOfSize(24)
             text_color UIColor.grayColor
           end
@@ -22,13 +23,19 @@ class MyAccountLayout < MotionKit::Layout
               font UIFont.systemFontOfSize(24)
               text_alignment UITextAlignmentCenter
               numberOfLines 3
-              text '💀'
+              text '💥'
             end
             add UILabel, :quick_view_time do
               font UIFont.systemFontOfSize(24)
               text_alignment UITextAlignmentCenter
               numberOfLines 3
               text '🕒'
+            end
+            add UILabel, :quick_view_rounds do
+              font UIFont.systemFontOfSize(24)
+              text_alignment UITextAlignmentCenter
+              numberOfLines 3
+              text '💀'
             end
           end
 
@@ -42,12 +49,10 @@ class MyAccountLayout < MotionKit::Layout
             font UIFont.systemFontOfSize(24)
           end
 
-          add UILabel, :delete_account do
-            font UIFont.systemFontOfSize(24)
-            text_alignment UITextAlignmentCenter
+          add UIButton, :delete_account do
+            title 'Delete Account'
             background_color UIColor.redColor
-            text_color UIColor.whiteColor
-            text 'Delete Account'
+            font UIFont.systemFontOfSize(24)
           end
 
           add UILabel, :history_title do
@@ -100,7 +105,7 @@ class MyAccountLayout < MotionKit::Layout
       top.equals(:quick_view_container)
       bottom.equals(:quick_view_container)
       left.equals(:quick_view_container)
-      width.equals('50%').of(:quick_view_container)
+      width.equals('25%').of(:quick_view_container)
     end
 
     constraints(:quick_view_time) do
@@ -108,6 +113,13 @@ class MyAccountLayout < MotionKit::Layout
       bottom.equals(:quick_view_container)
       left.equals(:quick_view_kills, :right)
       width.equals('50%').of(:quick_view_container)
+    end
+
+    constraints(:quick_view_rounds) do
+      top.equals(:quick_view_container)
+      bottom.equals(:quick_view_container)
+      left.equals(:quick_view_time, :right)
+      width.equals('25%').of(:quick_view_container)
     end
 
     button_padding = 10

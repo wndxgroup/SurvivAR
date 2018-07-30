@@ -25,7 +25,6 @@ class CreateAnAccountController < UIViewController
     @current_account = player.accounts.create(username: @username, created_on: Time.now)
     player.current_account = player.accounts.count - 1
     cdq.save
-    Dispatch::Queue.new('start survival session').async { @current_account.start_survival_session } #Move this to the AR controller
     navigationController.setViewControllers([ARViewController.new], animated: true)
   end
 

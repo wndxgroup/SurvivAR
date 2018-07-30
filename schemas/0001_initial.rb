@@ -16,7 +16,7 @@ schema "0001 initial" do
     boolean :alive, default: true
     datetime :start_time, default: nil
 
-    has_many :rounds
+    has_many :rounds, deletionRule: 'Cascade'
     belongs_to :player
   end
 
