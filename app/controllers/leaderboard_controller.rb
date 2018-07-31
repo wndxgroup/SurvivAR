@@ -55,14 +55,18 @@ class LeaderboardController < UIViewController
       cell
     end
     round = @filter == 'most kills' ? @most_kills[indexPath.row] : @longest_life[indexPath.row]
-    text_label = "#{round.account.username}"
-    if indexPath.row == 0
-      text_label += ' 🥇'
-    elsif indexPath.row == 1
-      text_label += ' 🥈'
-    elsif indexPath.row == 2
-      text_label += ' 🥉'
+    text_label = begin
+      if indexPath.row == 0
+        '🥇 '
+      elsif indexPath.row == 1
+        '🥈 '
+      elsif indexPath.row == 2
+        '🥉 '
+      else
+        "##{indexPath.row + 1}: "
+      end
     end
+    text_label += "#{round.account.username}"
     cell.textLabel.text = text_label
     cell.detailTextLabel.text = "#{round.kills} kills in #{round.survival_time}"
     cell
