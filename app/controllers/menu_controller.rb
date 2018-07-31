@@ -26,6 +26,7 @@ class MenuController < UIViewController
     @battleground_button.layer.cornerRadius = @accounts_button.layer.cornerRadius = @leaderboard_button.layer.cornerRadius = 10
     @battleground_button.clipsToBounds = @accounts_button.clipsToBounds = @leaderboard_button.clipsToBounds = true
     @accounts_button.addTarget(self, action: 'show_accounts', forControlEvents: UIControlEventTouchUpInside)
+    @leaderboard_button.addTarget(self, action: 'show_leaderboard', forControlEvents: UIControlEventTouchUpInside)
   end
 
   def viewWillAppear(_)
@@ -42,6 +43,10 @@ class MenuController < UIViewController
 
   def show_accounts
     navigationController.pushViewController(AccountsListController.new, animated: true)
+  end
+
+  def show_leaderboard
+    navigationController.pushViewController(LeaderboardController.new, animated: true)
   end
 
   # def update_notifications
