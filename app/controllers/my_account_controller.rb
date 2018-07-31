@@ -13,15 +13,15 @@ class MyAccountController < UIViewController
     @layout.add_constraints
 
     @username = @layout.get(:username)
-    @quick_view_container = @layout.get(:quick_view_container)
-    @quick_view_title    = @layout.get(:quick_view_title)
-    @quick_view_kills    = @layout.get(:quick_view_kills)
-    @quick_view_time     = @layout.get(:quick_view_time)
-    @quick_view_rounds   = @layout.get(:quick_view_rounds)
-    @battleground_button = @layout.get(:start_battleground)
-    @toggle_log_button   = @layout.get(:toggle_log)
+    @quick_view_container  = @layout.get(:quick_view_container)
+    @quick_view_title      = @layout.get(:quick_view_title)
+    @quick_view_kills      = @layout.get(:quick_view_kills)
+    @quick_view_time       = @layout.get(:quick_view_time)
+    @quick_view_rounds     = @layout.get(:quick_view_rounds)
+    @battleground_button   = @layout.get(:start_battleground)
+    @toggle_log_button     = @layout.get(:toggle_log)
     @delete_account_button = @layout.get(:delete_account)
-    @history_table       = @layout.get(:history_table)
+    @history_table         = @layout.get(:history_table)
   end
 
   def viewDidLoad
@@ -96,8 +96,7 @@ class MyAccountController < UIViewController
   end
 
   def overall_rounds
-    rounds = @account.rounds.count
-    @account.alive? ? rounds+1 : rounds
+    @account.rounds.count
   end
 
   def set_toggle_log_button
