@@ -113,14 +113,23 @@ class ARViewController < UIViewController
     @mini_map_view.addSubview(player_icon)
 
     toggle_button_width = 60
-    toggle_button = UIImage.imageNamed('pause')
-    @toggle_button_view = UIView.new
-    @toggle_button_view.frame = [[@scene_view.frame.size.width / 2.0 - toggle_button_width / 2.0, @scene_view.frame.size.height - toggle_button_width],
-                                 [toggle_button_width, toggle_button_width]]
-    toggle_image_view = UIImageView.alloc.initWithImage(toggle_button)
-    toggle_image_view.frame = [[0, 0], [toggle_button_width, toggle_button_width]]
-    @toggle_button_view.addSubview(toggle_image_view)
-    @scene_view.addSubview(@toggle_button_view)
+    @toggle_button = UIButton.new
+    @toggle_button.frame = [[@scene_view.frame.size.width / 2.0 - toggle_button_width / 2.0, @scene_view.frame.size.height - toggle_button_width],
+                            [toggle_button_width, toggle_button_width]]
+    @toggle_button.setImage(UIImage.imageNamed('pause'), forState: UIControlStateNormal)
+    view.addSubview(@toggle_button)
+    @toggle_button.addTarget(self, action: 'stop_time', forControlEvents: UIControlEventTouchUpInside)
+  end
+
+  def stop_time
+    @scene.rootNode.paused = true
+    @toggle_button.removeFromSuperview
+    Dispatch::Queue.new('stop time').async do
+      sleep 5
+      @scene.rootNode.paused = false
+      sleep 55
+      view.addSubview(@toggle_button)
+    end
   end
 
   def spawn_enemy
@@ -165,27 +174,10 @@ class ARViewController < UIViewController
     end
   end
 
-  def set_play_pause_button
-    if @scene.rootNode.isPaused
-      @toggle_button_view.subviews[0].image = UIImage.imageNamed('play')
-    else
-      @toggle_button_view.subviews[0].image = UIImage.imageNamed('pause')
-    end
-  end
-
   def touchesEnded(_, withEvent: event)
-    if event.touchesForView(@toggle_button_view)
-      if @scene.rootNode.isPaused
-        @scene.rootNode.paused = false
-      else
-        @scene.rootNode.paused = true
-      end
-    #   set_play_pause_button
-    else
-      # unless @scene.rootNode.isPaused
-      # spawn_enemy
-      #   shoot
-      # end
+    if event.touchesForView(@scene_view) && !@scene.rootNode.isPaused
+      spawn_enemy
+      shoot
     end
   end
 
@@ -221,14 +213,6 @@ class ARViewController < UIViewController
     @scene.rootNode.addChildNode(node)
   end
 
-  def update_icon_positions
-    Dispatch::Queue.main.sync do
-      @entity_manager.entities.each.with_index do |enemy, i|
-        @mini_map_view.subviews[i + 1].frame = calc_map_frame(enemy.componentForClass(VisualComponent).node.position)
-      end
-    end
-  end
-
   def renderer(_, updateAtTime: time)
     # mat = @scene_view.pointOfView.transform
     # direction = SCNVector3Make(-3.6 * mat.m31, -3.6 * mat.m32, -3.6 * mat.m33)
@@ -241,6 +225,7 @@ class ARViewController < UIViewController
     # d = radians_away_from_facing_north
     # puts d
     # Dispatch::Queue.main.sync { @mini_map_view.layer.transform = CATransform3DMakeRotation(-d, 0.0, 0.0, 1.0) }
+
     return if @scene.rootNode.isPaused
     update_survival_clock_display
     update_icon_positions if @enemy_map_icons.count > 0
@@ -248,7 +233,15 @@ class ARViewController < UIViewController
   end
 
   def update_survival_clock_display
-    Dispatch::Queue.main.sync { @survival_clock.text = survival_time(@player) } if @survival_clock
+    Dispatch::Queue.main.sync {@survival_clock.text = survival_time(@player)} if @survival_clock
+  end
+
+  def update_icon_positions
+    Dispatch::Queue.main.sync do
+      @entity_manager.entities.each.with_index do |enemy, i|
+        @mini_map_view.subviews[i + 1].frame = calc_map_frame(enemy.componentForClass(VisualComponent).node.position)
+      end
+    end
   end
 
   def increment_kill_count
