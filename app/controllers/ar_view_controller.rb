@@ -27,6 +27,7 @@ class ARViewController < UIViewController
     @scene_view.session.runWithConfiguration(@scene_config)
     @scene_view.session.delegate = self
     self.view = @scene_view
+    view.backgroundColor = UIColor.blackColor
 
     @scene = SCNScene.scene
     @scene.physicsWorld.contactDelegate = self
@@ -173,31 +174,19 @@ class ARViewController < UIViewController
   end
 
   def touchesEnded(_, withEvent: event)
-    puts 'a'
     if event.touchesForView(@toggle_button_view)
-      puts 'b'
       if @scene.rootNode.isPaused
-        puts 'c'
         @scene.rootNode.paused = false
       else
-        puts 'd'
         @scene.rootNode.paused = true
       end
-      puts 'e'
-      set_play_pause_button
-      puts 'f'
+    #   set_play_pause_button
     else
-      puts 'g'
-      unless @scene.rootNode.isPaused
-        puts 'h'
-        spawn_enemy
-        puts 'i'
-        shoot
-        puts 'j'
-      end
-      puts 'k'
+      # unless @scene.rootNode.isPaused
+      # spawn_enemy
+      #   shoot
+      # end
     end
-    puts 'l'
   end
 
   def push_user_to_menu
@@ -217,32 +206,19 @@ class ARViewController < UIViewController
   end
 
   def shoot
-    puts 'i.1'
     target = SCNNode.node
-    puts 'i.2'
     target.position = [0, 0, -80]
-    puts 'i.3'
     @scene_view.pointOfView.addChildNode(target)
-    puts 'i.4'
     user_position = @scene_view.pointOfView.position
-    puts 'i.5'
     target_position = @scene_view.pointOfView.convertPosition(target.position, toNode: nil)
-    puts 'i.6'
     @scene_view.pointOfView.childNodes[0].removeFromParentNode
-    puts 'i.7'
 
     bullet = Bullet.new
-    puts 'i.8'
     @entity_manager.add_bullet(bullet)
-    puts 'i.9'
     node = bullet.set_firing_location(user_position)
-    puts 'i.10'
     force = [target_position.x, target_position.y, target_position.z]
-    puts 'i.11'
     node.physicsBody.applyForce(force, atPosition: [0, 0, 0], impulse: true)
-    puts 'i.12'
     @scene.rootNode.addChildNode(node)
-    puts 'i.13'
   end
 
   def update_icon_positions

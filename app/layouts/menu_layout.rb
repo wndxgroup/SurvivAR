@@ -5,18 +5,6 @@ class MenuLayout < MotionKit::Layout
         add UIView, :content_view do
           background_color UIColor.blackColor
 
-          add UILabel, :username do
-            text_alignment UITextAlignmentCenter
-            font UIFont.systemFontOfSize(45)
-            text_color UIColor.whiteColor
-          end
-
-          add UILabel, :stats do
-            text_alignment UITextAlignmentCenter
-            font UIFont.systemFontOfSize(24)
-            text_color UIColor.whiteColor
-          end
-
           add UIButton, :battleground_button do
             background_color UIColor.grayColor
             add UITextView, :battleground_text do
@@ -76,24 +64,24 @@ class MenuLayout < MotionKit::Layout
       height.equals(:root_view).priority(:low)
     end
 
-    constraints(:username) do
-      top 30
-      width(view).minus(30)
-      left 15
-    end
-
-    constraints(:stats) do
-      top.equals(:username, :bottom).plus(20)
-      width(:username)
-      left(:username)
-    end
+    # constraints(:username) do
+    #   top 30
+    #   width(view).minus(30)
+    #   left 15
+    # end
+    #
+    # constraints(:stats) do
+    #   top.equals(:username, :bottom).plus(20)
+    #   width(:username)
+    #   left(:username)
+    # end
 
     button_padding = 20
 
     constraints(:battleground_button) do
-      top.equals(:stats, :bottom).plus(button_padding + 20)
-      left.equals(:stats, :left)
-      width.equals(:stats)
+      top 30
+      left 15
+      width(view).minus(30)
       height.equals(:battleground_button, :width).plus(button_padding)
     end
 

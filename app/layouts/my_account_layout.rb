@@ -39,10 +39,9 @@ class MyAccountLayout < MotionKit::Layout
             end
           end
 
-          add UILabel, :start_battleground do
+          add UIButton, :start_battleground do
             font UIFont.systemFontOfSize(24)
-            text_alignment UITextAlignmentCenter
-            background_color UIColor.whiteColor
+            background_color UIColor.grayColor
           end
 
           add UIButton, :toggle_log do

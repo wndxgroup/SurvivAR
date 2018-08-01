@@ -67,8 +67,14 @@ class AccountsListController < UITableViewController
       cell
     end
     account = @player.sorted_accounts[indexPath.row]
-    cell.textLabel.text = account.username
-    cell.textLabel.text += ' 🔵' if @player.current_account == indexPath.row
+    text_label = ''
+    if @player.current_account == indexPath.row
+      text_label = '🔵 '
+    else
+      text_label = '⚫ '
+    end
+    text_label += account.username
+    cell.textLabel.text = text_label
     cell
   end
 

@@ -5,7 +5,7 @@ class AppDelegate
     cdq.setup
     rootViewController = begin
       player = Player.first
-      if player && player.current_account
+      if player && player.accounts.count > 0
         MenuController.new
       else
         CreateAnAccountController.new

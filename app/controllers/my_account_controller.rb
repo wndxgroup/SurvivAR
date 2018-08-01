@@ -26,6 +26,7 @@ class MyAccountController < UIViewController
 
   def viewDidLoad
     @history_table.dataSource = @history_table.delegate = self
+    @battleground_button.addTarget(self, action: 'start_battleground', forControlEvents: UIControlEventTouchUpInside)
     @toggle_log_button.addTarget(self, action: 'toggle_log', forControlEvents: UIControlEventTouchUpInside)
     @delete_account_button.addTarget(self, action: 'confirm_account_deletion', forControlEvents: UIControlEventTouchUpInside)
   end
@@ -54,9 +55,9 @@ class MyAccountController < UIViewController
     @quick_view_rounds.text += "\n#{overall_rounds}"
 
     if @account.alive?
-      @battleground_button.text = 'Continue Round'
+      @battleground_button.setTitle('Continue Battleground', forState: UIControlStateNormal)
     else
-      @battleground_button.text = 'Start New Round'
+      @battleground_button.setTitle('New Battleground', forState: UIControlStateNormal)
     end
     set_toggle_log_button
   end
@@ -99,6 +100,10 @@ class MyAccountController < UIViewController
     @account.rounds.count
   end
 
+  def start_battleground
+    navigationController.setViewControllers([ARViewController.new], animated: true)
+  end
+
   def set_toggle_log_button
     if logged_in_to_this_account
       @toggle_log_button.setTitle('Log Out', forState: UIControlStateNormal)
@@ -115,6 +120,7 @@ class MyAccountController < UIViewController
     else
       @player.current_account = @player.sorted_accounts.index{|acct| acct.username == @username.text}
     end
+    cdq.save
     set_toggle_log_button
   end
 
@@ -130,7 +136,7 @@ class MyAccountController < UIViewController
   end
 
   def delete_account
-    update_current_account
+    update_current_account if @player.current_account
     @account.destroy
     cdq.save
     navigationController.popViewControllerAnimated(true)

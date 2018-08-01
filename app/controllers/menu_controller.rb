@@ -18,7 +18,6 @@ class MenuController < UIViewController
     @battleground_button = @layout.get(:battleground_button)
     @leaderboard_button = @layout.get(:leaderboard_button)
     @accounts_button = @layout.get(:accounts_button)
-    @stats = @layout.get(:stats)
   end
 
   def viewDidLoad
@@ -29,16 +28,18 @@ class MenuController < UIViewController
     @leaderboard_button.addTarget(self, action: 'show_leaderboard', forControlEvents: UIControlEventTouchUpInside)
   end
 
-  def viewWillAppear(_)
-    @player = Player.first
-    @account = @player.sorted_accounts[@player.current_account]
-    @layout.get(:username).text = @account.username
-    @stats.text = "#{@account.kills} kills in #{survival_time(@account)}"
-  end
-
   def start_battleground
-    play_wave_sound
-    navigationController.setViewControllers([ARViewController.new], animated: true)
+    if Player.first.current_account
+      play_wave_sound
+      navigationController.setViewControllers([ARViewController.new], animated: true)
+    else
+      alert = UIAlertController.alertControllerWithTitle('Not Logged In',
+                                                         message: 'Log in with an account before starting a battleground',
+                                                         preferredStyle: UIAlertControllerStyleAlert)
+      action = UIAlertAction.actionWithTitle('Log me in', style: UIAlertActionStyleDefault, handler: lambda {|_| show_accounts})
+      alert.addAction(action)
+      presentViewController(alert, animated: true, completion: nil)
+    end
   end
 
   def show_accounts
