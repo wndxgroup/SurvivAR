@@ -21,6 +21,7 @@ class MenuController < UIViewController
   end
 
   def viewDidLoad
+    navigationController.setNavigationBarHidden(false, animated: true)
     @battleground_button.addTarget(self, action: 'start_battleground', forControlEvents: UIControlEventTouchUpInside)
     @battleground_button.layer.cornerRadius = @accounts_button.layer.cornerRadius = @leaderboard_button.layer.cornerRadius = 10
     @battleground_button.clipsToBounds = @accounts_button.clipsToBounds = @leaderboard_button.clipsToBounds = true

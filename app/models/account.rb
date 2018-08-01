@@ -1,5 +1,4 @@
 class Account < CDQManagedObject
-
   include SurvivalTime
   include Survival
 
@@ -8,7 +7,7 @@ class Account < CDQManagedObject
     self.start_time = Time.now
     Dispatch::Queue.new('start survival session').async do
       loop do
-        unless self.start_time
+        unless self.battling?
           self.start_time = nil
           break
         end
@@ -31,5 +30,4 @@ class Account < CDQManagedObject
     kills = sorted_rounds.map { |round| round.kills }
     kills.index(kills.max)
   end
-
 end

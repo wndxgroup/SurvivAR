@@ -41,6 +41,7 @@ class ARViewController < UIViewController
 
     player = Player.first
     @player = player.sorted_accounts[player.current_account]
+    @player.battling = true
     Dispatch::Queue.new('start survival session').async { @player.start_survival_session }
   end
 
@@ -114,11 +115,18 @@ class ARViewController < UIViewController
 
     toggle_button_width = 60
     @toggle_button = UIButton.new
-    @toggle_button.frame = [[@scene_view.frame.size.width / 2.0 - toggle_button_width / 2.0, @scene_view.frame.size.height - toggle_button_width],
+    @toggle_button.frame = [[@scene_view.frame.size.width / 2.0 - toggle_button_width / 2.0, @scene_view.frame.size.height - toggle_button_width * 2],
                             [toggle_button_width, toggle_button_width]]
     @toggle_button.setImage(UIImage.imageNamed('pause'), forState: UIControlStateNormal)
     view.addSubview(@toggle_button)
     @toggle_button.addTarget(self, action: 'stop_time', forControlEvents: UIControlEventTouchUpInside)
+
+    menu_button = UIButton.new
+    menu_button.frame = [[@scene_view.frame.size.width / 2.0 - toggle_button_width / 2.0, @scene_view.frame.size.height - toggle_button_width],
+                         [toggle_button_width, toggle_button_width]]
+    menu_button.setImage(UIImage.imageNamed('menu-button'), forState: UIControlStateNormal)
+    view.addSubview(menu_button)
+    menu_button.addTarget(self, action: 'go_to_menu', forControlEvents: UIControlEventTouchUpInside)
   end
 
   def stop_time
@@ -130,6 +138,11 @@ class ARViewController < UIViewController
       sleep 55
       view.addSubview(@toggle_button)
     end
+  end
+
+  def go_to_menu
+    pause_session
+    navigationController.setViewControllers([MenuController.new], animated: true)
   end
 
   def spawn_enemy
@@ -166,8 +179,8 @@ class ARViewController < UIViewController
 
   def player_dies
     Dispatch::Queue.main.sync do
+      @player.battling = false
       @player.alive = false
-      @player.start_time = nil
       @player.rounds.create(kills: @player.kills, survival_time: survival_time(@player), completed_on: Time.now)
       cdq.save
       push_user_to_death_screen
@@ -176,14 +189,9 @@ class ARViewController < UIViewController
 
   def touchesEnded(_, withEvent: event)
     if event.touchesForView(@scene_view) && !@scene.rootNode.isPaused
-      spawn_enemy
-      shoot
+      # spawn_enemy
+      # shoot
     end
-  end
-
-  def push_user_to_menu
-    pause_session
-    navigationController.pushViewController(MenuController.new, animated: true)
   end
 
   def push_user_to_death_screen
@@ -193,6 +201,9 @@ class ARViewController < UIViewController
 
   def pause_session
     # @scene_view.pointOfView.childNodes.each {|node| node.removeFromParentNode} # does this do anything?
+    @player.battling = false
+    cdq.save
+    puts 'set to false'
     @scene.rootNode.childNodes.each {|node| node.removeFromParentNode}
     @scene_view.session.pause
   end
@@ -227,8 +238,8 @@ class ARViewController < UIViewController
     # Dispatch::Queue.main.sync { @mini_map_view.layer.transform = CATransform3DMakeRotation(-d, 0.0, 0.0, 1.0) }
 
     return if @scene.rootNode.isPaused
-    update_survival_clock_display
-    update_icon_positions if @enemy_map_icons.count > 0
+    # update_survival_clock_display
+    # update_icon_positions if @enemy_map_icons.count > 0
     @entity_manager.updateWithDeltaTime(time)
   end
 

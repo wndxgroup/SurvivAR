@@ -14,6 +14,7 @@ schema "0001 initial" do
     double :seconds
     integer16 :kills, default: 0
     boolean :alive, default: true
+    boolean :battling
     datetime :start_time, default: nil
 
     has_many :rounds, deletionRule: 'Cascade'
