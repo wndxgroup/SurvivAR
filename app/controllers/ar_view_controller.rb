@@ -12,6 +12,8 @@ class ARViewController < UIViewController
     @location_manager.startUpdatingHeading
     @location_manager.delegate = self
     @location_manager.requestAlwaysAuthorization
+    @enemy_queue = Dispatch::Queue.new('enemies')
+    @bullet_queue = Dispatch::Queue.new('bullets')
     self
   end
 
@@ -42,7 +44,7 @@ class ARViewController < UIViewController
     player = Player.first
     @player = player.sorted_accounts[player.current_account]
     @player.battling = true
-    Dispatch::Queue.new('start survival session').async { @player.start_survival_session }
+    @player.start_survival_session
   end
 
   def viewDidAppear(_)
@@ -50,7 +52,7 @@ class ARViewController < UIViewController
     @bullets = []
     @scene_view.session.runWithConfiguration(@scene_config, options: ARSessionRunOptionResetTracking)
     @currently_killing_player = false
-    if @entity_manager.entities.count > 0
+    if @player.savedEnemies.count > 0
       display_enemies
     else
       spawn_enemy
@@ -141,24 +143,29 @@ class ARViewController < UIViewController
   end
 
   def go_to_menu
+    puts 'saving'
+    save_enemy_data
+    puts 'saved'
     pause_session
     navigationController.setViewControllers([MenuController.new], animated: true)
   end
 
   def spawn_enemy
-    enemy = Enemy.new
-    enemy.add_components(@entity_manager)
-    node = enemy.set_spawning_location
-    @entity_manager.add(enemy)
-    @scene.rootNode.addChildNode(node)
+    @enemy_queue.async do
+      enemy = Enemy.new
+      enemy.add_components(@entity_manager)
+      node = enemy.set_spawning_location
+      @entity_manager.add(enemy)
+      @scene.rootNode.addChildNode(node)
 
-    @enemy_icon =  UIView.new
-    @enemy_icon.frame = calc_map_frame(node.position)
-    @enemy_icon.backgroundColor = UIColor.redColor
-    @enemy_icon.layer.cornerRadius = map_icon_diameter / 2
-    @enemy_icon.layer.masksToBounds = true
-    @mini_map_view.addSubview(@enemy_icon)
-    @enemy_map_icons << @enemy_icon
+      @enemy_icon =  UIView.new
+      @enemy_icon.frame = calc_map_frame(node.position)
+      @enemy_icon.backgroundColor = UIColor.redColor
+      @enemy_icon.layer.cornerRadius = map_icon_diameter / 2
+      @enemy_icon.layer.masksToBounds = true
+      @mini_map_view.addSubview(@enemy_icon)
+      @enemy_map_icons << @enemy_icon
+    end
   end
 
   def calc_map_frame(position)
@@ -174,7 +181,25 @@ class ARViewController < UIViewController
   end
 
   def display_enemies
-    @entity_manager.entities.each { |entity| @scene.rootNode.addChildNode(entity)}
+    @player.savedEnemies.array.each do |e|
+      enemy = Enemy.new
+      enemy.add_components(@entity_manager)
+      x = e.x
+      z = e.z
+      node = enemy.set_spawning_location(x, z)
+      @entity_manager.add(enemy)
+      @scene.rootNode.addChildNode(node)
+
+      @enemy_icon =  UIView.new
+      @enemy_icon.frame = calc_map_frame(node.position)
+      @enemy_icon.backgroundColor = UIColor.redColor
+      @enemy_icon.layer.cornerRadius = map_icon_diameter / 2
+      @enemy_icon.layer.masksToBounds = true
+      @mini_map_view.addSubview(@enemy_icon)
+      @enemy_map_icons << @enemy_icon
+    end
+    @player.savedEnemies.remove_all
+    cdq.save
   end
 
   def player_dies
@@ -182,6 +207,7 @@ class ARViewController < UIViewController
       @player.battling = false
       @player.alive = false
       @player.rounds.create(kills: @player.kills, survival_time: survival_time(@player), completed_on: Time.now)
+      @player.savedEnemies.array.each {|e| e.destroy}
       cdq.save
       push_user_to_death_screen
     end
@@ -189,8 +215,8 @@ class ARViewController < UIViewController
 
   def touchesEnded(_, withEvent: event)
     if event.touchesForView(@scene_view) && !@scene.rootNode.isPaused
-      # spawn_enemy
-      # shoot
+      spawn_enemy
+      shoot
     end
   end
 
@@ -199,29 +225,40 @@ class ARViewController < UIViewController
     navigationController.setViewControllers([DeathController.new], animated: true)
   end
 
+  def save_enemy_data
+    @entity_manager.entities.each do |entity|
+      x = entity.node.presentationNode.position.x
+      z = entity.node.presentationNode.position.z
+      @player.savedEnemies.create(x: x, z: z)
+      cdq.save
+    end
+  end
+
   def pause_session
     # @scene_view.pointOfView.childNodes.each {|node| node.removeFromParentNode} # does this do anything?
     @player.battling = false
     cdq.save
-    puts 'set to false'
+    @mini_map_view.subviews.each_with_index {|view, index| view.removeFromSuperview if index > 0}
     @scene.rootNode.childNodes.each {|node| node.removeFromParentNode}
     @scene_view.session.pause
   end
 
   def shoot
-    target = SCNNode.node
-    target.position = [0, 0, -80]
-    @scene_view.pointOfView.addChildNode(target)
-    user_position = @scene_view.pointOfView.position
-    target_position = @scene_view.pointOfView.convertPosition(target.position, toNode: nil)
-    @scene_view.pointOfView.childNodes[0].removeFromParentNode
+    @bullet_queue.async do
+      target = SCNNode.node
+      target.position = [0, 0, -80]
+      @scene_view.pointOfView.addChildNode(target)
+      user_position = @scene_view.pointOfView.position
+      target_position = @scene_view.pointOfView.convertPosition(target.position, toNode: nil)
+      @scene_view.pointOfView.childNodes[0].removeFromParentNode
 
-    bullet = Bullet.new
-    @entity_manager.add_bullet(bullet)
-    node = bullet.set_firing_location(user_position)
-    force = [target_position.x, target_position.y, target_position.z]
-    node.physicsBody.applyForce(force, atPosition: [0, 0, 0], impulse: true)
-    @scene.rootNode.addChildNode(node)
+      bullet = Bullet.new
+      @entity_manager.add_bullet(bullet)
+      node = bullet.set_firing_location(user_position)
+      force = [target_position.x, target_position.y, target_position.z]
+      node.physicsBody.applyForce(force, atPosition: [0, 0, 0], impulse: true)
+      @scene.rootNode.addChildNode(node)
+    end
   end
 
   def renderer(_, updateAtTime: time)
@@ -238,8 +275,8 @@ class ARViewController < UIViewController
     # Dispatch::Queue.main.sync { @mini_map_view.layer.transform = CATransform3DMakeRotation(-d, 0.0, 0.0, 1.0) }
 
     return if @scene.rootNode.isPaused
-    # update_survival_clock_display
-    # update_icon_positions if @enemy_map_icons.count > 0
+    update_survival_clock_display
+    update_icon_positions if @enemy_map_icons.count > 0
     @entity_manager.updateWithDeltaTime(time)
   end
 
@@ -250,7 +287,9 @@ class ARViewController < UIViewController
   def update_icon_positions
     Dispatch::Queue.main.sync do
       @entity_manager.entities.each.with_index do |enemy, i|
-        @mini_map_view.subviews[i + 1].frame = calc_map_frame(enemy.componentForClass(VisualComponent).node.position)
+        if @mini_map_view.subviews[i + 1]
+          @mini_map_view.subviews[i + 1].frame = calc_map_frame(enemy.componentForClass(VisualComponent).node.position)
+        end
       end
     end
   end
@@ -277,6 +316,7 @@ class ARViewController < UIViewController
 
   def viewWillDisappear(_)
     puts 'willDisappear'
+
   end
 
   def sessionWasInterrupted(_)

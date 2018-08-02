@@ -1,0 +1,3 @@
+class SavedEnemy < CDQManagedObject
+
+end

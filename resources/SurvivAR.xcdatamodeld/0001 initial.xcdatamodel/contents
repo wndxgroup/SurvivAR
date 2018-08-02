@@ -15,6 +15,7 @@
     <attribute optional="YES" syncable="YES" attributeType="Boolean" name="battling"/>
     <attribute optional="YES" syncable="YES" attributeType="Date" name="start_time"/>
     <relationship optional="YES" deletionRule="Cascade" syncable="YES" name="rounds" inverseEntity="Round" destinationEntity="Round" inverseName="account" toMany="YES"/>
+    <relationship optional="YES" deletionRule="Cascade" syncable="YES" name="savedEnemies" inverseEntity="SavedEnemy" destinationEntity="SavedEnemy" inverseName="account" toMany="YES"/>
     <relationship optional="YES" deletionRule="Nullify" syncable="YES" name="player" inverseEntity="Player" destinationEntity="Player" inverseName="accounts" maxCount="1"/>
   </entity>
   <entity name="Round" syncable="YES" representedClassName="Round" codeGenerationType="class">
@@ -23,14 +24,9 @@
     <attribute optional="YES" syncable="YES" attributeType="Date" name="completed_on"/>
     <relationship optional="YES" deletionRule="Nullify" syncable="YES" name="account" inverseEntity="Account" destinationEntity="Account" inverseName="rounds" maxCount="1"/>
   </entity>
-  <entity name="Wave" syncable="YES" representedClassName="Wave" codeGenerationType="class">
-    <attribute optional="YES" syncable="YES" attributeType="Integer 16" name="wave_number" defaultValueString="1"/>
-    <relationship optional="YES" deletionRule="Nullify" syncable="YES" name="enemies" inverseEntity="Enemy" destinationEntity="Enemy" inverseName="wave" toMany="YES"/>
-  </entity>
-  <entity name="Enemy" syncable="YES" representedClassName="Enemy" codeGenerationType="class">
-    <attribute optional="YES" syncable="YES" attributeType="Double" name="longitude" defaultValueString="0.0"/>
-    <attribute optional="YES" syncable="YES" attributeType="Double" name="latitude" defaultValueString="0.0"/>
-    <attribute optional="YES" syncable="YES" attributeType="Double" name="altitude" defaultValueString="0.0"/>
-    <relationship optional="YES" deletionRule="Nullify" syncable="YES" name="wave" inverseEntity="Wave" destinationEntity="Wave" inverseName="enemies" maxCount="1"/>
+  <entity name="SavedEnemy" syncable="YES" representedClassName="SavedEnemy" codeGenerationType="class">
+    <attribute optional="YES" syncable="YES" attributeType="Double" name="x" defaultValueString="0.0"/>
+    <attribute optional="YES" syncable="YES" attributeType="Double" name="z" defaultValueString="0.0"/>
+    <relationship optional="YES" deletionRule="Nullify" syncable="YES" name="account" inverseEntity="Account" destinationEntity="Account" inverseName="saved_enemies" maxCount="1"/>
   </entity>
 </model>

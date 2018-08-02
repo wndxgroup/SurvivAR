@@ -18,6 +18,7 @@ schema "0001 initial" do
     datetime :start_time, default: nil
 
     has_many :rounds, deletionRule: 'Cascade'
+    has_many :savedEnemies, deletionRule: 'Cascade'
     belongs_to :player
   end
 
@@ -29,17 +30,10 @@ schema "0001 initial" do
     belongs_to :account
   end
 
-  entity "Wave" do
-    integer16 :wave_number, default: 1
+  entity "SavedEnemy" do
+    double :x
+    double :z
 
-    has_many :enemies
-  end
-
-  entity "Enemy" do
-    double :longitude
-    double :latitude
-    double :altitude
-
-    belongs_to :wave
+    belongs_to :account
   end
 end

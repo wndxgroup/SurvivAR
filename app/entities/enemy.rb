@@ -10,11 +10,13 @@ class Enemy < GKEntity
     addComponent(move_component)
   end
 
-  def set_spawning_location
-    x = rand * spawn_radius
-    x = -x if rand < 0.5
-    z = Math.sqrt(spawn_radius**2 - x**2)
-    z = -z if rand < 0.5
+  def set_spawning_location(x=nil, z=nil)
+    unless x && z
+      x = rand * spawn_radius
+      x = -x if rand < 0.5
+      z = Math.sqrt(spawn_radius**2 - x**2)
+      z = -z if rand < 0.5
+    end
     @node = self.componentForClass(VisualComponent).node
     @node.position = @position = SCNVector3Make(x, 0, z)
     @node.physicsBody = SCNPhysicsBody.bodyWithType(SCNPhysicsBodyTypeDynamic, shape: nil)
