@@ -225,10 +225,11 @@ class ARViewController < UIViewController
 
   def save_enemy_data
     @entity_manager.entities.each do |entity|
-      x = entity.node.presentationNode.position.x
-      z = entity.node.presentationNode.position.z
-      @player.savedEnemies.create(x: x, z: z)
-      cdq.save
+      if entity.componentForClass(VisualComponent).state_machine.currentState.is_a?(EnemyChaseState)
+        position = entity.node.presentationNode.position
+        @player.savedEnemies.create(x: position.x, z: position.z)
+        cdq.save
+      end
     end
   end
 
@@ -272,6 +273,7 @@ class ARViewController < UIViewController
     # puts d
     # Dispatch::Queue.main.sync { @mini_map_view.layer.transform = CATransform3DMakeRotation(-d, 0.0, 0.0, 1.0) }
 
+    # puts @entity_manager.entities[0].componentForClass(VisualComponent).node.position.inspect if @entity_manager.entities[0]
     return if @scene.rootNode.isPaused
     # update_survival_clock_display
     # update_icon_positions if @enemy_map_icons.count > 0
@@ -314,7 +316,7 @@ class ARViewController < UIViewController
 
   def locationManager(_, didUpdateHeading: new_heading)
     if @mini_map_view
-      @mini_map_view.layer.transform = CATransform3DMakeRotation(-new_heading.trueHeading / 180.0  * Math::PI, 0.0, 0.0, 1.0);
+      @mini_map_view.layer.transform = CATransform3DMakeRotation(-new_heading.trueHeading / 180.0  * Math::PI, 0.0, 0.0, 1.0)
     end
   end
 end
