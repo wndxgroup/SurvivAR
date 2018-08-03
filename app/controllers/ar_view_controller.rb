@@ -143,9 +143,7 @@ class ARViewController < UIViewController
   end
 
   def go_to_menu
-    puts 'saving'
     save_enemy_data
-    puts 'saved'
     pause_session
     navigationController.setViewControllers([MenuController.new], animated: true)
   end
@@ -215,8 +213,8 @@ class ARViewController < UIViewController
 
   def touchesEnded(_, withEvent: event)
     if event.touchesForView(@scene_view) && !@scene.rootNode.isPaused
-      # spawn_enemy
-      # shoot
+      spawn_enemy
+      shoot
     end
   end
 
@@ -275,8 +273,8 @@ class ARViewController < UIViewController
     # Dispatch::Queue.main.sync { @mini_map_view.layer.transform = CATransform3DMakeRotation(-d, 0.0, 0.0, 1.0) }
 
     return if @scene.rootNode.isPaused
-    update_survival_clock_display
-    update_icon_positions if @enemy_map_icons.count > 0
+    # update_survival_clock_display
+    # update_icon_positions if @enemy_map_icons.count > 0
     @entity_manager.updateWithDeltaTime(time)
   end
 

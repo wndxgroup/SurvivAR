@@ -68,7 +68,13 @@ class LeaderboardController < UIViewController
     end
     text_label += "#{round.account.username}"
     cell.textLabel.text = text_label
-    cell.detailTextLabel.text = "#{round.kills} kills in #{round.survival_time}"
+    cell.detailTextLabel.text = begin
+      if @filter == 'most kills'
+        "#{round.kills} kills in #{round.survival_time}"
+      else
+        "#{round.survival_time} with #{round.kills} kills"
+      end
+    end
     cell
   end
 end
