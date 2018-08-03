@@ -215,8 +215,8 @@ class ARViewController < UIViewController
 
   def touchesEnded(_, withEvent: event)
     if event.touchesForView(@scene_view) && !@scene.rootNode.isPaused
-      spawn_enemy
-      shoot
+      # spawn_enemy
+      # shoot
     end
   end
 
