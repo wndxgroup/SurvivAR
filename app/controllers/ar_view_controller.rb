@@ -314,19 +314,6 @@ class ARViewController < UIViewController
     end
   end
 
-  def viewWillDisappear(_)
-    puts 'willDisappear'
-
-  end
-
-  def sessionWasInterrupted(_)
-    puts 'interupted'
-  end
-
-  def sessionInterruptionEnded(_)
-    puts 'ended'
-  end
-
   def locationManager(_, didUpdateHeading: new_heading)
     if @mini_map_view
       @mini_map_view.layer.transform = CATransform3DMakeRotation(-new_heading.trueHeading / 180.0  * Math::PI, 0.0, 0.0, 1.0);

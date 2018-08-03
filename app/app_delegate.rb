@@ -18,13 +18,34 @@ class AppDelegate
     @window.rootViewController = @navigationController
     @window.makeKeyAndVisible
 
+    @center = UNUserNotificationCenter.currentNotificationCenter
     true
+  end
+
+  def applicationDidBecomeActive(_)
+    @center.removeAllPendingNotificationRequests
   end
 
   def applicationWillResignActive(_)
     current_controller = @navigationController.topViewController
-    if current_controller.is_a?(ARViewController)
-      current_controller.go_to_menu
-    end
+    current_controller.go_to_menu if current_controller.is_a?(ARViewController)
+    set_notification(2)
+  end
+
+  def set_notification(days)
+    @center.requestAuthorizationWithOptions(UNAuthorizationOptionAlert | UNAuthorizationOptionSound,
+                                            completionHandler: lambda { |_, _| })
+    @center.delegate = self
+    content = UNMutableNotificationContent.new
+    content.title = 'The battleground awaits! 🔥'
+    content.sound = UNNotificationSound.soundNamed('notification.mp3')
+    trigger = UNTimeIntervalNotificationTrigger.triggerWithTimeInterval(days * 60 * 60 * 24, repeats: false)
+    notification = UNNotificationRequest.requestWithIdentifier('_', content: content, trigger: trigger)
+    @center.addNotificationRequest(notification, withCompletionHandler: lambda { |_| })
+  end
+
+  def userNotificationCenter(_, didReceiveNotificationResponse: _, withCompletionHandler: completion_handler)
+    @navigationController.setViewControllers([MenuController.new], animated: false)
+    completion_handler.call
   end
 end
