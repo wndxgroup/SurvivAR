@@ -202,9 +202,9 @@ class ARViewController < UIViewController
 
   def player_dies
     Dispatch::Queue.main.sync do
-      @player.battling = false
-      @player.alive = false
+      @player.battling = @player.alive = false
       @player.rounds.create(kills: @player.kills, survival_time: survival_time(@player), completed_on: Time.now)
+      @player.kills = @player.seconds = @player.minutes = @player.hours = 0
       @player.savedEnemies.array.each {|e| e.destroy}
       cdq.save
       push_user_to_death_screen

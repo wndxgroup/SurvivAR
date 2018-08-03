@@ -7,15 +7,19 @@ class Enemy < GKEntity
     addComponent(VisualComponent.new)
     move_component = MoveComponent.new
     move_component.assign_properties(0.000025, maxAcceleration: 5, radius: 1, entityManager: entity_manager)
+    @entity_manager = entity_manager
     addComponent(move_component)
   end
 
   def set_spawning_location(x=nil, z=nil)
     unless x && z
+      survivor_position = @entity_manager.survivor.survivor_node.position
       x = rand * spawn_radius
       x = -x if rand < 0.5
+      x += survivor_position.x
       z = Math.sqrt(spawn_radius**2 - x**2)
       z = -z if rand < 0.5
+      z += survivor_position.z
     end
     @node = self.componentForClass(VisualComponent).node
     @node.position = @position = SCNVector3Make(x, 0, z)
