@@ -24,6 +24,7 @@ class AppDelegate
 
   def applicationDidBecomeActive(_)
     @center.removeAllPendingNotificationRequests
+    @center.removeAllDeliveredNotifications
   end
 
   def applicationWillResignActive(_)
@@ -39,7 +40,7 @@ class AppDelegate
     content = UNMutableNotificationContent.new
     content.title = 'The battleground awaits! 🔥'
     content.sound = UNNotificationSound.soundNamed('notification.mp3')
-    trigger = UNTimeIntervalNotificationTrigger.triggerWithTimeInterval(days * 60 * 60 * 24, repeats: false)
+    trigger = UNTimeIntervalNotificationTrigger.triggerWithTimeInterval(days , repeats: false)
     notification = UNNotificationRequest.requestWithIdentifier('_', content: content, trigger: trigger)
     @center.addNotificationRequest(notification, withCompletionHandler: lambda { |_| })
   end
