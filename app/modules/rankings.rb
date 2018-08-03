@@ -22,7 +22,7 @@ module Rankings
     @player.accounts.each do |acct|
       acct.rounds.each do |round|
         @longest_life.each_with_index do |rd, index|
-          if round.survival_time > rd.survival_time || round.survival_time == rd.survival_time && round.kills > rd.kills
+          if should_be_inserted(round, rd)
             @longest_life.insert(index, round)
             break
           elsif index + 1 == @longest_life.count # at the last element in `@longest_life`
@@ -33,6 +33,11 @@ module Rankings
         @longest_life << round if @longest_life.empty?
       end
     end
+  end
+
+  def should_be_inserted(round, rd)
+    round.survival_time > rd.survival_time ||
+    round.survival_time == rd.survival_time && (round.kills > rd.kills || rd.completed_on - round.completed_on > 0)
   end
 
   def is_faster(round, rd)
