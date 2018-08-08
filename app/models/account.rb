@@ -5,7 +5,7 @@ class Account < CDQManagedObject
   def start_survival_session
     play_wave_sound
     self.start_time = Time.now
-    Dispatch::Queue.new('start survival session').async do
+    Dispatch::Queue.new('com.wndx.SurvivAR.start-survival-session').async do
       loop do
         unless self.battling?
           self.start_time = nil

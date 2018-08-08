@@ -9,10 +9,9 @@ class ARViewController < UIViewController
     super
     @enemy_map_icons = []
     @location_manager = CLLocationManager.alloc.init
-    @location_manager.startUpdatingHeading
     @location_manager.delegate = self
     @location_manager.requestAlwaysAuthorization
-    @enemy_queue = Dispatch::Queue.new('enemies')
+    @enemy_queue = Dispatch::Queue.main#new('enemies')
     @bullet_queue = Dispatch::Queue.new('bullets')
     self
   end
@@ -49,6 +48,7 @@ class ARViewController < UIViewController
 
   def viewDidAppear(_)
     add_ui
+    @location_manager.startUpdatingHeading
     @bullets = []
     @scene_view.session.runWithConfiguration(@scene_config, options: ARSessionRunOptionResetTracking)
     @currently_killing_player = false
@@ -188,7 +188,7 @@ class ARViewController < UIViewController
       @entity_manager.add(enemy)
       @scene.rootNode.addChildNode(node)
 
-      @enemy_icon =  UIView.new
+      @enemy_icon = UIView.new
       @enemy_icon.frame = calc_map_frame(node.position)
       @enemy_icon.backgroundColor = UIColor.redColor
       @enemy_icon.layer.cornerRadius = map_icon_diameter / 2
@@ -201,7 +201,7 @@ class ARViewController < UIViewController
   end
 
   def player_dies
-    Dispatch::Queue.main.sync do
+    Dispatch::Queue.main.async do
       @player.battling = @player.alive = false
       @player.rounds.create(kills: @player.kills, survival_time: survival_time(@player), completed_on: Time.now)
       @player.kills = @player.seconds = @player.minutes = @player.hours = 0
@@ -261,31 +261,18 @@ class ARViewController < UIViewController
   end
 
   def renderer(_, updateAtTime: time)
-    # mat = @scene_view.pointOfView.transform
-    # direction = SCNVector3Make(-3.6 * mat.m31, -3.6 * mat.m32, -3.6 * mat.m33)
-    # puts direction.inspect
-    # bullet = Bullet.new
-    # @entity_manager.add_bullet(bullet)
-    # node = bullet.set_firing_location(direction)
-    # @scene.rootNode.addChildNode(node)
-
-    # d = radians_away_from_facing_north
-    # puts d
-    # Dispatch::Queue.main.sync { @mini_map_view.layer.transform = CATransform3DMakeRotation(-d, 0.0, 0.0, 1.0) }
-
-    # puts @entity_manager.entities[0].componentForClass(VisualComponent).node.position.inspect if @entity_manager.entities[0]
     return if @scene.rootNode.isPaused
-    # update_survival_clock_display
-    # update_icon_positions if @enemy_map_icons.count > 0
+    update_survival_clock_display
+    update_icon_positions if @enemy_map_icons.count > 0
     @entity_manager.updateWithDeltaTime(time)
   end
 
   def update_survival_clock_display
-    Dispatch::Queue.main.sync {@survival_clock.text = survival_time(@player)} if @survival_clock
+    Dispatch::Queue.main.async {@survival_clock.text = survival_time(@player)} if @survival_clock
   end
 
   def update_icon_positions
-    Dispatch::Queue.main.sync do
+    Dispatch::Queue.main.async do
       @entity_manager.entities.each.with_index do |enemy, i|
         if @mini_map_view.subviews[i + 1]
           @mini_map_view.subviews[i + 1].frame = calc_map_frame(enemy.componentForClass(VisualComponent).node.position)
@@ -295,14 +282,14 @@ class ARViewController < UIViewController
   end
 
   def increment_kill_count
-    Dispatch::Queue.main.sync do
+    Dispatch::Queue.main.async do
       @player.kills += 1
       cdq.save
       @kill_count.text = @player.kills.to_s
     end
   end
 
-  def physicsWorld(world, didBeginContact: contact)
+  def physicsWorld(_, didBeginContact: contact)
     @entity_manager.entities.each {|enemy| @enemy = enemy if enemy.node == contact.nodeA || enemy.node == contact.nodeB}
     survivor_node = @survivor.componentForClass(LocationComponent).node
     if (contact.nodeA == survivor_node || contact.nodeB == survivor_node) && !@currently_killing_player
@@ -315,8 +302,6 @@ class ARViewController < UIViewController
   end
 
   def locationManager(_, didUpdateHeading: new_heading)
-    if @mini_map_view
-      @mini_map_view.layer.transform = CATransform3DMakeRotation(-new_heading.trueHeading / 180.0  * Math::PI, 0.0, 0.0, 1.0)
-    end
+    @mini_map_view.layer.transform = CATransform3DMakeRotation(-new_heading.trueHeading / 180.0  * Math::PI, 0.0, 0.0, 1.0)
   end
 end
