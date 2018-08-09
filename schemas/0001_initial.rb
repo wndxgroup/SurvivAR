@@ -16,6 +16,7 @@ schema "0001 initial" do
     boolean :alive, default: true
     boolean :battling
     datetime :start_time, default: nil
+    string :time_froze_at, default: nil
 
     has_many :rounds, deletionRule: 'Cascade'
     has_many :savedEnemies, deletionRule: 'Cascade'

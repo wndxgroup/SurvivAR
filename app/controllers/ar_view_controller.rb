@@ -18,6 +18,23 @@ class ARViewController < UIViewController
 
   def viewDidLoad
     super
+
+    @recorder = RPScreenRecorder.sharedRecorder
+    if @recorder.available? && !@recorder.recording?
+      @recorder.microphoneEnabled = true
+      handler = lambda do |error|
+        if error
+          alert = UIAlertController.alertControllerWithTitle('Recording Failed',
+                                                             message: 'An error occured while trying to start recording',
+                                                             preferredStyle: UIAlertControllerStyleAlert)
+          action = UIAlertAction.actionWithTitle('Ok', style: UIAlertActionStyleDefault, handler: nil)
+          alert.addAction(action)
+          presentViewController(alert, animated: true, completion: nil)
+        end
+      end
+      @recorder.startRecordingWithHandler(handler)
+    end
+
     navigationController.setNavigationBarHidden(true, animated: true)
     @scene_view = ARSCNView.alloc.init
     @scene_view.autoenablesDefaultLighting = true
@@ -51,6 +68,7 @@ class ARViewController < UIViewController
     @location_manager.startUpdatingHeading
     @bullets = []
     @scene_view.session.runWithConfiguration(@scene_config, options: ARSessionRunOptionResetTracking)
+    @scene.rootNode.paused = false if @player.time_froze_at && time_frozen_for < 5
     @currently_killing_player = false
     if @player.savedEnemies.count > 0
       display_enemies
@@ -120,7 +138,7 @@ class ARViewController < UIViewController
     @toggle_button.frame = [[@scene_view.frame.size.width / 2.0 - toggle_button_width / 2.0, @scene_view.frame.size.height - toggle_button_width * 2],
                             [toggle_button_width, toggle_button_width]]
     @toggle_button.setImage(UIImage.imageNamed('pause'), forState: UIControlStateNormal)
-    view.addSubview(@toggle_button)
+    view.addSubview(@toggle_button) unless @player.time_froze_at
     @toggle_button.addTarget(self, action: 'stop_time', forControlEvents: UIControlEventTouchUpInside)
 
     menu_button = UIButton.new
@@ -134,12 +152,8 @@ class ARViewController < UIViewController
   def stop_time
     @scene.rootNode.paused = true
     @toggle_button.removeFromSuperview
-    Dispatch::Queue.new('stop time').async do
-      sleep 5
-      @scene.rootNode.paused = false
-      sleep 55
-      view.addSubview(@toggle_button)
-    end
+    @player.time_froze_at = survival_time(@player)
+    cdq.save
   end
 
   def go_to_menu
@@ -203,11 +217,26 @@ class ARViewController < UIViewController
   def player_dies
     Dispatch::Queue.main.async do
       @player.battling = @player.alive = false
+      @player.time_froze_at = nil
       @player.rounds.create(kills: @player.kills, survival_time: survival_time(@player), completed_on: Time.now)
       @player.kills = @player.seconds = @player.minutes = @player.hours = 0
       @player.savedEnemies.array.each {|e| e.destroy}
       cdq.save
-      push_user_to_death_screen
+      # push_user_to_death_screen
+      handler = lambda do |previewViewController, error|
+        if error
+          alert = UIAlertController.alertControllerWithTitle('Recording Unavailable',
+                                                             message: 'An error occured while trying to replay the recording',
+                                                             preferredStyle: UIAlertControllerStyleAlert)
+          action = UIAlertAction.actionWithTitle('Ok', style: UIAlertActionStyleDefault, handler: nil)
+          alert.addAction(action)
+          presentViewController(alert, animated: true, completion: nil)
+        else
+          previewViewController.previewControllerDelegate = self
+          presentViewController(previewViewController, animated: true, completion: nil)
+        end
+      end
+      @recorder.stopRecordingWithHandler(handler)
     end
   end
 
@@ -261,10 +290,40 @@ class ARViewController < UIViewController
   end
 
   def renderer(_, updateAtTime: time)
-    return if @scene.rootNode.isPaused
     update_survival_clock_display
+    restart_time if @player.time_froze_at && time_frozen_for >= 5
+    return if @scene.rootNode.isPaused
+    recharge_freeze_ability if @player.time_froze_at && time_frozen_for >= 60
     update_icon_positions if @enemy_map_icons.count > 0
     @entity_manager.updateWithDeltaTime(time)
+  end
+
+  def restart_time
+    Dispatch::Queue.main.async do
+      @scene.rootNode.paused = false
+    end
+  end
+
+  def recharge_freeze_ability
+    Dispatch::Queue.main.async do
+      view.addSubview(@toggle_button)
+      @player.time_froze_at = nil
+      cdq.save
+    end
+  end
+
+  def time_frozen_for
+    current_time = survival_time(@player).split(':').map {|time| time.to_i}
+    current_hours   = current_time[0]
+    current_minutes = current_time[1]
+    current_seconds = current_time[2]
+
+    frozen_time = @player.time_froze_at.split(':').map {|time| time.to_i}
+    frozen_hours   = frozen_time[0]
+    frozen_minutes = frozen_time[1]
+    frozen_seconds = frozen_time[2]
+
+    current_seconds - frozen_seconds + 60 * (current_minutes - frozen_minutes) + 60 * 60 * (current_hours - frozen_hours)
   end
 
   def update_survival_clock_display
@@ -303,5 +362,10 @@ class ARViewController < UIViewController
 
   def locationManager(_, didUpdateHeading: new_heading)
     @mini_map_view.layer.transform = CATransform3DMakeRotation(-new_heading.trueHeading / 180.0  * Math::PI, 0.0, 0.0, 1.0)
+  end
+
+  def previewControllerDidFinish(previewController)
+    previewController.dismissViewControllerAnimated(true, completion: nil)
+    push_user_to_death_screen
   end
 end
