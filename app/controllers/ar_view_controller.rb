@@ -1,5 +1,5 @@
 class ARViewController < UIViewController
-  include Map, SurvivalTime
+  include Map, SurvivalTime, Survival
   attr_accessor :scene_view, :scene_config, :mini_map_view
 
   def enemy_radius; 1.0; end
@@ -18,10 +18,9 @@ class ARViewController < UIViewController
 
   def viewDidLoad
     super
-
     @recorder = RPScreenRecorder.sharedRecorder
     if @recorder.available? && !@recorder.recording?
-      @recorder.microphoneEnabled = true
+      @recorder.microphoneEnabled = false
       handler = lambda do |error|
         if error
           alert = UIAlertController.alertControllerWithTitle('Recording Failed',
@@ -36,12 +35,12 @@ class ARViewController < UIViewController
     end
 
     navigationController.setNavigationBarHidden(true, animated: true)
+    @spawning_enemy = true
     @scene_view = ARSCNView.alloc.init
     @scene_view.autoenablesDefaultLighting = true
     @scene_view.delegate = self
     @scene_config = ARWorldTrackingConfiguration.alloc.init
     @scene_config.worldAlignment = ARWorldAlignmentGravityAndHeading
-    # @scene_view.debugOptions = ARSCNDebugOptionShowWorldOrigin
     @scene_view.session.runWithConfiguration(@scene_config)
     @scene_view.session.delegate = self
     self.view = @scene_view
@@ -61,6 +60,7 @@ class ARViewController < UIViewController
     @player = player.sorted_accounts[player.current_account]
     @player.battling = true
     @player.start_survival_session
+    play_wave_sound if survival_time(@player).split(':')[-1].to_i < 3
   end
 
   def viewDidAppear(_)
@@ -73,13 +73,13 @@ class ARViewController < UIViewController
     if @player.savedEnemies.count > 0
       display_enemies
     else
-      spawn_enemy
+      @spawning_enemy = false
     end
   end
 
   def add_ui
     info_bar = UIView.new
-    info_bar.backgroundColor = UIColor.alloc.initWithWhite(0, alpha: 0.5)
+    info_bar.backgroundColor = UIColor.alloc.initWithWhite(1, alpha: 0.8)
     info_bar.layer.borderWidth = 2
     info_bar.layer.borderColor = UIColor.blackColor.CGColor
     @scene_view.addSubview(info_bar)
@@ -92,21 +92,18 @@ class ARViewController < UIViewController
     username = UILabel.new
     username.text = @player.username
     username.frame = [[10, 0], [@scene_view.frame.size.width / 3.0 - 10, 40]]
-    username.textColor = UIColor.whiteColor
     info_bar.addSubview(username)
 
     @kill_count = UILabel.new
     @kill_count.text = @player.kills.to_s
     @kill_count.frame = [[@scene_view.frame.size.width / 3.0, 0], [@scene_view.frame.size.width / 3.0, 40]]
     @kill_count.textAlignment = NSTextAlignmentCenter
-    @kill_count.textColor = UIColor.whiteColor
     info_bar.addSubview(@kill_count)
 
     @survival_clock = UILabel.new
     @survival_clock.text = survival_time(@player)
     @survival_clock.frame = [[@scene_view.frame.size.width / 3.0 * 2, 0], [@scene_view.frame.size.width / 3.0 - 10, 40]]
     @survival_clock.textAlignment = NSTextAlignmentRight
-    @survival_clock.textColor = UIColor.whiteColor
     info_bar.addSubview(@survival_clock)
 
     scope_width = 120
@@ -150,6 +147,7 @@ class ARViewController < UIViewController
   end
 
   def stop_time
+    play_freeze_sound
     @scene.rootNode.paused = true
     @toggle_button.removeFromSuperview
     @player.time_froze_at = survival_time(@player)
@@ -177,6 +175,7 @@ class ARViewController < UIViewController
       @enemy_icon.layer.masksToBounds = true
       @mini_map_view.addSubview(@enemy_icon)
       @enemy_map_icons << @enemy_icon
+      @spawning_enemy = false
     end
   end
 
@@ -222,7 +221,7 @@ class ARViewController < UIViewController
       @player.kills = @player.seconds = @player.minutes = @player.hours = 0
       @player.savedEnemies.array.each {|e| e.destroy}
       cdq.save
-      # push_user_to_death_screen
+      push_user_to_death_screen
       handler = lambda do |previewViewController, error|
         if error
           alert = UIAlertController.alertControllerWithTitle('Recording Unavailable',
@@ -272,6 +271,7 @@ class ARViewController < UIViewController
   end
 
   def shoot
+    play_shoot_sound
     @bullet_queue.async do
       target = SCNNode.node
       target.position = [0, 0, -80]
@@ -293,6 +293,10 @@ class ARViewController < UIViewController
     update_survival_clock_display
     restart_time if @player.time_froze_at && time_frozen_for >= 5
     return if @scene.rootNode.isPaused
+    if @entity_manager.entities.count == 0 && !@spawning_enemy
+      @spawning_enemy = true
+      spawn_enemy
+    end
     recharge_freeze_ability if @player.time_froze_at && time_frozen_for >= 60
     update_icon_positions if @enemy_map_icons.count > 0
     @entity_manager.updateWithDeltaTime(time)

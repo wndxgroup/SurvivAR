@@ -25,7 +25,7 @@ class MenuController < UIViewController
 
   def start_battleground
     if Player.first.current_account
-      play_wave_sound
+      # play_wave_sound
       navigationController.setViewControllers([ARViewController.new], animated: true)
     else
       alert = UIAlertController.alertControllerWithTitle('Not Logged In',
