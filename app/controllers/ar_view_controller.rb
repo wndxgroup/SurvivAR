@@ -221,7 +221,6 @@ class ARViewController < UIViewController
       @player.kills = @player.seconds = @player.minutes = @player.hours = 0
       @player.savedEnemies.array.each {|e| e.destroy}
       cdq.save
-      push_user_to_death_screen
       handler = lambda do |previewViewController, error|
         if error
           alert = UIAlertController.alertControllerWithTitle('Recording Unavailable',
@@ -231,8 +230,10 @@ class ARViewController < UIViewController
           alert.addAction(action)
           presentViewController(alert, animated: true, completion: nil)
         else
-          previewViewController.previewControllerDelegate = self
-          presentViewController(previewViewController, animated: true, completion: nil)
+          pause_session
+          controller = DeathController.new
+          controller.add_replay(previewViewController)
+          navigationController.setViewControllers([controller], animated: true)
         end
       end
       @recorder.stopRecordingWithHandler(handler)
@@ -244,11 +245,6 @@ class ARViewController < UIViewController
       spawn_enemy
       shoot
     end
-  end
-
-  def push_user_to_death_screen
-    pause_session
-    navigationController.setViewControllers([DeathController.new], animated: true)
   end
 
   def save_enemy_data
@@ -366,10 +362,5 @@ class ARViewController < UIViewController
 
   def locationManager(_, didUpdateHeading: new_heading)
     @mini_map_view.layer.transform = CATransform3DMakeRotation(-new_heading.trueHeading / 180.0  * Math::PI, 0.0, 0.0, 1.0)
-  end
-
-  def previewControllerDidFinish(previewController)
-    previewController.dismissViewControllerAnimated(true, completion: nil)
-    push_user_to_death_screen
   end
 end

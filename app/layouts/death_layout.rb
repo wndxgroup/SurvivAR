@@ -49,6 +49,10 @@ class DeathLayout < MotionKit::Layout
             end
           end
 
+          add UIButton, :replay do
+            setImage UIImage.imageNamed('replay'), forState: UIControlStateNormal
+          end
+
           add UIImageView, :logo do
             image UIImage.imageNamed('full-logo')
           end
@@ -143,8 +147,15 @@ class DeathLayout < MotionKit::Layout
       bottom.equals(:round_ranking_container)
     end
 
-    constraints(:logo) do
+    constraints(:replay) do
       top.equals(:round_ranking_container, :bottom).plus(30)
+      width 100
+      height 100
+      center_x view
+    end
+
+    constraints(:logo) do
+      top.equals(:replay, :bottom).plus(30)
       left.equals(:round_ranking_container)
       width.equals(:round_ranking_container)
       height.equals(:round_ranking_container, :width).divided_by(378.0).times(123)
@@ -170,7 +181,7 @@ class DeathLayout < MotionKit::Layout
       left.equals(:leaderboard)
       width.equals(:leaderboard)
       height.equals(:leaderboard)
-      bottom -30
+      bottom -25
     end
   end
 end
