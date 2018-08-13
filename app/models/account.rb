@@ -1,6 +1,5 @@
 class Account < CDQManagedObject
   include SurvivalTime
-  include Survival
 
   def start_survival_session
     self.start_time = Time.now

@@ -11,13 +11,13 @@ class AppDelegate
         CreateAnAccountController.new
       end
     end
-    @navigationController = UINavigationController.alloc.initWithRootViewController(rootViewController)
-    @navigationController.navigationBar.barTintColor = UIColor.alloc.initWithRed(1.0, green: 189.0/255, blue: 74.0/255, alpha: 1.0)
-    @navigationController.navigationBar.translucent = false
+    @navigation_controller = UINavigationController.alloc.initWithRootViewController(rootViewController)
+    navigation_bar_color = UIColor.alloc.initWithRed(1.0, green: 189.0/255, blue: 74.0/255, alpha: 1.0)
+    @navigation_controller.navigationBar.barTintColor = navigation_bar_color
+    @navigation_controller.navigationBar.translucent = false
     @window = UIWindow.alloc.initWithFrame(UIScreen.mainScreen.bounds)
-    @window.rootViewController = @navigationController
+    @window.rootViewController = @navigation_controller
     @window.makeKeyAndVisible
-
     @center = UNUserNotificationCenter.currentNotificationCenter
     true
   end
@@ -28,8 +28,8 @@ class AppDelegate
   end
 
   def applicationWillResignActive(_)
-    current_controller = @navigationController.topViewController
-    current_controller.go_to_menu if current_controller.is_a?(ARViewController)
+    current_controller = @navigation_controller.topViewController
+    current_controller.go_to_menu if current_controller.is_a?(BattlegroundController)
     set_notification(2)
   end
 
@@ -46,7 +46,7 @@ class AppDelegate
   end
 
   def userNotificationCenter(_, didReceiveNotificationResponse: _, withCompletionHandler: completion_handler)
-    @navigationController.setViewControllers([MenuController.new], animated: false)
+    @navigation_controller.setViewControllers([MenuController.new], animated: false)
     completion_handler.call
   end
 end

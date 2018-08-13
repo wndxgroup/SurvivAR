@@ -11,23 +11,24 @@ class LeaderboardController < UIViewController
     @player = Player.first
     @most_kills_button   = @layout.get(:most_kills)
     @longest_life_button = @layout.get(:longest_life)
-    @filter = 'most kills'
   end
 
   def viewDidLoad
     @table.dataSource = @table.delegate = self
-    @most_kills_button.addTarget(self, action: 'filter_by_kills', forControlEvents: UIControlEventTouchUpInside)
+    @most_kills_button  .addTarget(self, action: 'filter_by_kills',         forControlEvents: UIControlEventTouchUpInside)
     @longest_life_button.addTarget(self, action: 'filter_by_survival_time', forControlEvents: UIControlEventTouchUpInside)
     filter_by_kills
   end
 
   def set_filter_buttons
+    on_color  = UIColor.colorWithRed(1.0, green: 0, blue: 0, alpha: 1)
+    off_color = UIColor.colorWithRed(0.5, green: 0, blue: 0, alpha: 1)
     if @filter == 'most kills'
-      @most_kills_button.backgroundColor = UIColor.colorWithRed(1.0, green: 0, blue: 0, alpha: 1)
-      @longest_life_button.backgroundColor = UIColor.colorWithRed(0.5, green: 0, blue: 0, alpha: 1)
+      @most_kills_button  .backgroundColor = on_color
+      @longest_life_button.backgroundColor = off_color
     else
-      @most_kills_button.backgroundColor = UIColor.colorWithRed(0.5, green: 0, blue: 0, alpha: 1)
-      @longest_life_button.backgroundColor = UIColor.colorWithRed(1.0, green: 0, blue: 0, alpha: 1)
+      @most_kills_button  .backgroundColor = off_color
+      @longest_life_button.backgroundColor = on_color
     end
     @table.reloadData
   end
@@ -45,14 +46,13 @@ class LeaderboardController < UIViewController
   end
 
   def tableView(_, numberOfRowsInSection: _)
-    @player.accounts.map{|acct| acct.rounds.count}.inject(0){|sum, x| sum + x}
+    @player.accounts.map {|acct| acct.rounds.count}.inject(0) {|sum, x| sum + x}
   end
 
   CELLID = 'CellIdentifier'
   def tableView(tableView, cellForRowAtIndexPath:indexPath)
     cell = tableView.dequeueReusableCellWithIdentifier(CELLID) || begin
-      cell = UITableViewCell.alloc.initWithStyle(UITableViewCellStyleSubtitle, reuseIdentifier:CELLID)
-      cell
+      UITableViewCell.alloc.initWithStyle(UITableViewCellStyleSubtitle, reuseIdentifier: CELLID)
     end
     round = @filter == 'most kills' ? @most_kills[indexPath.row] : @longest_life[indexPath.row]
     text_label = begin

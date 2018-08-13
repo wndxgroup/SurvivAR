@@ -6,10 +6,4 @@ class EnemyFleeState < EnemyState
   def isValidNextState(state_class)
     state_class == EnemyChaseState
   end
-
-  def didEnterWithPreviousState(previous_state)
-  end
-
-  def updateWithDeltaTime(seconds)
-  end
 end

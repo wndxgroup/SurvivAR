@@ -1,5 +1,4 @@
 class BulletAgent < GKAgent3D
-  attr_accessor :new_position
 
   def updateWithDeltaTime(seconds)
     super

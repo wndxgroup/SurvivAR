@@ -89,7 +89,7 @@ class DeathLayout < MotionKit::Layout
     constraints(:content_view) do
       top_left x: 0, y: 0
       bottom_right x: 0, y: 0
-      width.equals(:root_view)
+      width :root_view
       height.equals(:root_view).priority(:low)
     end
 
@@ -107,44 +107,44 @@ class DeathLayout < MotionKit::Layout
     end
 
     constraints(:round_stats_kills) do
-      top.equals(:round_stats_container)
-      left.equals(:round_stats_container)
+      top :round_stats_container
+      left :round_stats_container
       width.equals('50%').of(:round_stats_container)
-      bottom.equals(:round_stats_container)
+      bottom :round_stats_container
     end
 
     constraints(:round_stats_time) do
-      top.equals(:round_stats_container)
+      top :round_stats_container
       left.equals(:round_stats_kills, :right)
-      width.equals(:round_stats_kills)
-      bottom.equals(:round_stats_container)
+      width :round_stats_kills
+      bottom :round_stats_container
     end
 
     constraints(:round_ranking_title) do
       top.equals(:round_stats_container, :bottom).plus(30)
-      left.equals(:round_stats_title)
-      width.equals(:round_stats_title)
+      left :round_stats_title
+      width :round_stats_title
     end
 
     constraints(:round_ranking_container) do
       top.equals(:round_ranking_title, :bottom).plus(10)
-      width.equals(:round_stats_container)
-      left.equals(:round_stats_container)
-      height.equals(:round_stats_container)
+      width :round_stats_container
+      left :round_stats_container
+      height :round_stats_container
     end
 
     constraints(:round_ranking_kills) do
-      top.equals(:round_ranking_container)
-      left.equals(:round_ranking_container)
+      top :round_ranking_container
+      left :round_ranking_container
       width.equals('50%').of(:round_ranking_container)
-      bottom.equals(:round_ranking_container)
+      bottom :round_ranking_container
     end
 
     constraints(:round_ranking_time) do
-      top.equals(:round_ranking_container)
+      top :round_ranking_container
       left.equals(:round_ranking_kills, :right)
-      width.equals(:round_ranking_kills)
-      bottom.equals(:round_ranking_container)
+      width :round_ranking_kills
+      bottom :round_ranking_container
     end
 
     constraints(:replay) do
@@ -156,31 +156,31 @@ class DeathLayout < MotionKit::Layout
 
     constraints(:logo) do
       top.equals(:replay, :bottom).plus(30)
-      left.equals(:round_ranking_container)
-      width.equals(:round_ranking_container)
+      left :round_ranking_container
+      width :round_ranking_container
       height.equals(:round_ranking_container, :width).divided_by(378.0).times(123)
     end
 
     button_padding = 10
     constraints(:new_round) do
       top.equals(:logo, :bottom).plus(50)
-      left.equals(:round_ranking_container)
-      width.equals(:round_ranking_container)
+      left :round_ranking_container
+      width :round_ranking_container
       height 60
     end
 
     constraints(:leaderboard) do
       top.equals(:new_round, :bottom).plus(button_padding)
-      left.equals(:new_round)
-      width.equals(:new_round)
-      height.equals(:new_round)
+      left :new_round
+      width :new_round
+      height :new_round
     end
 
     constraints(:my_account) do
       top.equals(:leaderboard, :bottom).plus(button_padding)
-      left.equals(:leaderboard)
-      width.equals(:leaderboard)
-      height.equals(:leaderboard)
+      left :leaderboard
+      width :leaderboard
+      height :leaderboard
       bottom -25
     end
   end

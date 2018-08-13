@@ -1,5 +1,5 @@
 class Bullet < GKEntity
-  attr_accessor :position, :agent, :entity_manager, :node
+  attr_accessor :entity_manager, :node
 
   def init
     super
@@ -14,7 +14,7 @@ class Bullet < GKEntity
 
   def set_firing_location(position)
     @node = self.componentForClass(BulletComponent).node
-    @node.position = @position = position
+    @node.position = position
     @node.physicsBody = SCNPhysicsBody.bodyWithType(SCNPhysicsBodyTypeDynamic, shape: nil)
     @node.physicsBody.categoryBitMask = 1
     @node.physicsBody.collisionBitMask = 2

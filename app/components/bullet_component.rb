@@ -5,11 +5,9 @@ class BulletComponent < GKComponent
     super
     geometry = SCNSphere.sphereWithRadius(0.1)
     material = SCNMaterial.material
-    material.diffuse.contents = NSColor.colorWithRed(1, green: 1, blue: 1, alpha: 1)
-    material.doubleSided = false
+    material.diffuse.contents = UIColor.whiteColor
     geometry.materials = [material]
     @node = SCNNode.nodeWithGeometry(geometry)
     self
   end
-
 end

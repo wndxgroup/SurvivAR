@@ -3,8 +3,4 @@ class SurvivorComponent < GKAgent3D
     super
     self.delegate = self
   end
-
-  def updateWithDeltaTime(seconds)
-    super
-  end
 end

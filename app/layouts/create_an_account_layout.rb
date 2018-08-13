@@ -1,4 +1,4 @@
-class StartHereLayout < MotionKit::Layout
+class CreateAnAccountLayout < MotionKit::Layout
   def layout
     background_color UIColor.blackColor
 
@@ -28,24 +28,24 @@ class StartHereLayout < MotionKit::Layout
 
   def add_constraints
     constraints(:logo) do
-      top.equals(30)
+      top 30
       left.equals(view).plus(25)
       width.equals(view).minus(50)
       height :scale
     end
 
     constraints(:username) do
-      top.equals(:logo, NSLayoutAttributeBottom).plus(30)
-      left.equals(:logo, NSLayoutAttributeLeft)
+      top.equals(:logo, :bottom).plus(30)
+      left.equals(:logo, :left)
       width.equals(:logo).minus(100)
       height 50
     end
 
     constraints(:start_button) do
-      top.equals(:username)
-      right.equals(:logo, NSLayoutAttributeRight)
+      top :username
+      right.equals(:logo, :right)
       width 80
-      height.equals(:username)
+      height :username
     end
   end
 end

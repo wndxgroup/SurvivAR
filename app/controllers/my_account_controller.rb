@@ -1,5 +1,4 @@
 class MyAccountController < UIViewController
-  include SurvivalTime
 
   def set_account(account_number)
     @player = Player.first
@@ -8,27 +7,35 @@ class MyAccountController < UIViewController
 
   def loadView
     self.title = 'My Account'
-    @layout = MyAccountLayout.new
-    self.view = @layout.view
-    @layout.add_constraints
+    layout = MyAccountLayout.new
+    self.view = layout.view
+    layout.add_constraints
 
-    @username = @layout.get(:username)
-    @quick_view_container  = @layout.get(:quick_view_container)
-    @quick_view_title      = @layout.get(:quick_view_title)
-    @quick_view_kills      = @layout.get(:quick_view_kills)
-    @quick_view_time       = @layout.get(:quick_view_time)
-    @quick_view_rounds     = @layout.get(:quick_view_rounds)
-    @battleground_button   = @layout.get(:start_battleground)
-    @toggle_log_button     = @layout.get(:toggle_log)
-    @delete_account_button = @layout.get(:delete_account)
-    @history_table         = @layout.get(:history_table)
-  end
+    quick_view_container  = layout.get(:quick_view_container)
+    battleground_button   = layout.get(:start_battleground)
+    @toggle_log_button    = layout.get(:toggle_log)
+    delete_account_button = layout.get(:delete_account)
+    history_table         = layout.get(:history_table)
 
-  def viewDidLoad
-    @history_table.dataSource = @history_table.delegate = self
-    @battleground_button.addTarget(self, action: 'start_battleground', forControlEvents: UIControlEventTouchUpInside)
-    @toggle_log_button.addTarget(self, action: 'toggle_log', forControlEvents: UIControlEventTouchUpInside)
-    @delete_account_button.addTarget(self, action: 'confirm_account_deletion', forControlEvents: UIControlEventTouchUpInside)
+    quick_view_container.layer.cornerRadius = 10
+    quick_view_container.clipsToBounds = true
+    layout.get(:username).text = @account.username
+    history_table.dataSource = history_table.delegate = self
+
+    layout.get(:quick_view_kills).text  += "\n#{overall_kills}"
+    layout.get(:quick_view_time).text   += "\n#{overall_survival_time}"
+    layout.get(:quick_view_rounds).text += "\n#{overall_rounds}"
+
+    battleground_button  .addTarget(self, action: 'start_battleground',       forControlEvents: UIControlEventTouchUpInside)
+    @toggle_log_button   .addTarget(self, action: 'toggle_log',               forControlEvents: UIControlEventTouchUpInside)
+    delete_account_button.addTarget(self, action: 'confirm_account_deletion', forControlEvents: UIControlEventTouchUpInside)
+
+    if @account.alive?
+      battleground_button.setTitle('Continue Battleground', forState: UIControlStateNormal)
+    else
+      battleground_button.setTitle('New Battleground', forState: UIControlStateNormal)
+    end
+    set_toggle_log_button
   end
 
   def tableView(_, numberOfRowsInSection: _)
@@ -38,32 +45,15 @@ class MyAccountController < UIViewController
   CELLID = 'CellIdentifier'
   def tableView(tableView, cellForRowAtIndexPath:indexPath)
     cell = tableView.dequeueReusableCellWithIdentifier(CELLID) || begin
-      cell = UITableViewCell.alloc.initWithStyle(UITableViewCellStyleSubtitle, reuseIdentifier:CELLID)
-      cell
+      UITableViewCell.alloc.initWithStyle(UITableViewCellStyleDefault, reuseIdentifier: CELLID)
     end
-    cell.textLabel.text = "#{@account.sorted_rounds[indexPath.row].kills} kills in #{@account.sorted_rounds[indexPath.row].survival_time}"
+    round = @account.sorted_rounds[indexPath.row]
+    cell.textLabel.text = "#{round.kills} kills in #{round.survival_time}"
     cell
   end
 
-  def viewWillAppear(_)
-    @quick_view_container.layer.cornerRadius = 10
-    @quick_view_container.clipsToBounds = true
-    @username.text = @account.username
-
-    @quick_view_kills.text  += "\n#{overall_kills}"
-    @quick_view_time.text   += "\n#{overall_survival_time}"
-    @quick_view_rounds.text += "\n#{overall_rounds}"
-
-    if @account.alive?
-      @battleground_button.setTitle('Continue Battleground', forState: UIControlStateNormal)
-    else
-      @battleground_button.setTitle('New Battleground', forState: UIControlStateNormal)
-    end
-    set_toggle_log_button
-  end
-
   def overall_kills
-    kills = @account.rounds.map{|acct| acct.kills}.inject(0){|sum, x| sum + x}
+    kills = @account.rounds.map {|acct| acct.kills} .inject(0) {|sum, x| sum + x}
     kills += @account.kills if @account.alive?
     kills
   end
@@ -101,7 +91,7 @@ class MyAccountController < UIViewController
   end
 
   def start_battleground
-    navigationController.setViewControllers([ARViewController.new], animated: true)
+    navigationController.setViewControllers([BattlegroundController.new], animated: true)
   end
 
   def set_toggle_log_button
@@ -118,7 +108,7 @@ class MyAccountController < UIViewController
     if logged_in_to_this_account
       @player.current_account = nil
     else
-      @player.current_account = @player.sorted_accounts.index{|acct| acct.username == @username.text}
+      @player.current_account = @player.sorted_accounts.index(@account)
     end
     cdq.save
     set_toggle_log_button
@@ -143,7 +133,7 @@ class MyAccountController < UIViewController
   end
 
   def update_current_account
-    acct_index = @player.sorted_accounts.index{|acct| acct == @account}
+    acct_index = @player.sorted_accounts.index(@account)
     if acct_index < @player.current_account
       @player.current_account -= 1
     elsif acct_index == @player.current_account

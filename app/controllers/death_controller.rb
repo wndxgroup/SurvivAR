@@ -1,5 +1,5 @@
 class DeathController < UIViewController
-  include SurvivalTime, Rankings
+  include Rankings
 
   def add_replay(preview_view_controller)
     @replay_controller = preview_view_controller
@@ -42,13 +42,13 @@ class DeathController < UIViewController
     round_ranking_time.text  += "\n#{survival_time_ranking} / #{@longest_life.count}"
 
     round_stats_container.layer.cornerRadius = round_ranking_container.layer.cornerRadius = 10
-    round_stats_container.clipsToBounds = round_ranking_container.clipsToBounds = true
+    round_stats_container.clipsToBounds      = round_ranking_container.clipsToBounds      = true
     leaderboard_button.setTitleColor(UIColor.blackColor, forState: UIControlStateNormal)
 
     new_round_button  .addTarget(self, action: 'start_new_round',   forControlEvents: UIControlEventTouchUpInside)
     leaderboard_button.addTarget(self, action: 'go_to_leaderboard', forControlEvents: UIControlEventTouchUpInside)
     my_account_button .addTarget(self, action: 'go_to_my_account',  forControlEvents: UIControlEventTouchUpInside)
-    @replay_button     .addTarget(self, action: 'show_replay',       forControlEvents: UIControlEventTouchUpInside)
+    @replay_button    .addTarget(self, action: 'show_replay',       forControlEvents: UIControlEventTouchUpInside)
   end
 
   def show_replay
@@ -56,7 +56,7 @@ class DeathController < UIViewController
   end
 
   def start_new_round
-    navigationController.setViewControllers([ARViewController.new], animated: true)
+    navigationController.setViewControllers([BattlegroundController.new], animated: true)
   end
 
   def go_to_leaderboard

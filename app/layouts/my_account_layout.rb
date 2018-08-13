@@ -77,7 +77,7 @@ class MyAccountLayout < MotionKit::Layout
     constraints(:content_view) do
       top_left x: 0, y: 0
       bottom_right x: 0, y: 0
-      width.equals(:root_view)
+      width :root_view
       height.equals(:root_view).priority(:low)
     end
 
@@ -95,28 +95,28 @@ class MyAccountLayout < MotionKit::Layout
 
     constraints(:quick_view_container) do
       top.equals(:quick_view_title, :bottom).plus(10)
-      width.equals(:username)
-      left.equals(:username)
+      width :username
+      left :username
       height 100
     end
 
     constraints(:quick_view_kills) do
-      top.equals(:quick_view_container)
-      bottom.equals(:quick_view_container)
-      left.equals(:quick_view_container)
+      top :quick_view_container
+      bottom :quick_view_container
+      left :quick_view_container
       width.equals('25%').of(:quick_view_container)
     end
 
     constraints(:quick_view_time) do
-      top.equals(:quick_view_container)
-      bottom.equals(:quick_view_container)
+      top :quick_view_container
+      bottom :quick_view_container
       left.equals(:quick_view_kills, :right)
       width.equals('50%').of(:quick_view_container)
     end
 
     constraints(:quick_view_rounds) do
-      top.equals(:quick_view_container)
-      bottom.equals(:quick_view_container)
+      top :quick_view_container
+      bottom :quick_view_container
       left.equals(:quick_view_time, :right)
       width.equals('25%').of(:quick_view_container)
     end
@@ -124,35 +124,35 @@ class MyAccountLayout < MotionKit::Layout
     button_padding = 10
     constraints(:start_battleground) do
       top.equals(:quick_view_container, :bottom).plus(50)
-      left.equals(:quick_view_container)
-      width.equals(:quick_view_container)
+      left :quick_view_container
+      width :quick_view_container
       height 60
     end
 
     constraints(:toggle_log) do
       top.equals(:start_battleground, :bottom).plus(button_padding)
-      left.equals(:start_battleground)
-      width.equals(:start_battleground)
-      height.equals(:start_battleground)
+      left :start_battleground
+      width :start_battleground
+      height :start_battleground
     end
 
     constraints(:delete_account) do
       top.equals(:toggle_log, :bottom).plus(button_padding)
-      left.equals(:toggle_log)
-      width.equals(:toggle_log)
-      height.equals(:start_battleground)
+      left :toggle_log
+      width :toggle_log
+      height :start_battleground
     end
 
     constraints(:history_title) do
       top.equals(:delete_account, :bottom).plus(50)
-      width.equals(:quick_view_title)
-      left.equals(:quick_view_title)
+      width :quick_view_title
+      left :quick_view_title
     end
 
     constraints(:history_table) do
       top.equals(:history_title, :bottom).plus(10)
-      left.equals(view)
-      width.equals(view)
+      left view
+      width view
       height.equals(view).minus(50)
       bottom 0
     end

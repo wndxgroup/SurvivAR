@@ -30,8 +30,8 @@ class LeaderboardLayout < MotionKit::Layout
 
     constraints(:table) do
       top.equals(:most_kills, :bottom).plus(button_margin)
-      left.equals(view)
-      width.equals(view)
+      left view
+      width view
       bottom 0
     end
   end

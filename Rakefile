@@ -140,9 +140,7 @@ def define_icon_defaults!(app)
     }
   }
 
-  app.info_plist['NSLocationAlwaysAndWhenInUseUsageDescription'] = 'So we know where you are when you are using the app and when you are not'
-  app.info_plist['NSLocationAlwaysUsageDescription'] = 'So we can always know where you are'
-  app.info_plist['NSLocationWhenInUseUsageDescription'] = 'So we can know where you are when you have the app open'
-  app.info_plist['NSCameraUsageDescription'] = 'Needed for AR'
+  app.info_plist['NSLocationWhenInUseUsageDescription'] = 'So we can update the mini-map in the battleground'
+  app.info_plist['NSCameraUsageDescription'] = 'It\'s needed for AR'
 end
 task :"build:simulator" => :"schema:build"

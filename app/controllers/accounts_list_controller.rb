@@ -1,17 +1,11 @@
 class AccountsListController < UITableViewController
-  include SurvivalTime
-
-  attr_accessor :add_icon_view
-
-  def init
-    super
-    self.title = 'Accounts'
-    self
-  end
 
   def viewDidLoad
     super
-    add_icon = UIBarButtonItem.alloc.initWithBarButtonSystemItem(UIBarButtonSystemItemAdd, target: self, action: 'add_an_account')
+    self.title = 'Accounts'
+    add_icon = UIBarButtonItem.alloc.initWithBarButtonSystemItem(UIBarButtonSystemItemAdd,
+                                                                 target: self,
+                                                                 action: 'add_an_account')
     navigationItem.rightBarButtonItem = add_icon
     @player = Player.first
   end
@@ -25,12 +19,20 @@ class AccountsListController < UITableViewController
   end
 
   def tableView(_, trailingSwipeActionsConfigurationForRowAtIndexPath: indexPath)
-    handler = lambda do |action, sourceView, completionHandler|
+    handler = lambda do |_, _, completionHandler|
       alert = UIAlertController.alertControllerWithTitle('Are You Sure?',
                                                          message: 'Account deletion can\'t be undone.',
                                                          preferredStyle: UIAlertControllerStyleAlert)
-      cancel_action = UIAlertAction.actionWithTitle('Cancel', style: UIAlertActionStyleCancel, handler: lambda {|_| completionHandler.call(false)})
-      continue_action = UIAlertAction.actionWithTitle('Delete', style: UIAlertActionStyleDefault, handler: lambda { |_| delete_account(indexPath.row); completionHandler.call(true)})
+      cancel_action = UIAlertAction.actionWithTitle('Cancel',
+                                                    style: UIAlertActionStyleCancel,
+                                                    handler: lambda {|_| completionHandler.call(false)})
+      continue_action_handler = lambda do |_|
+        delete_account(indexPath.row)
+        completionHandler.call(true)
+      end
+      continue_action = UIAlertAction.actionWithTitle('Delete',
+                                                      style: UIAlertActionStyleDefault,
+                                                      handler: continue_action_handler)
       alert.addAction(cancel_action)
       alert.addAction(continue_action)
       presentViewController(alert, animated: true, completion: nil)
@@ -63,8 +65,7 @@ class AccountsListController < UITableViewController
   CELLID = 'CellIdentifier'
   def tableView(tableView, cellForRowAtIndexPath:indexPath)
     cell = tableView.dequeueReusableCellWithIdentifier(CELLID) || begin
-      cell = UITableViewCell.alloc.initWithStyle(UITableViewCellStyleSubtitle, reuseIdentifier:CELLID)
-      cell
+      UITableViewCell.alloc.initWithStyle(UITableViewCellStyleDefault, reuseIdentifier: CELLID)
     end
     account = @player.sorted_accounts[indexPath.row]
     text_label = ''

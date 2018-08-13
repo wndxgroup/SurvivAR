@@ -1,4 +1,4 @@
-module Survival
+module Sounds
   def play_wave_sound
     path = NSBundle.mainBundle.pathForResource('battleground', ofType:'wav')
     pathURL = NSURL.fileURLWithPath(path)

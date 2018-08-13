@@ -60,24 +60,11 @@ class MenuLayout < MotionKit::Layout
     constraints(:content_view) do
       top_left x: 0, y: 0
       bottom_right x: 0, y: 0
-      width.equals(:root_view)
+      width :root_view
       height.equals(:root_view).priority(:low)
     end
 
-    # constraints(:username) do
-    #   top 30
-    #   width(view).minus(30)
-    #   left 15
-    # end
-    #
-    # constraints(:stats) do
-    #   top.equals(:username, :bottom).plus(20)
-    #   width(:username)
-    #   left(:username)
-    # end
-
     button_padding = 20
-
     constraints(:battleground_button) do
       top 30
       left 15
@@ -87,8 +74,8 @@ class MenuLayout < MotionKit::Layout
 
     constraints(:battleground_text) do
       top.equals(:battleground_button).plus(5)
-      left.equals(:battleground_button)
-      width.equals(:battleground_button)
+      left :battleground_button
+      width :battleground_button
       height 40
     end
 
@@ -101,15 +88,15 @@ class MenuLayout < MotionKit::Layout
 
     constraints(:leaderboard_button) do
       top.equals(:battleground_button, :bottom).plus(button_padding / 2)
-      left.equals(:battleground_button)
-      width.equals(:battleground_button)
-      height.equals(:battleground_button)
+      left :battleground_button
+      width :battleground_button
+      height :battleground_button
     end
 
     constraints(:leaderboard_text) do
       top.equals(:leaderboard_button).plus(5)
-      left.equals(:leaderboard_button)
-      width.equals(:leaderboard_button)
+      left :leaderboard_button
+      width :leaderboard_button
       height 40
     end
 
@@ -122,16 +109,16 @@ class MenuLayout < MotionKit::Layout
 
     constraints(:accounts_button) do
       top.equals(:leaderboard_button, :bottom).plus(button_padding / 2)
-      left.equals(:battleground_button)
-      width.equals(:battleground_button)
-      height.equals(:battleground_button)
+      left :battleground_button
+      width :battleground_button
+      height :battleground_button
       bottom -20
     end
 
     constraints(:accounts_text) do
       top.equals(:accounts_button).plus(5)
-      left.equals(:accounts_button)
-      width.equals(:accounts_button)
+      left :accounts_button
+      width :accounts_button
       height 40
     end
 

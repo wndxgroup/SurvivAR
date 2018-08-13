@@ -1,21 +1,15 @@
 class EntityManager
-  attr_accessor :entities, :scene, :survivor, :scene_view, :bullets, :component_systems, :ar_controller
+  attr_accessor :entities, :scene, :survivor, :scene_view, :bullets, :battleground_controller
 
-  def init(scene, scene_view, ar_controller)
-    @ar_controller = ar_controller
+  def init(scene, scene_view, battleground_controller)
+    @battleground_controller = battleground_controller
     @scene = scene
     @scene_view = scene_view
-    @entities = []
+    @entities  = []
     @to_remove = []
-    @bullets = []
-    @component_systems = begin
-      move_system = GKComponentSystem.alloc.initWithComponentClass(MoveComponent)
-      [move_system]
-    end
-    @bullet_component_system = begin
-       bullet_system = GKComponentSystem.alloc.initWithComponentClass(BulletAgent)
-       [bullet_system]
-    end
+    @bullets   = []
+    @component_systems = [GKComponentSystem.alloc.initWithComponentClass(MoveComponent)]
+    @bullet_component_system = [GKComponentSystem.alloc.initWithComponentClass(BulletAgent)]
     self
   end
 
@@ -51,13 +45,10 @@ class EntityManager
   def updateWithDeltaTime(seconds)
     entities.each { |entity| entity.componentForClass(VisualComponent).updateWithDeltaTime(seconds) }
     @survivor.updateWithDeltaTime(seconds)
-
     @component_systems.each { |comp_system| comp_system.updateWithDeltaTime(seconds) }
-
-    # if @bullets.count > 0
-    #   @bullet_component_system.each { |comp_system| comp_system.updateWithDeltaTime(seconds)}
-    # end
-
+    if @bullets.count > 0
+      @bullet_component_system.each { |comp_system| comp_system.updateWithDeltaTime(seconds) }
+    end
     @to_remove.each do |current_remove|
       @component_systems.each do |comp_system|
         comp_system.removeComponentWithEntity(current_remove)
