@@ -266,7 +266,7 @@ class BattlegroundController < UIViewController
       @spawning_enemy = true
       spawn_enemy
     end
-    recharge_freeze_ability if @account.time_froze_at && time_frozen_for >= 60
+    recharge_freeze_ability if @account.time_froze_at && time_frozen_for >= 30
     update_icon_positions if @enemy_map_icons.count > 0
     @entity_manager.updateWithDeltaTime(time)
   end
@@ -278,6 +278,7 @@ class BattlegroundController < UIViewController
   def recharge_freeze_ability
     Dispatch::Queue.main.async do
       view.addSubview(@freeze_button)
+      play_recharge_sound
       @account.time_froze_at = nil
       cdq.save
     end
