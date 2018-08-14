@@ -347,7 +347,7 @@ class BattlegroundController < UIViewController
     if (contact.nodeA == survivor_node || contact.nodeB == survivor_node) && !@currently_killing_player
       @currently_killing_player = true
       player_dies
-    elsif @enemy.componentForClass(VisualComponent).state_machine.currentState.is_a?(EnemyChaseState)
+    elsif @enemy.componentForClass(VisualComponent).state_machine.currentState.is_a?(EnemyChaseState) && !@currently_killing_player
       @enemy.componentForClass(VisualComponent).state_machine.enterState(EnemyFleeState)
       increment_kill_count
     end
