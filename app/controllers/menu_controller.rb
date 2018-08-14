@@ -1,4 +1,6 @@
 class MenuController < UIViewController
+  include Recorder
+
   def loadView
     self.title = 'Menu'
     layout = MenuLayout.new
@@ -21,6 +23,7 @@ class MenuController < UIViewController
 
   def start_battleground
     if Player.first.current_account
+      initiate_recording
       navigationController.setViewControllers([BattlegroundController.new], animated: true)
     else
       alert = UIAlertController.alertControllerWithTitle('Not Logged In',

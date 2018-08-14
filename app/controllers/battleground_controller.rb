@@ -18,22 +18,6 @@ class BattlegroundController < UIViewController
 
   def viewDidLoad
     super
-    @recorder = RPScreenRecorder.sharedRecorder
-    if @recorder.available? && !@recorder.recording?
-      @recorder.microphoneEnabled = true
-      handler = lambda do |error|
-        if error
-          alert = UIAlertController.alertControllerWithTitle('Recording Failed',
-                                                             message: 'An error occured while trying to start recording',
-                                                             preferredStyle: UIAlertControllerStyleAlert)
-          action = UIAlertAction.actionWithTitle('Ok', style: UIAlertActionStyleDefault, handler: nil)
-          alert.addAction(action)
-          presentViewController(alert, animated: true, completion: nil)
-        end
-      end
-      @recorder.startRecordingWithHandler(handler)
-    end
-
     navigationController.setNavigationBarHidden(true, animated: true)
     @spawning_enemy = true
     @scene_view = ARSCNView.new
@@ -225,22 +209,8 @@ class BattlegroundController < UIViewController
       @account.kills = @account.seconds = @account.minutes = @account.hours = 0
       @account.savedEnemies.array.each {|e| e.destroy}
       cdq.save
-      handler = lambda do |previewViewController, error|
-        if error
-          alert = UIAlertController.alertControllerWithTitle('Recording Unavailable',
-                                                             message: 'An error occured while trying to replay the recording',
-                                                             preferredStyle: UIAlertControllerStyleAlert)
-          action = UIAlertAction.actionWithTitle('Ok', style: UIAlertActionStyleDefault, handler: nil)
-          alert.addAction(action)
-          presentViewController(alert, animated: true, completion: nil)
-        else
-          pause_session
-          controller = DeathController.new
-          controller.add_replay(previewViewController)
-          navigationController.setViewControllers([controller], animated: true)
-        end
-      end
-      @recorder.stopRecordingWithHandler(handler)
+      pause_session
+      navigationController.setViewControllers([DeathController.new], animated: true)
     end
   end
 
@@ -264,7 +234,7 @@ class BattlegroundController < UIViewController
   def pause_session
     @account.battling = false
     cdq.save
-    @mini_map_view.subviews.each_with_index {|view, index| view.removeFromSuperview if index > 0}
+    @mini_map_view.subviews.each_with_index {|view, index| view.removeFromSuperview if index > 0} if @mini_map_view
     @scene.rootNode.childNodes.each {|node| node.removeFromParentNode}
     @scene_view.session.pause
   end

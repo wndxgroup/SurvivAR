@@ -1,10 +1,5 @@
 class DeathController < UIViewController
-  include Rankings
-
-  def add_replay(preview_view_controller)
-    @replay_controller = preview_view_controller
-    @replay_controller.previewControllerDelegate = self
-  end
+  include Rankings, Recorder
 
   def loadView
     @layout = DeathLayout.new
@@ -19,6 +14,15 @@ class DeathController < UIViewController
     @player = Player.first
     @account = @player.sorted_accounts[@player.current_account]
     round = @account.sorted_rounds[-1]
+
+    recorder = RPScreenRecorder.sharedRecorder
+    handler = lambda do |previewViewController, error|
+      unless error
+        @replay_controller = previewViewController
+        @replay_controller.previewControllerDelegate = self
+      end
+    end
+    recorder.stopRecordingWithHandler(handler)
 
     round_stats_container   = @layout.get(:round_stats_container)
     round_stats_kills       = @layout.get(:round_stats_kills)
@@ -52,10 +56,21 @@ class DeathController < UIViewController
   end
 
   def show_replay
-    presentViewController(@replay_controller, animated: true, completion: nil)
+    unless @replay_controller
+      alert = UIAlertController.alertControllerWithTitle('Recording Unavailable',
+                                                         message: 'An error occured while trying to replay the recording',
+                                                         preferredStyle: UIAlertControllerStyleAlert)
+      action = UIAlertAction.actionWithTitle('Ok', style: UIAlertActionStyleDefault, handler: nil)
+      alert.addAction(action)
+      presentViewController(alert, animated: true, completion: nil)
+      hide_replay_button
+    else
+      presentViewController(@replay_controller, animated: true, completion: nil)
+    end
   end
 
   def start_new_round
+    initiate_recording
     navigationController.setViewControllers([BattlegroundController.new], animated: true)
   end
 
@@ -70,9 +85,13 @@ class DeathController < UIViewController
     navigationController.setViewControllers([MenuController.new, AccountsListController.new, controller], animated: true)
   end
 
-  def previewControllerDidFinish(previewController)
-    previewController.dismissViewControllerAnimated(true, completion: nil)
+  def hide_replay_button
     @replay_button.setImage(nil, forState: UIControlStateNormal)
     @layout.get(:logo).topAnchor.constraintEqualToAnchor(@replay_button.topAnchor).active = true
+  end
+
+  def previewControllerDidFinish(previewController)
+    previewController.dismissViewControllerAnimated(true, completion: nil)
+    hide_replay_button
   end
 end

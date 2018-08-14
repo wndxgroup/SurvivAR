@@ -29,11 +29,14 @@ class AppDelegate
 
   def applicationWillResignActive(_)
     current_controller = @navigation_controller.topViewController
-    current_controller.go_to_menu if current_controller.is_a?(BattlegroundController)
+    player = Player.first
+    account = player.sorted_accounts[player.current_account]
+    current_controller.go_to_menu if current_controller.is_a?(BattlegroundController) && account.battling?
     set_notification(2)
   end
 
   def set_notification(days)
+    @center.removeAllPendingNotificationRequests
     @center.requestAuthorizationWithOptions(UNAuthorizationOptionAlert | UNAuthorizationOptionSound,
                                             completionHandler: lambda { |_, _| })
     @center.delegate = self
