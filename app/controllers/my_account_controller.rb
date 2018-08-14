@@ -1,4 +1,5 @@
 class MyAccountController < UIViewController
+  include Recorder
 
   def set_account(account_number)
     @player = Player.first
@@ -91,6 +92,7 @@ class MyAccountController < UIViewController
   end
 
   def start_battleground
+    initiate_recording
     navigationController.setViewControllers([BattlegroundController.new], animated: true)
   end
 
