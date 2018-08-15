@@ -57,7 +57,8 @@ class MoveComponent < GKAgent3D
       if index
         entity.componentForClass(VisualComponent).node.removeFromParentNode
         @entity_manager.entities -= [entity]
-        @entity_manager.battleground_controller.mini_map_view.subviews[index + 1].removeFromSuperview
+        mini_map_icon = @entity_manager.battleground_controller.mini_map_view.subviews[index + 1]
+        mini_map_icon.removeFromSuperview if mini_map_icon
       end
     end
   end
