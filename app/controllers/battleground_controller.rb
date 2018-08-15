@@ -104,6 +104,14 @@ class BattlegroundController < UIViewController
                              [scope_width, scope_width]]
     @scene_view.addSubview(scope_icon_view)
 
+    @ammo_counter = UILabel.new
+    @ammo_counter.text = "⚪ #{@account.ammo}"
+    @ammo_counter.frame = [[10, @scene_view.frame.size.height - mini_map_diameter - 40], [mini_map_diameter - 20, 30]]
+    @ammo_counter.textAlignment = NSTextAlignmentCenter
+    @ammo_counter.color = UIColor.whiteColor
+    @ammo_counter.backgroundColor = UIColor.alloc.initWithWhite(0, alpha: 0.5)
+    view.addSubview(@ammo_counter)
+
     @mini_map_view = UIView.new
     @mini_map_view.backgroundColor = UIColor.alloc.initWithWhite(0, alpha: 0.5)
     @mini_map_view.layer.cornerRadius = mini_map_diameter / 2.0
@@ -218,9 +226,7 @@ class BattlegroundController < UIViewController
   def touchesEnded(_, withEvent: event)
     if event.touchesForView(@scene_view) && @account.ammo > 0
       spawn_enemy if !@scene.rootNode.isPaused
-      puts "Before: #{@account.ammo}"
       shoot
-      puts "After: #{@account.ammo}"
     end
   end
 
@@ -338,7 +344,10 @@ class BattlegroundController < UIViewController
     ammo_index = child_nodes.index(@ammo_node)
     child_nodes[ammo_index].removeFromParentNode
     @account.ammo += 10
-    Dispatch::Queue.main.sync { cdq.save }
+    Dispatch::Queue.main.sync do
+      @ammo_counter.text = "⚪ #{@account.ammo}"
+      cdq.save
+    end
     @spawned_ammo = false
   end
 
