@@ -11,6 +11,7 @@
     <attribute optional="YES" syncable="YES" attributeType="Integer 16" name="minutes" defaultValueString="0"/>
     <attribute optional="YES" syncable="YES" attributeType="Double" name="seconds" defaultValueString="0.0"/>
     <attribute optional="YES" syncable="YES" attributeType="Integer 16" name="kills" defaultValueString="0"/>
+    <attribute optional="YES" syncable="YES" attributeType="Integer 16" name="ammo" defaultValueString="0"/>
     <attribute optional="YES" syncable="YES" attributeType="Boolean" name="alive" defaultValueString="YES"/>
     <attribute optional="YES" syncable="YES" attributeType="Boolean" name="battling"/>
     <attribute optional="YES" syncable="YES" attributeType="Date" name="start_time"/>

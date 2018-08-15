@@ -4,6 +4,7 @@ class BattlegroundController < UIViewController
 
   def enemy_radius; 1.0; end
   def map_icon_diameter; 10; end
+  def ammo_spawn_radius; 10; end
 
   def init
     super
@@ -206,7 +207,7 @@ class BattlegroundController < UIViewController
       @account.battling = @account.alive = false
       @account.time_froze_at = nil
       @account.rounds.create(kills: @account.kills, survival_time: survival_time(@account), completed_on: Time.now)
-      @account.kills = @account.seconds = @account.minutes = @account.hours = 0
+      @account.ammo = @account.kills = @account.seconds = @account.minutes = @account.hours = 0
       @account.savedEnemies.array.each {|e| e.destroy}
       cdq.save
       pause_session
@@ -215,9 +216,11 @@ class BattlegroundController < UIViewController
   end
 
   def touchesEnded(_, withEvent: event)
-    if event.touchesForView(@scene_view)
+    if event.touchesForView(@scene_view) && @account.ammo > 0
       spawn_enemy if !@scene.rootNode.isPaused
+      puts "Before: #{@account.ammo}"
       shoot
+      puts "After: #{@account.ammo}"
     end
   end
 
@@ -255,12 +258,30 @@ class BattlegroundController < UIViewController
       force = [target_position.x, target_position.y, target_position.z]
       node.physicsBody.applyForce(force, atPosition: [0, 0, 0], impulse: true)
       @scene.rootNode.addChildNode(node)
+
+      @account.ammo -= 1
     end
+    cdq.save
+  end
+
+  def spawn_ammo_crate
+    ammo = Ammo.new
+    x = rand * ammo_spawn_radius
+    x = -x if rand < 0.5
+    z = Math.sqrt(ammo_spawn_radius**2 - x**2)
+    z = -z if rand < 0.5
+    position = @scene_view.pointOfView.convertPosition([x, 0, z], toNode: nil)
+    @ammo_node = ammo.set_spawning_location([position.x, -1, position.z])
+    @scene.rootNode.addChildNode(ammo.node)
   end
 
   def renderer(_, updateAtTime: time)
     update_survival_clock_display
     unfreeze_time if @account.time_froze_at && time_frozen_for >= 5
+    if !@spawned_ammo && @account.ammo <= 8
+      @spawned_ammo = true
+      spawn_ammo_crate
+    end
     return if @scene.rootNode.isPaused
     if @entity_manager.entities.count == 0 && !@spawning_enemy
       @spawning_enemy = true
@@ -312,13 +333,31 @@ class BattlegroundController < UIViewController
     end
   end
 
+  def pickup_ammo
+    child_nodes = @scene.rootNode.childNodes
+    ammo_index = child_nodes.index(@ammo_node)
+    child_nodes[ammo_index].removeFromParentNode
+    @account.ammo += 10
+    Dispatch::Queue.main.sync { cdq.save }
+    @spawned_ammo = false
+  end
+
   def physicsWorld(_, didBeginContact: contact)
     @entity_manager.entities.each {|enemy| @enemy = enemy if enemy.node == contact.nodeA || enemy.node == contact.nodeB}
+    @entity_manager.bullets.each {|bullet| @bullet = bullet if bullet.node == contact.nodeA || bullet.node == contact.nodeB}
     survivor_node = @survivor.componentForClass(LocationComponent).node
-    if (contact.nodeA == survivor_node || contact.nodeB == survivor_node) && !@currently_killing_player
+    user_touch  = survivor_node == contact.nodeA || survivor_node == contact.nodeB
+    ammo_touch  = @ammo_node    == contact.nodeA || @ammo_node    == contact.nodeB
+    user_hits_ammo = user_touch && ammo_touch
+    demon_hits_user = user_touch && @enemy && !@currently_killing_player
+    bullet_hits_chasing_demon = @enemy && @bullet && !@currently_killing_player &&
+        @enemy.componentForClass(VisualComponent).state_machine.currentState.is_a?(EnemyChaseState)
+    if user_hits_ammo
+      pickup_ammo
+    elsif demon_hits_user
       @currently_killing_player = true
       player_dies
-    elsif @enemy.componentForClass(VisualComponent).state_machine.currentState.is_a?(EnemyChaseState) && !@currently_killing_player
+    elsif bullet_hits_chasing_demon
       @enemy.componentForClass(VisualComponent).state_machine.enterState(EnemyFleeState)
       increment_kill_count
     end

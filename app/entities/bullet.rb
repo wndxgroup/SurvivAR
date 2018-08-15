@@ -25,5 +25,4 @@ class Bullet < GKEntity
   def set_trajectory(trajectory, entity_manager: entity_manager)
     @agent.set_trajectory(trajectory, entity_manager: entity_manager)
   end
-
 end
