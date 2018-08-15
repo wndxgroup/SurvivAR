@@ -75,7 +75,7 @@ Motion::Project::App.setup do |app|
   #    Default libraries: UIKit, Foundation, CoreGraphics, CoreFoundation, CFNetwork, CoreAudio
   # ===========================================================================================
   app.frameworks << 'SceneKit' << 'ARKit' << 'GameplayKit' << 'Dispatch'
-  app.frameworks << 'UserNotifications' << 'AudioToolbox' << 'ReplayKit'
+  app.frameworks << 'UserNotifications' << 'AudioToolbox' << 'ReplayKit' << 'AVFoundation'
 
   # reasonable defaults
   app.device_family = [:iphone, :ipad]

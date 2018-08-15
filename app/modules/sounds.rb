@@ -21,8 +21,11 @@ module Sounds
 
   def play_with_path(path)
     pathURL = NSURL.fileURLWithPath(path)
-    sound_id = Pointer.new('I')
-    AudioServicesCreateSystemSoundID(pathURL, sound_id)
-    AudioServicesPlaySystemSound(sound_id[0])
+    # sound_id = Pointer.new('I')
+    # AudioServicesCreateSystemSoundID(pathURL, sound_id)
+    # AudioServicesPlaySystemSound(sound_id[0])
+
+    @player = AVAudioPlayer.alloc.initWithContentsOfURL(pathURL, error: nil)
+    @player.play
   end
 end

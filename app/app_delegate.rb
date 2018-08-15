@@ -3,6 +3,11 @@ class AppDelegate
 
   def application(application, didFinishLaunchingWithOptions:launchOptions)
     cdq.setup
+
+    audio_session = AVAudioSession.sharedInstance
+    audio_session.setCategory(AVAudioSessionCategoryPlayAndRecord, withOptions: AVAudioSessionCategoryOptionDefaultToSpeaker, error: nil)
+    audio_session.setActive(true, withOptions: AVAudioSessionCategoryOptionDefaultToSpeaker, error: nil)
+
     rootViewController = begin
       player = Player.first
       if player && player.accounts.count > 0
