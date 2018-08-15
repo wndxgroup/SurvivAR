@@ -215,8 +215,8 @@ class BattlegroundController < UIViewController
   end
 
   def touchesEnded(_, withEvent: event)
-    if event.touchesForView(@scene_view) && !@scene.rootNode.isPaused
-      spawn_enemy
+    if event.touchesForView(@scene_view)
+      spawn_enemy if !@scene.rootNode.isPaused
       shoot
     end
   end
