@@ -45,10 +45,11 @@ class BattlegroundController < UIViewController
     @account = player.sorted_accounts[player.current_account]
     @account.battling = true
     @account.start_survival_session
-    play_wave_sound if survival_time(@account).split(':')[-1].to_i < 3
+    play_wave_sound if survival_time(@account).split(':')[-1].to_i < 1
   end
 
-  def viewDidAppear(_)
+  def viewDidAppear(animated)
+    super
     navigationController.setNavigationBarHidden(true, animated: true)
     add_ui
     @location_manager.startUpdatingHeading
@@ -150,6 +151,12 @@ class BattlegroundController < UIViewController
     menu_button.addTarget(self, action: 'go_to_menu', forControlEvents: UIControlEventTouchUpInside)
   end
 
+  def viewWillDisappear(animated)
+    super
+    @location_manager.stopUpdatingHeading
+    self.view = nil
+  end
+
   def stop_time
     play_freeze_sound
     @scene.rootNode.paused = true
@@ -223,6 +230,7 @@ class BattlegroundController < UIViewController
       cdq.save
       pause_session
       controller = UIApplication.sharedApplication.delegate.death_controller
+      navigationController.setNavigationBarHidden(false, animated: true)
       navigationController.setViewControllers([controller], animated: true)
     end
   end

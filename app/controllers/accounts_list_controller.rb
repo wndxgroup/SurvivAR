@@ -10,7 +10,8 @@ class AccountsListController < UITableViewController
     @player = Player.first
   end
 
-  def viewWillAppear(_)
+  def viewWillAppear(animated)
+    super
     tableView.reloadData
   end
 

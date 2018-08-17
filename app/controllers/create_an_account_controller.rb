@@ -1,8 +1,13 @@
 class CreateAnAccountController < UIViewController
   include CDQ
 
-  def loadView
+  def init
+    super
     self.title = 'Create Account'
+    self
+  end
+
+  def loadView
     layout = CreateAnAccountLayout.new
     self.view = layout.view
     layout.add_constraints

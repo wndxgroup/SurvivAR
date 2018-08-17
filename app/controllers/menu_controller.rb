@@ -20,7 +20,8 @@ class MenuController < UIViewController
     @leaderboard .addTarget(self, action: 'show_leaderboard',   forControlEvents: UIControlEventTouchUpInside)
   end
 
-  def viewDidAppear(_)
+  def viewDidAppear(animated)
+    super
     navigationController.setNavigationBarHidden(false, animated: true)
   end
 

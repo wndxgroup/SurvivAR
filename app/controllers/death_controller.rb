@@ -1,15 +1,20 @@
 class DeathController < UIViewController
   include Rankings, Recorder
 
+  def init
+    super
+    self.title = 'You Died'
+    self
+  end
+
   def loadView
     @layout = DeathLayout.new
-    navigationController.setNavigationBarHidden(false, animated: true)
-    self.title = 'You Died'
     self.view = @layout.view
     @layout.add_constraints
   end
 
-  def viewDidLoad
+  def viewWillAppear(animated)
+    super
     cdq.setup
     @player = Player.first
     @account = @player.sorted_accounts[@player.current_account]
@@ -53,6 +58,11 @@ class DeathController < UIViewController
     leaderboard_button.addTarget(self, action: 'go_to_leaderboard', forControlEvents: UIControlEventTouchUpInside)
     my_account_button .addTarget(self, action: 'go_to_my_account',  forControlEvents: UIControlEventTouchUpInside)
     @replay_button    .addTarget(self, action: 'show_replay',       forControlEvents: UIControlEventTouchUpInside)
+  end
+
+  def viewWillDisappear(animated)
+    super
+    self.view = nil
   end
 
   def show_replay
