@@ -13,7 +13,6 @@ class MenuController < UIViewController
   end
 
   def viewDidLoad
-    navigationController.setNavigationBarHidden(false, animated: true)
     @battleground.layer.cornerRadius = @accounts.layer.cornerRadius = @leaderboard.layer.cornerRadius = 10
     @battleground.clipsToBounds      = @accounts.clipsToBounds      = @leaderboard.clipsToBounds      = true
     @battleground.addTarget(self, action: 'start_battleground', forControlEvents: UIControlEventTouchUpInside)
@@ -21,10 +20,15 @@ class MenuController < UIViewController
     @leaderboard .addTarget(self, action: 'show_leaderboard',   forControlEvents: UIControlEventTouchUpInside)
   end
 
+  def viewDidAppear(_)
+    navigationController.setNavigationBarHidden(false, animated: true)
+  end
+
   def start_battleground
     if Player.first.current_account
       initiate_recording
-      navigationController.setViewControllers([BattlegroundController.new], animated: true)
+      controller = UIApplication.sharedApplication.delegate.battleground_controller
+      navigationController.pushViewController(controller, animated: true)
     else
       alert = UIAlertController.alertControllerWithTitle('Not Logged In',
                                                          message: 'Log into  an account before starting a battleground',
@@ -38,10 +42,12 @@ class MenuController < UIViewController
   end
 
   def show_accounts
-    navigationController.pushViewController(AccountsListController.new, animated: true)
+    controller = UIApplication.sharedApplication.delegate.accounts_list_controller
+    navigationController.pushViewController(controller, animated: true)
   end
 
   def show_leaderboard
-    navigationController.pushViewController(LeaderboardController.new, animated: true)
+    controller = UIApplication.sharedApplication.delegate.leaderboard_controller
+    navigationController.pushViewController(controller, animated: true)
   end
 end

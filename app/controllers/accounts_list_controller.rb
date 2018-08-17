@@ -15,7 +15,8 @@ class AccountsListController < UITableViewController
   end
 
   def add_an_account
-    navigationController.pushViewController(CreateAnAccountController.new, animated: true)
+    controller = UIApplication.sharedApplication.delegate.create_an_account_controller
+    navigationController.pushViewController(controller, animated: true)
   end
 
   def tableView(_, trailingSwipeActionsConfigurationForRowAtIndexPath: indexPath)
@@ -68,19 +69,13 @@ class AccountsListController < UITableViewController
       UITableViewCell.alloc.initWithStyle(UITableViewCellStyleDefault, reuseIdentifier: CELLID)
     end
     account = @player.sorted_accounts[indexPath.row]
-    text_label = ''
-    if @player.current_account == indexPath.row
-      text_label = '🔵 '
-    else
-      text_label = '⚫ '
-    end
-    text_label += account.username
-    cell.textLabel.text = text_label
+    log_status = @player.current_account == indexPath.row ? '🔵 ' : '⚫ '
+    cell.textLabel.text = log_status + account.username
     cell
   end
 
   def tableView(_, didSelectRowAtIndexPath: indexPath)
-    controller = MyAccountController.new
+    controller = UIApplication.sharedApplication.delegate.my_account_controller
     controller.set_account(indexPath.row)
     navigationController.pushViewController(controller, animated: true)
   end

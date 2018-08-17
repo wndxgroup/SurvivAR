@@ -7,7 +7,7 @@ class BulletAgent < GKAgent3D
   end
 
   def delete_entity
-    @node.removeFromParentNode
+    @node.removeFromParentNode # Move to bottom?
     entity.entity_manager.bullet_component_system[0].removeComponentWithEntity(entity)
     entity.entity_manager.bullets -= [entity]
   end

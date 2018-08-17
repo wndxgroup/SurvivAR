@@ -71,18 +71,27 @@ class DeathController < UIViewController
 
   def start_new_round
     initiate_recording
-    navigationController.setViewControllers([BattlegroundController.new], animated: true)
+    app_delegate = UIApplication.sharedApplication.delegate
+    menu         = app_delegate.menu_controller
+    battleground = app_delegate.battleground_controller
+    navigationController.setViewControllers([menu, battleground], animated: true)
   end
 
   def go_to_leaderboard
-    navigationController.setViewControllers([MenuController.new, LeaderboardController.new], animated: true)
+    app_delegate = UIApplication.sharedApplication.delegate
+    menu         = app_delegate.menu_controller
+    leaderboard  = app_delegate.leaderboard_controller
+    navigationController.setViewControllers([menu, leaderboard], animated: true)
   end
 
   def go_to_my_account
-    controller = MyAccountController.new
+    app_delegate   = UIApplication.sharedApplication.delegate
+    menu           = app_delegate.menu_controller
+    accounts_list  = app_delegate.accounts_list_controller
+    my_account     = app_delegate.my_account_controller
     account_number = @player.sorted_accounts.index(@account)
-    controller.set_account(account_number)
-    navigationController.setViewControllers([MenuController.new, AccountsListController.new, controller], animated: true)
+    my_account.set_account(account_number)
+    navigationController.setViewControllers([menu, accounts_list, my_account], animated: true)
   end
 
   def hide_replay_button

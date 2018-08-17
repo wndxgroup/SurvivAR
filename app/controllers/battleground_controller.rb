@@ -8,6 +8,7 @@ class BattlegroundController < UIViewController
 
   def init
     super
+    self.title = 'Battleground'
     @enemy_map_icons = []
     @location_manager = CLLocationManager.new
     @location_manager.delegate = self
@@ -19,7 +20,6 @@ class BattlegroundController < UIViewController
 
   def viewDidLoad
     super
-    navigationController.setNavigationBarHidden(true, animated: true)
     @spawning_enemy = true
     @scene_view = ARSCNView.new
     @scene_view.autoenablesDefaultLighting = true
@@ -49,6 +49,7 @@ class BattlegroundController < UIViewController
   end
 
   def viewDidAppear(_)
+    navigationController.setNavigationBarHidden(true, animated: true)
     add_ui
     @location_manager.startUpdatingHeading
     @bullets = []
@@ -160,7 +161,8 @@ class BattlegroundController < UIViewController
   def go_to_menu
     save_enemy_data
     pause_session
-    navigationController.setViewControllers([MenuController.new], animated: true)
+    navigationController.setNavigationBarHidden(false, animated: true)
+    navigationController.popViewControllerAnimated(true)
   end
 
   def spawn_enemy
@@ -215,11 +217,13 @@ class BattlegroundController < UIViewController
       @account.battling = @account.alive = false
       @account.time_froze_at = nil
       @account.rounds.create(kills: @account.kills, survival_time: survival_time(@account), completed_on: Time.now)
-      @account.ammo = @account.kills = @account.seconds = @account.minutes = @account.hours = 0
+      @account.kills = @account.seconds = @account.minutes = @account.hours = 0
+      @account.ammo = 20
       @account.savedEnemies.array.each {|e| e.destroy}
       cdq.save
       pause_session
-      navigationController.setViewControllers([DeathController.new], animated: true)
+      controller = UIApplication.sharedApplication.delegate.death_controller
+      navigationController.setViewControllers([controller], animated: true)
     end
   end
 
@@ -278,7 +282,7 @@ class BattlegroundController < UIViewController
     z = -z if rand < 0.5
     position = @scene_view.pointOfView.convertPosition([x, 0, z], toNode: nil)
     @ammo_node = ammo.set_spawning_location([position.x, -1, position.z])
-    @scene.rootNode.addChildNode(ammo.node)
+    # @scene.rootNode.addChildNode(ammo.node)
   end
 
   def renderer(_, updateAtTime: time)

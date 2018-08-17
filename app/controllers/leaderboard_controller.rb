@@ -55,19 +55,19 @@ class LeaderboardController < UIViewController
       UITableViewCell.alloc.initWithStyle(UITableViewCellStyleSubtitle, reuseIdentifier: CELLID)
     end
     round = @filter == 'most kills' ? @most_kills[indexPath.row] : @longest_life[indexPath.row]
-    text_label = begin
-      if indexPath.row == 0
-        '🥇 '
-      elsif indexPath.row == 1
-        '🥈 '
-      elsif indexPath.row == 2
-        '🥉 '
+    place_label = begin
+      case indexPath.row
+      when 0
+        '🥇'
+      when 1
+        '🥈'
+      when 2
+        '🥉'
       else
-        "##{indexPath.row + 1}: "
+        "##{indexPath.row + 1}:"
       end
     end
-    text_label += "#{round.account.username}"
-    cell.textLabel.text = text_label
+    cell.textLabel.text = place_label + " #{round.account.username}"
     cell.detailTextLabel.text = begin
       if @filter == 'most kills'
         "#{round.kills} kills in #{round.survival_time}"

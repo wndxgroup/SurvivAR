@@ -24,7 +24,8 @@ class CreateAnAccountController < UIViewController
     player.accounts.create(username: @username, created_on: Time.now)
     player.current_account = player.accounts.count - 1
     cdq.save
-    navigationController.setViewControllers([BattlegroundController.new], animated: true)
+    controller = UIApplication.sharedApplication.delegate.menu_controller
+    navigationController.setViewControllers([controller], animated: true)
   end
 
   def didMoveToParentViewController(_)

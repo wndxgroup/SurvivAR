@@ -93,7 +93,10 @@ class MyAccountController < UIViewController
 
   def start_battleground
     initiate_recording
-    navigationController.setViewControllers([BattlegroundController.new], animated: true)
+    app_delegate = UIApplication.sharedApplication.delegate
+    menu         = app_delegate.menu_controller
+    battleground = app_delegate.battleground_controller
+    navigationController.setViewControllers([menu, battleground], animated: true)
   end
 
   def set_toggle_log_button
