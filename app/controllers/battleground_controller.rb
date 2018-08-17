@@ -194,6 +194,15 @@ class BattlegroundController < UIViewController
     @enemy_map_icons << enemy_icon
   end
 
+  def add_ammo_map_icon(node)
+    @ammo_icon =  UIView.new
+    @ammo_icon.frame = calc_map_frame(node.position)
+    @ammo_icon.backgroundColor = ammo_color
+    @ammo_icon.layer.cornerRadius = map_icon_diameter / 2.0
+    @ammo_icon.layer.masksToBounds = true
+    @mini_map_view.addSubview(@ammo_icon)
+  end
+
   def calc_map_frame(position)
     x_difference = position.x - @scene_view.pointOfView.position.x
     z_difference = position.z - @scene_view.pointOfView.position.z
@@ -255,6 +264,8 @@ class BattlegroundController < UIViewController
   def pause_session
     @account.battling = false
     cdq.save
+    @ammo_icon.removeFromSuperview if @ammo_icon
+    @ammo_icon = nil
     @mini_map_view.subviews.each_with_index {|view, index| view.removeFromSuperview if index > 0} if @mini_map_view
     @scene.rootNode.childNodes.each {|node| node.removeFromParentNode}
     @scene_view.session.pause
@@ -292,6 +303,7 @@ class BattlegroundController < UIViewController
     position = @scene_view.pointOfView.convertPosition([x, 0, z], toNode: nil)
     @ammo_node = ammo.set_spawning_location([position.x, -1, position.z])
     @scene.rootNode.addChildNode(ammo.node)
+    add_ammo_map_icon(ammo.node)
     play_spawn_ammo_sound
   end
 
@@ -364,6 +376,8 @@ class BattlegroundController < UIViewController
     end
     @spawned_ammo = false
     play_pickup_ammo_sound
+    @ammo_icon.removeFromSuperview
+    @ammo_icon = nil
   end
 
   def physicsWorld(_, didBeginContact: contact)
