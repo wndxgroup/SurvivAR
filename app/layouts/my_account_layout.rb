@@ -23,19 +23,16 @@ class MyAccountLayout < MotionKit::Layout
               font UIFont.systemFontOfSize(24)
               text_alignment UITextAlignmentCenter
               numberOfLines 3
-              text '💥'
             end
             add UILabel, :quick_view_time do
               font UIFont.systemFontOfSize(24)
               text_alignment UITextAlignmentCenter
               numberOfLines 3
-              text '🕒'
             end
             add UILabel, :quick_view_rounds do
               font UIFont.systemFontOfSize(24)
               text_alignment UITextAlignmentCenter
               numberOfLines 3
-              text '💀'
             end
           end
 

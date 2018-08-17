@@ -1,40 +1,48 @@
 class MyAccountController < UIViewController
   include Recorder
 
+  def init
+    super
+    self.title = 'My Account'
+    self
+  end
+
   def set_account(account_number)
     @player = Player.first
     @account = @player.sorted_accounts[account_number]
   end
 
   def loadView
-    self.title = 'My Account'
-    layout = MyAccountLayout.new
-    self.view = layout.view
-    layout.add_constraints
+    @layout = MyAccountLayout.new
+    self.view = @layout.view
+    @layout.add_constraints
 
-    quick_view_container  = layout.get(:quick_view_container)
-    battleground_button   = layout.get(:start_battleground)
-    @toggle_log_button    = layout.get(:toggle_log)
-    delete_account_button = layout.get(:delete_account)
-    history_table         = layout.get(:history_table)
+    quick_view_container  = @layout.get(:quick_view_container)
+    @battleground_button  = @layout.get(:start_battleground)
+    @toggle_log_button    = @layout.get(:toggle_log)
+    delete_account_button = @layout.get(:delete_account)
+    history_table         = @layout.get(:history_table)
 
+    history_table.dataSource = history_table.delegate = self
     quick_view_container.layer.cornerRadius = 10
     quick_view_container.clipsToBounds = true
-    layout.get(:username).text = @account.username
-    history_table.dataSource = history_table.delegate = self
 
-    layout.get(:quick_view_kills).text  += "\n#{overall_kills}"
-    layout.get(:quick_view_time).text   += "\n#{overall_survival_time}"
-    layout.get(:quick_view_rounds).text += "\n#{overall_rounds}"
-
-    battleground_button  .addTarget(self, action: 'start_battleground',       forControlEvents: UIControlEventTouchUpInside)
+    @battleground_button .addTarget(self, action: 'start_battleground',       forControlEvents: UIControlEventTouchUpInside)
     @toggle_log_button   .addTarget(self, action: 'toggle_log',               forControlEvents: UIControlEventTouchUpInside)
     delete_account_button.addTarget(self, action: 'confirm_account_deletion', forControlEvents: UIControlEventTouchUpInside)
+  end
+
+  def viewWillAppear(animated)
+    super
+    @layout.get(:username)         .text = @account.username
+    @layout.get(:quick_view_kills) .text = "💥\n#{overall_kills}"
+    @layout.get(:quick_view_time)  .text = "🕒\n#{overall_survival_time}"
+    @layout.get(:quick_view_rounds).text = "💀\n#{overall_rounds}"
 
     if @account.alive?
-      battleground_button.setTitle('Continue Battleground', forState: UIControlStateNormal)
+      @battleground_button.setTitle('Continue Battleground', forState: UIControlStateNormal)
     else
-      battleground_button.setTitle('New Battleground', forState: UIControlStateNormal)
+      @battleground_button.setTitle('New Battleground', forState: UIControlStateNormal)
     end
     set_toggle_log_button
   end

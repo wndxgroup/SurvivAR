@@ -1,8 +1,13 @@
 class MenuController < UIViewController
   include Recorder
 
-  def loadView
+  def init
+    super
     self.title = 'Menu'
+    self
+  end
+
+  def loadView
     layout = MenuLayout.new
     self.view = layout.view
     layout.add_constraints

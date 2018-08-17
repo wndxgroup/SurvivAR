@@ -1,22 +1,29 @@
 class LeaderboardController < UIViewController
   include Rankings
 
-  def loadView
+  def init
+    super
     self.title = 'Leaderboard'
+    self
+  end
+
+  def loadView
     @layout = LeaderboardLayout.new
     self.view = @layout.view
     @layout.add_constraints
 
-    @table = @layout.get(:table)
     @player = Player.first
+
+    @table               = @layout.get(:table)
     @most_kills_button   = @layout.get(:most_kills)
     @longest_life_button = @layout.get(:longest_life)
-  end
 
-  def viewDidLoad
     @table.dataSource = @table.delegate = self
     @most_kills_button  .addTarget(self, action: 'filter_by_kills',         forControlEvents: UIControlEventTouchUpInside)
     @longest_life_button.addTarget(self, action: 'filter_by_survival_time', forControlEvents: UIControlEventTouchUpInside)
+  end
+
+  def viewDidLoad
     filter_by_kills
   end
 

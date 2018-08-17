@@ -1,8 +1,13 @@
 class AccountsListController < UITableViewController
 
-  def viewDidLoad
+  def init
     super
     self.title = 'Accounts'
+    self
+  end
+
+  def viewDidLoad
+    super
     add_icon = UIBarButtonItem.alloc.initWithBarButtonSystemItem(UIBarButtonSystemItemAdd,
                                                                  target: self,
                                                                  action: 'add_an_account')
