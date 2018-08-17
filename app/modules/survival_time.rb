@@ -14,7 +14,7 @@ module SurvivalTime
   def secs_per_day; secs_per_hour * 24; end
 
   def calculate_survival_time_increase(account)
-    current_time = Time.now
+    current_time = Time.now # This line causes the memory build up. Assigning a string or hash does the same
     secs = (current_time - account.start_time)
     account.start_time = current_time
     mins = hours = 0

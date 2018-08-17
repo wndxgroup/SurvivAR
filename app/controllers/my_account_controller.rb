@@ -1,5 +1,5 @@
 class MyAccountController < UIViewController
-  include Recorder
+  include Recorder, Colors
 
   def init
     super

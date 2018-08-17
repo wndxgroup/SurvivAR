@@ -1,5 +1,5 @@
 class BattlegroundController < UIViewController
-  include Map, SurvivalTime, Sounds
+  include Map, SurvivalTime, Sounds, Colors
   attr_accessor :mini_map_view
 
   def enemy_radius; 1.0; end
@@ -44,7 +44,7 @@ class BattlegroundController < UIViewController
     player = Player.first
     @account = player.sorted_accounts[player.current_account]
     @account.battling = true
-    @account.start_survival_session
+    # @account.start_survival_session
     play_wave_sound if survival_time(@account).split(':')[-1].to_i < 1
   end
 
@@ -68,7 +68,7 @@ class BattlegroundController < UIViewController
     info_bar_height = 40
 
     info_bar = UIView.new
-    info_bar.backgroundColor = UIColor.alloc.initWithWhite(1, alpha: 0.8)
+    info_bar.backgroundColor = orange #UIColor.alloc.initWithWhite(1, alpha: 0.8)
     info_bar.layer.borderWidth = 2
     info_bar.layer.borderColor = UIColor.blackColor.CGColor
     @scene_view.addSubview(info_bar)
@@ -128,7 +128,7 @@ class BattlegroundController < UIViewController
     player_icon.frame = [[mini_map_diameter / 2.0 - map_icon_diameter / 2.0,
                           mini_map_diameter / 2.0 - map_icon_diameter / 2.0],
                          [map_icon_diameter, map_icon_diameter]]
-    player_icon.backgroundColor = UIColor.whiteColor
+    player_icon.backgroundColor = orange
     player_icon.layer.cornerRadius = map_icon_diameter / 2.0
     player_icon.layer.masksToBounds = true
     @mini_map_view.addSubview(player_icon)
@@ -278,6 +278,7 @@ class BattlegroundController < UIViewController
       @scene.rootNode.addChildNode(node)
 
       @account.ammo -= 1
+      Dispatch::Queue.main.sync { @ammo_counter.text = "⚪ #{@account.ammo}" }
     end
     cdq.save
   end
@@ -290,7 +291,8 @@ class BattlegroundController < UIViewController
     z = -z if rand < 0.5
     position = @scene_view.pointOfView.convertPosition([x, 0, z], toNode: nil)
     @ammo_node = ammo.set_spawning_location([position.x, -1, position.z])
-    # @scene.rootNode.addChildNode(ammo.node)
+    @scene.rootNode.addChildNode(ammo.node)
+    play_spawn_ammo_sound
   end
 
   def renderer(_, updateAtTime: time)
@@ -361,6 +363,7 @@ class BattlegroundController < UIViewController
       cdq.save
     end
     @spawned_ammo = false
+    play_pickup_ammo_sound
   end
 
   def physicsWorld(_, didBeginContact: contact)

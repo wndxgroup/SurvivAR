@@ -1,5 +1,5 @@
 class AppDelegate
-  include CDQ
+  include CDQ, Colors
 
   def application(application, didFinishLaunchingWithOptions:launchOptions)
     cdq.setup
@@ -15,8 +15,7 @@ class AppDelegate
       player && player.accounts.count > 0 ? menu_controller : create_an_account_controller
     end
     @navigation_controller = UINavigationController.alloc.initWithRootViewController(rootViewController)
-    navigation_bar_color = UIColor.alloc.initWithRed(1.0, green: 189.0/255, blue: 74.0/255, alpha: 1.0)
-    @navigation_controller.navigationBar.barTintColor = navigation_bar_color
+    @navigation_controller.navigationBar.barTintColor = orange
     @navigation_controller.navigationBar.translucent = false
     @window = UIWindow.alloc.initWithFrame(UIScreen.mainScreen.bounds)
     @window.rootViewController = @navigation_controller

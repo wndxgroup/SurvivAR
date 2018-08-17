@@ -1,11 +1,15 @@
 class Account < CDQManagedObject
   include SurvivalTime
 
+  def survival_session_queue
+    @@survival_session_queue ||= Dispatch::Queue.new('com.wndx.SurvivAR.start-survival-session')
+  end
+
   def start_survival_session
     self.start_time = Time.now
-    Dispatch::Queue.new('com.wndx.SurvivAR.start-survival-session').async do
+    survival_session_queue.async do
       loop do
-        unless self.battling?
+        unless self.battling
           self.start_time = nil
           break
         end
