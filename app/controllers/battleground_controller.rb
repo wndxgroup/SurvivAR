@@ -43,13 +43,14 @@ class BattlegroundController < UIViewController
 
     player = Player.first
     @account = player.sorted_accounts[player.current_account]
-    @account.battling = true
-    # @account.start_survival_session
-    play_wave_sound if survival_time(@account).split(':')[-1].to_i < 1
   end
 
   def viewDidAppear(animated)
     super
+    @account.battling = true
+    @account.start_survival_session
+    play_wave_sound if survival_time(@account).split(':')[-1].to_i < 1
+
     navigationController.setNavigationBarHidden(true, animated: true)
     add_ui
     @location_manager.startUpdatingHeading
@@ -68,7 +69,7 @@ class BattlegroundController < UIViewController
     info_bar_height = 40
 
     info_bar = UIView.new
-    info_bar.backgroundColor = orange #UIColor.alloc.initWithWhite(1, alpha: 0.8)
+    info_bar.backgroundColor = orange
     info_bar.layer.borderWidth = 2
     info_bar.layer.borderColor = UIColor.blackColor.CGColor
     @scene_view.addSubview(info_bar)
@@ -154,7 +155,7 @@ class BattlegroundController < UIViewController
   def viewWillDisappear(animated)
     super
     @location_manager.stopUpdatingHeading
-    self.view = nil
+    self.view.subviews.makeObjectsPerformSelector('removeFromSuperview')
   end
 
   def stop_time
@@ -169,7 +170,7 @@ class BattlegroundController < UIViewController
     save_enemy_data
     pause_session
     navigationController.setNavigationBarHidden(false, animated: true)
-    navigationController.popViewControllerAnimated(true)
+    navigationController.popViewControllerAnimated(false)
   end
 
   def spawn_enemy
@@ -310,7 +311,7 @@ class BattlegroundController < UIViewController
   def renderer(_, updateAtTime: time)
     update_survival_clock_display
     unfreeze_time if @account.time_froze_at && time_frozen_for >= 5
-    if !@spawned_ammo && @account.ammo <= 8
+    if !@spawned_ammo && @account.ammo <= 8 && @mini_map_view
       @spawned_ammo = true
       spawn_ammo_crate
     end

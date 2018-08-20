@@ -7,17 +7,21 @@ class Account < CDQManagedObject
 
   def start_survival_session
     self.start_time = Time.now
-    survival_session_queue.async do
-      loop do
-        unless self.battling
+    cdq.save
+    tick_survival_time
+    end
+
+    def tick_survival_time
+      survival_session_queue.after(0.1) do
+        unless self.battling?
           self.start_time = nil
-          break
+          Dispatch::Queue.main.sync { cdq.save }
+          return
         end
         calculate_survival_time_increase(self)
+        self.tick_survival_time
       end
     end
-    cdq.save
-  end
 
   def stop_survival_session
     self.start_time = nil
