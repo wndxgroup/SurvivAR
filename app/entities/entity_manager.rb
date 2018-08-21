@@ -21,16 +21,16 @@ class EntityManager
     @survivor = survivor
   end
 
-  def add(entity)
-    @entities << entity
+  def add(entity, map_icon)
+    @entities << [entity, map_icon]
     @component_systems.each {|comp_system| comp_system.addComponentWithEntity(entity)}
   end
 
-  def remove(entity)
-    entity.componentForClass(VisualComponent).node.removeFromParentNode
-    @entities -= entity
-    @to_remove << entity
-  end
+  # def remove(entity)
+  #   entity.componentForClass(VisualComponent).node.removeFromParentNode
+  #   @entities -= entity
+  #   @to_remove << entity
+  # end
 
   def add_bullet(bullet)
     @bullets << bullet
@@ -39,11 +39,11 @@ class EntityManager
   end
 
   def move_components
-    @entities.map { |entity| entity.componentForClass(MoveComponent) }
+    @entities.map { |entity| entity[0].componentForClass(MoveComponent) }
   end
 
   def updateWithDeltaTime(seconds)
-    entities.each { |entity| entity.componentForClass(VisualComponent).updateWithDeltaTime(seconds) }
+    entities.each { |entity| entity[0].componentForClass(VisualComponent).updateWithDeltaTime(seconds) }
     @survivor.updateWithDeltaTime(seconds)
     @component_systems.each { |comp_system| comp_system.updateWithDeltaTime(seconds) }
     # if @bullets.count > 0

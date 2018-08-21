@@ -53,12 +53,11 @@ class MoveComponent < GKAgent3D
     end
 
     if distance_between_nodes(entity.node.presentationNode, @entity_manager.scene_view.pointOfView) > spawn_radius + 5
-      index = @entity_manager.entities.index(entity)
+      index = @entity_manager.entities.index{ |x| x[0] == entity }
       if index
         entity.componentForClass(VisualComponent).node.removeFromParentNode
-        @entity_manager.entities -= [entity]
-        mini_map_icon = @entity_manager.battleground_controller.mini_map_view.subviews[index + 1]
-        mini_map_icon.removeFromSuperview if mini_map_icon
+        @entity_manager.entities[index][1].removeFromSuperview
+        @entity_manager.entities.delete_at(index)
       end
     end
   end

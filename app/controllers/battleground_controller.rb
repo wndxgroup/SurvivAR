@@ -178,9 +178,8 @@ class BattlegroundController < UIViewController
       enemy = Enemy.new
       enemy.add_components(@entity_manager)
       node = enemy.set_spawning_location
-      @entity_manager.add(enemy)
+      @entity_manager.add(enemy, add_enemy_map_icon(node))
       @scene.rootNode.addChildNode(node)
-      add_enemy_map_icon(node)
       @spawning_enemy = false
     end
   end
@@ -192,7 +191,7 @@ class BattlegroundController < UIViewController
     enemy_icon.layer.cornerRadius = map_icon_diameter / 2.0
     enemy_icon.layer.masksToBounds = true
     @mini_map_view.addSubview(enemy_icon)
-    @enemy_map_icons << enemy_icon
+    enemy_icon
   end
 
   def add_ammo_map_icon(node)
@@ -221,9 +220,8 @@ class BattlegroundController < UIViewController
       enemy = Enemy.new
       enemy.add_components(@entity_manager)
       node = enemy.set_spawning_location(e.x, e.z)
-      @entity_manager.add(enemy)
+      @entity_manager.add(enemy, add_enemy_map_icon(node))
       @scene.rootNode.addChildNode(node)
-      add_enemy_map_icon(node)
     end
     @account.savedEnemies.remove_all
     cdq.save
@@ -254,8 +252,8 @@ class BattlegroundController < UIViewController
 
   def save_enemy_data
     @entity_manager.entities.each do |entity|
-      if entity.componentForClass(VisualComponent).state_machine.currentState.is_a?(EnemyChaseState)
-        position = entity.node.presentationNode.position
+      if entity[0].componentForClass(VisualComponent).state_machine.currentState.is_a?(EnemyChaseState)
+        position = entity[0].node.presentationNode.position
         @account.savedEnemies.create(x: position.x, z: position.z)
         cdq.save
       end
@@ -323,7 +321,7 @@ class BattlegroundController < UIViewController
       spawn_enemy
     end
     recharge_freeze_ability if @account.time_froze_at && time_frozen_for >= 30
-    update_icon_positions if @enemy_map_icons.count > 0
+    update_icon_positions if @entity_manager.entities.count > 0
     @entity_manager.updateWithDeltaTime(time)
   end
 
@@ -352,11 +350,8 @@ class BattlegroundController < UIViewController
 
   def update_icon_positions
     Dispatch::Queue.main.async do
-      @entity_manager.entities.each.with_index do |enemy, i|
-        icon = @mini_map_view.subviews[i + 1] # What about the ammo icon?!
-        if icon
-          icon.frame = calc_map_frame(enemy.componentForClass(VisualComponent).node.position)
-        end
+      @entity_manager.entities.each do |demon|
+        demon[1].frame = calc_map_frame(demon[0].componentForClass(VisualComponent).node.position) if demon[1]
       end
     end
   end
@@ -385,7 +380,7 @@ class BattlegroundController < UIViewController
   end
 
   def physicsWorld(_, didBeginContact: contact)
-    @entity_manager.entities.each {|enemy| @enemy = enemy if enemy.node == contact.nodeA || enemy.node == contact.nodeB}
+    @entity_manager.entities.each {|enemy| @enemy = enemy[0] if enemy[0].node == contact.nodeA || enemy[0].node == contact.nodeB}
     @entity_manager.bullets.each {|bullet| @bullet = bullet if bullet.node == contact.nodeA || bullet.node == contact.nodeB}
     survivor_node = @survivor.componentForClass(LocationComponent).node
     user_touch  = survivor_node == contact.nodeA || survivor_node == contact.nodeB
@@ -401,6 +396,9 @@ class BattlegroundController < UIViewController
       player_dies
     elsif bullet_hits_chasing_demon
       @enemy.componentForClass(VisualComponent).state_machine.enterState(EnemyFleeState)
+      @enemy.componentForClass(VisualComponent).node.geometry.materials[0].diffuse.contents = UIColor.grayColor
+      demon_index = @entity_manager.entities.index{|x| x[0] == @enemy}
+      @entity_manager.entities[demon_index][1].backgroundColor = UIColor.grayColor
       increment_kill_count
     end
   end
