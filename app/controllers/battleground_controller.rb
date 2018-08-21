@@ -401,6 +401,7 @@ class BattlegroundController < UIViewController
       @entity_manager.entities[demon_index][1].backgroundColor = UIColor.grayColor
       increment_kill_count
     end
+    @enemy = nil
   end
 
   def locationManager(_, didUpdateHeading: new_heading)

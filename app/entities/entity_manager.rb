@@ -46,9 +46,9 @@ class EntityManager
     entities.each { |entity| entity[0].componentForClass(VisualComponent).updateWithDeltaTime(seconds) }
     @survivor.updateWithDeltaTime(seconds)
     @component_systems.each { |comp_system| comp_system.updateWithDeltaTime(seconds) }
-    # if @bullets.count > 0
-    #   @bullet_component_system.each { |comp_system| comp_system.updateWithDeltaTime(seconds) }
-    # end
+    if @bullets.count > 0
+      @bullet_component_system.each { |comp_system| comp_system.updateWithDeltaTime(seconds) }
+    end
     @to_remove.each do |current_remove|
       @component_systems.each do |comp_system|
         comp_system.removeComponentWithEntity(current_remove)
