@@ -16,14 +16,12 @@ class DeathLayout < MotionKit::Layout
             add UILabel, :round_stats_kills do
               font UIFont.systemFontOfSize(24)
               text_alignment UITextAlignmentCenter
-              numberOfLines 3
-              text '💥'
+              numberOfLines 2
             end
             add UILabel, :round_stats_time do
               font UIFont.systemFontOfSize(24)
               text_alignment UITextAlignmentCenter
-              numberOfLines 3
-              text '🕒'
+              numberOfLines 2
             end
           end
 
@@ -38,14 +36,12 @@ class DeathLayout < MotionKit::Layout
             add UILabel, :round_ranking_kills do
               font UIFont.systemFontOfSize(24)
               text_alignment UITextAlignmentCenter
-              numberOfLines 3
-              text '💥'
+              numberOfLines 2
             end
             add UILabel, :round_ranking_time do
               font UIFont.systemFontOfSize(24)
               text_alignment UITextAlignmentCenter
-              numberOfLines 3
-              text '🕒'
+              numberOfLines 2
             end
           end
 
