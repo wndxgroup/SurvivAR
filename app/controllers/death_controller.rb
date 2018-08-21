@@ -46,10 +46,10 @@ class DeathController < UIViewController
     kills_ranking = @most_kills.index(round) + 1
     survival_time_ranking = @longest_life.index(round) + 1
 
-    round_stats_kills.text   += "\n#{round.kills}"
-    round_stats_time.text    += "\n#{round.survival_time}"
-    round_ranking_kills.text += "\n#{kills_ranking} / #{@most_kills.count}"
-    round_ranking_time.text  += "\n#{survival_time_ranking} / #{@longest_life.count}"
+    round_stats_kills.text   = "💥\n#{round.kills}"
+    round_stats_time.text    = "🕒\n#{round.survival_time}"
+    round_ranking_kills.text = "💥\n#{kills_ranking} / #{@most_kills.count}"
+    round_ranking_time.text  = "🕒\n#{survival_time_ranking} / #{@longest_life.count}"
 
     round_stats_container.layer.cornerRadius = round_ranking_container.layer.cornerRadius = 10
     round_stats_container.clipsToBounds      = round_ranking_container.clipsToBounds      = true
@@ -59,7 +59,7 @@ class DeathController < UIViewController
     leaderboard_button.addTarget(self, action: 'go_to_leaderboard', forControlEvents: UIControlEventTouchUpInside)
     my_account_button .addTarget(self, action: 'go_to_my_account',  forControlEvents: UIControlEventTouchUpInside)
     @replay_button    .addTarget(self, action: 'show_replay',       forControlEvents: UIControlEventTouchUpInside)
-    hide_replay_button if @replay_seen == true
+    hide_replay_button if @replay_seen
   end
 
   def viewWillDisappear(animated)
@@ -88,7 +88,6 @@ class DeathController < UIViewController
     battleground = app_delegate.battleground_controller
     navigationController.setViewControllers([menu, battleground], animated: true)
     @replay_seen = false
-    # Add in `@replay_seen = false` to this and the following 2 methods?
   end
 
   def go_to_leaderboard
