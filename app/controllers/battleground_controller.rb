@@ -186,7 +186,7 @@ class BattlegroundController < UIViewController
   end
 
   def add_enemy_map_icon(node)
-    enemy_icon =  UIView.new
+    enemy_icon = UIView.new
     enemy_icon.frame = calc_map_frame(node.position)
     enemy_icon.backgroundColor = UIColor.redColor
     enemy_icon.layer.cornerRadius = map_icon_diameter / 2.0
@@ -196,7 +196,7 @@ class BattlegroundController < UIViewController
   end
 
   def add_ammo_map_icon(node)
-    @ammo_icon =  UIView.new
+    @ammo_icon = UIView.new
     @ammo_icon.frame = calc_map_frame(node.position)
     @ammo_icon.backgroundColor = ammo_color
     @ammo_icon.layer.cornerRadius = map_icon_diameter / 2.0
@@ -265,8 +265,10 @@ class BattlegroundController < UIViewController
   def pause_session
     @account.battling = false
     cdq.save
-    @ammo_icon.removeFromSuperview if @ammo_icon
-    @ammo_icon = nil
+    if @ammo_icon
+      @ammo_icon.removeFromSuperview
+      @ammo_icon = nil
+    end
     @mini_map_view.subviews.each_with_index {|view, index| view.removeFromSuperview if index > 0} if @mini_map_view
     @scene.rootNode.childNodes.each {|node| node.removeFromParentNode}
     @scene_view.session.pause
@@ -351,8 +353,9 @@ class BattlegroundController < UIViewController
   def update_icon_positions
     Dispatch::Queue.main.async do
       @entity_manager.entities.each.with_index do |enemy, i|
-        if @mini_map_view.subviews[i + 1]
-          @mini_map_view.subviews[i + 1].frame = calc_map_frame(enemy.componentForClass(VisualComponent).node.position)
+        icon = @mini_map_view.subviews[i + 1] # What about the ammo icon?!
+        if icon
+          icon.frame = calc_map_frame(enemy.componentForClass(VisualComponent).node.position)
         end
       end
     end
