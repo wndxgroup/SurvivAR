@@ -4,6 +4,7 @@ class DeathController < UIViewController
   def init
     super
     self.title = 'You Died'
+    @replay_seen = false
     self
   end
 
@@ -58,6 +59,7 @@ class DeathController < UIViewController
     leaderboard_button.addTarget(self, action: 'go_to_leaderboard', forControlEvents: UIControlEventTouchUpInside)
     my_account_button .addTarget(self, action: 'go_to_my_account',  forControlEvents: UIControlEventTouchUpInside)
     @replay_button    .addTarget(self, action: 'show_replay',       forControlEvents: UIControlEventTouchUpInside)
+    hide_replay_button if @replay_seen == true
   end
 
   def viewWillDisappear(animated)
@@ -111,6 +113,7 @@ class DeathController < UIViewController
 
   def previewControllerDidFinish(previewController)
     previewController.dismissViewControllerAnimated(true, completion: nil)
+    @replay_seen = true
     hide_replay_button
   end
 end
