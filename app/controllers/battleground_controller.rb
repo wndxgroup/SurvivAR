@@ -4,12 +4,11 @@ class BattlegroundController < UIViewController
 
   def enemy_radius; 1.0; end
   def map_icon_diameter; 10; end
-  def ammo_spawn_radius; 10; end
+  def ammo_spawn_radius; 20; end
 
   def init
     super
     self.title = 'Battleground'
-    @enemy_map_icons = []
     @location_manager = CLLocationManager.new
     @location_manager.delegate = self
     @location_manager.requestWhenInUseAuthorization
@@ -21,6 +20,7 @@ class BattlegroundController < UIViewController
   def viewWillAppear(animated)
     super
     @spawning_enemy = true
+    @spawned_ammo = false
     @scene_view = ARSCNView.new
     @scene_view.autoenablesDefaultLighting = true
     @scene_view.delegate = self

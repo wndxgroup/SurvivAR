@@ -13,12 +13,12 @@ class Enemy < GKEntity
 
   def set_spawning_location(x=nil, z=nil)
     unless x && z
-      survivor_position = @entity_manager.survivor.survivor_node.position
       x = rand * spawn_radius
       x = -x if rand < 0.5
-      x += survivor_position.x
       z = Math.sqrt(spawn_radius**2 - x**2)
       z = -z if rand < 0.5
+      survivor_position = @entity_manager.survivor.survivor_node.position
+      x += survivor_position.x
       z += survivor_position.z
     end
     @node = self.componentForClass(VisualComponent).node
