@@ -87,6 +87,8 @@ class DeathController < UIViewController
     menu         = app_delegate.menu_controller
     battleground = app_delegate.battleground_controller
     navigationController.setViewControllers([menu, battleground], animated: true)
+    @replay_seen = false
+    # Add in `@replay_seen = false` to this and the following 2 methods?
   end
 
   def go_to_leaderboard
@@ -94,6 +96,7 @@ class DeathController < UIViewController
     menu         = app_delegate.menu_controller
     leaderboard  = app_delegate.leaderboard_controller
     navigationController.setViewControllers([menu, leaderboard], animated: true)
+    @replay_seen = false
   end
 
   def go_to_my_account
@@ -104,6 +107,7 @@ class DeathController < UIViewController
     account_number = @player.sorted_accounts.index(@account)
     my_account.set_account(account_number)
     navigationController.setViewControllers([menu, accounts_list, my_account], animated: true)
+    @replay_seen = false
   end
 
   def hide_replay_button

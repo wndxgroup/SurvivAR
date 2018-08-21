@@ -18,7 +18,7 @@ class BattlegroundController < UIViewController
     self
   end
 
-  def viewDidLoad
+  def viewWillAppear(animated)
     super
     @spawning_enemy = true
     @scene_view = ARSCNView.new
