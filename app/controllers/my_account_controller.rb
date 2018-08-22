@@ -100,6 +100,10 @@ class MyAccountController < UIViewController
   end
 
   def start_battleground
+    unless logged_in_to_this_account
+      @player.current_account = @player.sorted_accounts.index(@account)
+      cdq.save
+    end
     initiate_recording
     app_delegate = UIApplication.sharedApplication.delegate
     menu         = app_delegate.menu_controller

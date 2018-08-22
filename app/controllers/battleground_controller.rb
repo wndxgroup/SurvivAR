@@ -47,7 +47,7 @@ class BattlegroundController < UIViewController
 
   def viewDidAppear(animated)
     super
-    @account.battling = true
+    @account.battling = @account.alive = true
     @account.start_survival_session
     play_wave_sound if survival_time(@account).split(':')[-1].to_i < 1
 
@@ -170,7 +170,7 @@ class BattlegroundController < UIViewController
     save_enemy_data
     pause_session
     navigationController.setNavigationBarHidden(false, animated: true)
-    navigationController.popViewControllerAnimated(false)
+    navigationController.popViewControllerAnimated(true)
   end
 
   def spawn_enemy
