@@ -316,7 +316,7 @@ class BattlegroundController < UIViewController
       spawn_ammo_crate
     end
     return if @scene.rootNode.isPaused
-    if @entity_manager.entities.count == 0 && !@spawning_enemy
+    if @entity_manager.entities.count < 3 && !@spawning_enemy
       @spawning_enemy = true
       spawn_enemy
     end
