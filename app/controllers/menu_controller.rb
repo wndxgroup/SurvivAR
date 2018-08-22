@@ -24,7 +24,7 @@ class MenuController < UIViewController
     @battleground .addTarget(self, action: 'start_battleground', forControlEvents: UIControlEventTouchUpInside)
     @accounts     .addTarget(self, action: 'show_accounts',      forControlEvents: UIControlEventTouchUpInside)
     @leaderboard  .addTarget(self, action: 'show_leaderboard',   forControlEvents: UIControlEventTouchUpInside)
-    @record_switch.addTarget(self, action: 'toggle_recording',   forControlEvents: UIControlEventTouchUpInside)
+    @record_switch.addTarget(self, action: 'toggle_recording',   forControlEvents: UIControlEventValueChanged)
   end
 
   def viewDidAppear(animated)
@@ -61,6 +61,7 @@ class MenuController < UIViewController
   end
 
   def toggle_recording
+    puts 'toggle'
     Player.first.record = @record_switch.isOn
     cdq.save
   end
