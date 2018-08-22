@@ -21,10 +21,10 @@ class MenuController < UIViewController
   def viewDidLoad
     @battleground.layer.cornerRadius = @accounts.layer.cornerRadius = @leaderboard.layer.cornerRadius = 10
     @battleground.clipsToBounds      = @accounts.clipsToBounds      = @leaderboard.clipsToBounds      = true
-    @battleground.addTarget(self, action: 'start_battleground', forControlEvents: UIControlEventTouchUpInside)
-    @accounts    .addTarget(self, action: 'show_accounts',      forControlEvents: UIControlEventTouchUpInside)
-    @leaderboard .addTarget(self, action: 'show_leaderboard',   forControlEvents: UIControlEventTouchUpInside)
-    @record_switch.addTarget(self, action: 'toggle_recording', forControlEvents: UIControlEventTouchUpInside)
+    @battleground .addTarget(self, action: 'start_battleground', forControlEvents: UIControlEventTouchUpInside)
+    @accounts     .addTarget(self, action: 'show_accounts',      forControlEvents: UIControlEventTouchUpInside)
+    @leaderboard  .addTarget(self, action: 'show_leaderboard',   forControlEvents: UIControlEventTouchUpInside)
+    @record_switch.addTarget(self, action: 'toggle_recording',   forControlEvents: UIControlEventTouchUpInside)
   end
 
   def viewDidAppear(animated)

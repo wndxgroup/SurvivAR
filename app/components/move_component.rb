@@ -53,12 +53,7 @@ class MoveComponent < GKAgent3D
     end
 
     if distance_between_nodes(entity.node.presentationNode, @entity_manager.scene_view.pointOfView) > spawn_radius + 5
-      index = @entity_manager.entities.index{ |x| x[0] == entity }
-      if index
-        entity.componentForClass(VisualComponent).node.removeFromParentNode
-        @entity_manager.entities[index][1].removeFromSuperview
-        @entity_manager.entities.delete_at(index)
-      end
+      @entity_manager.remove(entity)
     end
   end
 end

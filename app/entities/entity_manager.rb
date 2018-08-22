@@ -26,11 +26,13 @@ class EntityManager
     @component_systems.each {|comp_system| comp_system.addComponentWithEntity(entity)}
   end
 
-  # def remove(entity)
-  #   entity.componentForClass(VisualComponent).node.removeFromParentNode
-  #   @entities -= entity
-  #   @to_remove << entity
-  # end
+  def remove(entity)
+    index = @entities.index{ |x| x[0] == entity }
+    entity.componentForClass(VisualComponent).node.removeFromParentNode
+    @entities[index][1].removeFromSuperview
+    @to_remove << entity
+    @entities.delete_at(index)
+  end
 
   def add_bullet(bullet)
     @bullets << bullet
