@@ -2,6 +2,7 @@ schema "0001 initial" do
 
   entity "Player" do
     integer16 :current_account, default: nil
+    boolean :record, default: false
 
     has_many :accounts
   end

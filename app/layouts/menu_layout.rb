@@ -1,4 +1,6 @@
 class MenuLayout < MotionKit::Layout
+  include Colors
+
   def layout
     root :root_view do
       add UIScrollView, :scroll_view do
@@ -16,6 +18,21 @@ class MenuLayout < MotionKit::Layout
             end
             add UIImageView, :battleground_image do
               image UIImage.imageNamed('battlegrounds')
+            end
+          end
+
+          add UIView, :recording_container do
+            background_color UIColor.lightGrayColor
+            add UITextView, :recording_text do
+              background_color UIColor.clearColor
+              setUserInteractionEnabled false
+              font UIFont.systemFontOfSize(20)
+              text 'Record gameplay'
+            end
+            add UISwitch, :recording_switch do
+              onTintColor orange
+              tintColor UIColor.blackColor
+              thumbTintColor UIColor.blackColor
             end
           end
 
@@ -86,8 +103,29 @@ class MenuLayout < MotionKit::Layout
       height.equals(:battleground_image, :width)
     end
 
+    constraints(:recording_container) do
+      top.equals(:battleground_button, :bottom)
+      width :battleground_button
+      left :battleground_button
+      height 40
+    end
+
+    constraints(:recording_text) do
+      top :recording_container
+      left.equals(:recording_container).plus(20)
+      height :recording_container
+      width.equals(:recording_container).minus(100)
+    end
+
+    constraints(:recording_switch) do
+      top.equals(:recording_container).plus(5)
+      width 80
+      right :recording_container
+      height :recording_container
+    end
+
     constraints(:leaderboard_button) do
-      top.equals(:battleground_button, :bottom).plus(button_padding / 2)
+      top.equals(:recording_container, :bottom).plus(button_padding / 2)
       left :battleground_button
       width :battleground_button
       height :battleground_button

@@ -59,7 +59,7 @@ class DeathController < UIViewController
     leaderboard_button.addTarget(self, action: 'go_to_leaderboard', forControlEvents: UIControlEventTouchUpInside)
     my_account_button .addTarget(self, action: 'go_to_my_account',  forControlEvents: UIControlEventTouchUpInside)
     @replay_button    .addTarget(self, action: 'show_replay',       forControlEvents: UIControlEventTouchUpInside)
-    hide_replay_button if @replay_seen
+    hide_replay_button if @replay_seen || !@player.record?
   end
 
   def viewWillDisappear(animated)

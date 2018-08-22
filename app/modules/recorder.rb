@@ -1,5 +1,6 @@
 module Recorder
   def initiate_recording
+    return unless Player.first.record?
     audio_session = AVAudioSession.sharedInstance
     audio_session.setCategory(AVAudioSessionCategoryPlayAndRecord,
                               withOptions: AVAudioSessionCategoryOptionDefaultToSpeaker,

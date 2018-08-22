@@ -12,9 +12,10 @@ class MenuController < UIViewController
     self.view = layout.view
     layout.add_constraints
 
-    @battleground = layout.get(:battleground_button)
-    @leaderboard  = layout.get(:leaderboard_button)
-    @accounts     = layout.get(:accounts_button)
+    @battleground  = layout.get(:battleground_button)
+    @leaderboard   = layout.get(:leaderboard_button)
+    @accounts      = layout.get(:accounts_button)
+    @record_switch = layout.get(:recording_switch)
   end
 
   def viewDidLoad
@@ -23,10 +24,12 @@ class MenuController < UIViewController
     @battleground.addTarget(self, action: 'start_battleground', forControlEvents: UIControlEventTouchUpInside)
     @accounts    .addTarget(self, action: 'show_accounts',      forControlEvents: UIControlEventTouchUpInside)
     @leaderboard .addTarget(self, action: 'show_leaderboard',   forControlEvents: UIControlEventTouchUpInside)
+    @record_switch.addTarget(self, action: 'toggle_recording', forControlEvents: UIControlEventTouchUpInside)
   end
 
   def viewDidAppear(animated)
     super
+    @record_switch.on = Player.first.record?
     navigationController.setNavigationBarHidden(false, animated: true)
   end
 
@@ -55,5 +58,10 @@ class MenuController < UIViewController
   def show_leaderboard
     controller = UIApplication.sharedApplication.delegate.leaderboard_controller
     navigationController.pushViewController(controller, animated: true)
+  end
+
+  def toggle_recording
+    Player.first.record = @record_switch.isOn
+    cdq.save
   end
 end
