@@ -21,15 +21,6 @@ class DeathController < UIViewController
     @account = @player.sorted_accounts[@player.current_account]
     round = @account.sorted_rounds[-1]
 
-    recorder = RPScreenRecorder.sharedRecorder
-    handler = lambda do |previewViewController, error|
-      unless error
-        @replay_controller = previewViewController
-        @replay_controller.previewControllerDelegate = self
-      end
-    end
-    recorder.stopRecordingWithHandler(handler)
-
     round_stats_container   = @layout.get(:round_stats_container)
     round_stats_kills       = @layout.get(:round_stats_kills)
     round_stats_time        = @layout.get(:round_stats_time)
@@ -60,6 +51,17 @@ class DeathController < UIViewController
     my_account_button .addTarget(self, action: 'go_to_my_account',  forControlEvents: UIControlEventTouchUpInside)
     @replay_button    .addTarget(self, action: 'show_replay',       forControlEvents: UIControlEventTouchUpInside)
     hide_replay_button if @replay_seen || !@player.record?
+  end
+
+  def viewDidAppear(animated)
+    super
+    handler = lambda do |previewViewController, error|
+      unless error
+        @replay_controller = previewViewController
+        @replay_controller.previewControllerDelegate = self
+      end
+    end
+    RPScreenRecorder.sharedRecorder.stopRecordingWithHandler(handler)
   end
 
   def viewWillDisappear(animated)
