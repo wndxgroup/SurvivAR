@@ -1,14 +1,14 @@
 class Survivor < GKEntity
   def init
     super
+    addComponent(SurvivorAgent.new)
     addComponent(SurvivorComponent.new)
-    addComponent(LocationComponent.new)
     self
   end
 
   def survivor_node
-    survivor = self.componentForClass(SurvivorComponent)
-    node = self.componentForClass(LocationComponent).node
+    survivor = self.componentForClass(SurvivorAgent)
+    node = self.componentForClass(SurvivorComponent).node
     survivor.position = node.position
     node
   end

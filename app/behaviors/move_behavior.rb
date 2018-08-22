@@ -1,4 +1,4 @@
-class MoveBehaviour < GKBehavior
+class MoveBehavior < GKBehavior
   def setupGoals(seek_agent, avoid: avoid_agents)
     setWeight(1, forGoal: GKGoal.goalToSeekAgent(seek_agent))
     setWeight(5, forGoal: GKGoal.goalToWander(1))

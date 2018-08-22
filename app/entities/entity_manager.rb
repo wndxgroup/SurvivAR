@@ -8,7 +8,7 @@ class EntityManager
     @entities  = []
     @to_remove = []
     @bullets   = []
-    @component_systems = [GKComponentSystem.alloc.initWithComponentClass(MoveComponent)]
+    @component_systems = [GKComponentSystem.alloc.initWithComponentClass(DemonAgent)]
     @bullet_component_system = [GKComponentSystem.alloc.initWithComponentClass(BulletAgent)]
     self
   end
@@ -28,7 +28,7 @@ class EntityManager
 
   def remove(entity)
     index = @entities.index{ |x| x[0] == entity }
-    entity.componentForClass(VisualComponent).node.removeFromParentNode
+    entity.componentForClass(DemonComponent).node.removeFromParentNode
     @entities[index][1].removeFromSuperview
     @to_remove << entity
     @entities.delete_at(index)
@@ -41,11 +41,11 @@ class EntityManager
   end
 
   def move_components
-    @entities.map { |entity| entity[0].componentForClass(MoveComponent) }
+    @entities.map { |entity| entity[0].componentForClass(DemonAgent) }
   end
 
   def updateWithDeltaTime(seconds)
-    entities.each { |entity| entity[0].componentForClass(VisualComponent).updateWithDeltaTime(seconds) }
+    entities.each { |entity| entity[0].componentForClass(DemonComponent).updateWithDeltaTime(seconds) }
     @survivor.updateWithDeltaTime(seconds)
     @component_systems.each { |comp_system| comp_system.updateWithDeltaTime(seconds) }
     if @bullets.count > 0

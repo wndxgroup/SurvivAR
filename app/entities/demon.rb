@@ -1,11 +1,11 @@
-class Enemy < GKEntity
+class Demon < GKEntity
   include Map
 
   attr_accessor :node
 
   def add_components(entity_manager)
-    addComponent(VisualComponent.new)
-    move_component = MoveComponent.new
+    addComponent(DemonComponent.new)
+    move_component = DemonAgent.new
     move_component.assign_properties(0.000001, maxAcceleration: 5, radius: 1, entityManager: entity_manager)
     @entity_manager = entity_manager
     addComponent(move_component)
@@ -21,7 +21,7 @@ class Enemy < GKEntity
       x += survivor_position.x
       z += survivor_position.z
     end
-    @node = self.componentForClass(VisualComponent).node
+    @node = self.componentForClass(DemonComponent).node
     @node.position = @position = SCNVector3Make(x, 0, z)
     @node.physicsBody = SCNPhysicsBody.bodyWithType(SCNPhysicsBodyTypeDynamic, shape: nil)
     @node.physicsBody.categoryBitMask = 2

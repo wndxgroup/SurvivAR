@@ -2,7 +2,7 @@ class BattlegroundController < UIViewController
   include Map, SurvivalTime, Sounds, Colors
   attr_accessor :mini_map_view
 
-  def enemy_radius; 1.0; end
+  def demon_radius; 1.0; end
   def map_icon_diameter; 10; end
   def ammo_spawn_radius; 20; end
 
@@ -12,14 +12,14 @@ class BattlegroundController < UIViewController
     @location_manager = CLLocationManager.new
     @location_manager.delegate = self
     @location_manager.requestWhenInUseAuthorization
-    @enemy_queue = Dispatch::Queue.new('enemies')
+    @demon_queue = Dispatch::Queue.new('demons')
     @bullet_queue = Dispatch::Queue.new('bullets')
     self
   end
 
   def viewWillAppear(animated)
     super
-    @spawning_enemy = true
+    @spawning_demon = true
     @spawned_ammo = false
     @scene_view = ARSCNView.new
     @scene_view.autoenablesDefaultLighting = true
@@ -59,9 +59,9 @@ class BattlegroundController < UIViewController
     @scene.rootNode.paused = false if @account.time_froze_at && time_frozen_for < 5
     @currently_killing_player = false
     if @account.savedEnemies.count > 0
-      display_enemies
+      display_demons
     else
-      @spawning_enemy = false
+      @spawning_demon = false
     end
   end
 
@@ -167,31 +167,31 @@ class BattlegroundController < UIViewController
   end
 
   def go_to_menu
-    save_enemy_data
+    save_demon_data
     pause_session
     navigationController.setNavigationBarHidden(false, animated: true)
     navigationController.popViewControllerAnimated(true)
   end
 
-  def spawn_enemy
-    @enemy_queue.async do
-      enemy = Enemy.new
-      enemy.add_components(@entity_manager)
-      node = enemy.set_spawning_location
-      @entity_manager.add(enemy, add_enemy_map_icon(node))
+  def spawn_demon
+    @demon_queue.async do
+      demon = Demon.new
+      demon.add_components(@entity_manager)
+      node = demon.set_spawning_location
+      @entity_manager.add(demon, add_demon_map_icon(node))
       @scene.rootNode.addChildNode(node)
-      @spawning_enemy = false
+      @spawning_demon = false
     end
   end
 
-  def add_enemy_map_icon(node)
-    enemy_icon = UIView.new
-    enemy_icon.frame = calc_map_frame(node.position)
-    enemy_icon.backgroundColor = UIColor.redColor
-    enemy_icon.layer.cornerRadius = map_icon_diameter / 2.0
-    enemy_icon.layer.masksToBounds = true
-    @mini_map_view.addSubview(enemy_icon)
-    enemy_icon
+  def add_demon_map_icon(node)
+    demon_icon = UIView.new
+    demon_icon.frame = calc_map_frame(node.position)
+    demon_icon.backgroundColor = UIColor.redColor
+    demon_icon.layer.cornerRadius = map_icon_diameter / 2.0
+    demon_icon.layer.masksToBounds = true
+    @mini_map_view.addSubview(demon_icon)
+    demon_icon
   end
 
   def add_ammo_map_icon(node)
@@ -215,12 +215,12 @@ class BattlegroundController < UIViewController
     mini_map_diameter / (spawn_radius * 2.0) * map_location + mini_map_diameter / 2.0 - map_icon_diameter / 2.0
   end
 
-  def display_enemies
-    @account.savedEnemies.array.each do |e|
-      enemy = Enemy.new
-      enemy.add_components(@entity_manager)
-      node = enemy.set_spawning_location(e.x, e.z)
-      @entity_manager.add(enemy, add_enemy_map_icon(node))
+  def display_demons
+    @account.savedEnemies.array.each do |d|
+      demon = Demon.new
+      demon.add_components(@entity_manager)
+      node = demon.set_spawning_location(d.x, d.z)
+      @entity_manager.add(demon, add_demon_map_icon(node))
       @scene.rootNode.addChildNode(node)
     end
     @account.savedEnemies.remove_all
@@ -245,14 +245,14 @@ class BattlegroundController < UIViewController
 
   def touchesEnded(_, withEvent: event)
     if event.touchesForView(@scene_view) && @account.ammo > 0
-      spawn_enemy if !@scene.rootNode.isPaused
+      spawn_demon if !@scene.rootNode.isPaused
       shoot
     end
   end
 
-  def save_enemy_data
+  def save_demon_data
     @entity_manager.entities.each do |entity|
-      if entity[0].componentForClass(VisualComponent).state_machine.currentState.is_a?(EnemyChaseState)
+      if entity[0].componentForClass(DemonComponent).state_machine.currentState.is_a?(DemonChaseState)
         position = entity[0].node.presentationNode.position
         @account.savedEnemies.create(x: position.x, z: position.z)
         cdq.save
@@ -316,9 +316,9 @@ class BattlegroundController < UIViewController
       spawn_ammo_crate
     end
     return if @scene.rootNode.isPaused
-    if @entity_manager.entities.count < 3 && !@spawning_enemy
-      @spawning_enemy = true
-      spawn_enemy
+    if @entity_manager.entities.count < 3 && !@spawning_demon
+      @spawning_demon = true
+      spawn_demon
     end
     recharge_freeze_ability if @account.time_froze_at && time_frozen_for >= 30
     update_icon_positions if @entity_manager.entities.count > 0
@@ -351,7 +351,7 @@ class BattlegroundController < UIViewController
   def update_icon_positions
     Dispatch::Queue.main.async do
       @entity_manager.entities.each do |demon|
-        demon[1].frame = calc_map_frame(demon[0].componentForClass(VisualComponent).node.position) if demon[1]
+        demon[1].frame = calc_map_frame(demon[0].componentForClass(DemonComponent).node.position) if demon[1]
       end
     end
   end
@@ -380,28 +380,28 @@ class BattlegroundController < UIViewController
   end
 
   def physicsWorld(_, didBeginContact: contact)
-    @entity_manager.entities.each {|enemy| @enemy = enemy[0] if enemy[0].node == contact.nodeA || enemy[0].node == contact.nodeB}
+    @entity_manager.entities.each {|demon| @demon = demon[0] if demon[0].node == contact.nodeA || demon[0].node == contact.nodeB}
     @entity_manager.bullets.each {|bullet| @bullet = bullet if bullet.node == contact.nodeA || bullet.node == contact.nodeB}
-    survivor_node = @survivor.componentForClass(LocationComponent).node
+    survivor_node = @survivor.componentForClass(SurvivorComponent).node
     user_touch  = survivor_node == contact.nodeA || survivor_node == contact.nodeB
     ammo_touch  = @ammo_node    == contact.nodeA || @ammo_node    == contact.nodeB
     user_hits_ammo = user_touch && ammo_touch
-    demon_hits_user = user_touch && @enemy && !@currently_killing_player
-    bullet_hits_chasing_demon = @enemy && @bullet && !@currently_killing_player &&
-        @enemy.componentForClass(VisualComponent).state_machine.currentState.is_a?(EnemyChaseState)
+    demon_hits_user = user_touch && @demon && !@currently_killing_player
+    bullet_hits_chasing_demon = @demon && @bullet && !@currently_killing_player &&
+        @demon.componentForClass(DemonComponent).state_machine.currentState.is_a?(DemonChaseState)
     if user_hits_ammo
       pickup_ammo
     elsif demon_hits_user
       @currently_killing_player = true
       player_dies
     elsif bullet_hits_chasing_demon
-      @enemy.componentForClass(VisualComponent).state_machine.enterState(EnemyFleeState)
-      @enemy.componentForClass(VisualComponent).node.geometry.materials[0].diffuse.contents = UIColor.grayColor
-      demon_index = @entity_manager.entities.index{|x| x[0] == @enemy}
+      @demon.componentForClass(DemonComponent).state_machine.enterState(DemonFleeState)
+      @demon.componentForClass(DemonComponent).node.geometry.materials[0].diffuse.contents = UIColor.grayColor
+      demon_index = @entity_manager.entities.index{|x| x[0] == @demon}
       @entity_manager.entities[demon_index][1].backgroundColor = UIColor.grayColor
       increment_kill_count
     end
-    @enemy = nil
+    @demon = nil
   end
 
   def locationManager(_, didUpdateHeading: new_heading)

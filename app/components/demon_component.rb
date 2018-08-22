@@ -1,4 +1,4 @@
-class VisualComponent < GKComponent
+class DemonComponent < GKComponent
   attr_accessor :node, :state_machine
 
   def init
@@ -11,12 +11,12 @@ class VisualComponent < GKComponent
     particle_system = SCNParticleSystem.particleSystemNamed('fire.scnp', inDirectory: nil)
     @node.addParticleSystem(particle_system)
 
-    chase = EnemyChaseState.new
+    chase = DemonChaseState.new
     chase.assign_entity(entity)
-    flee = EnemyFleeState.new
+    flee = DemonFleeState.new
     flee.assign_entity(entity)
     @state_machine = GKStateMachine.alloc.initWithStates([chase, flee])
-    @state_machine.enterState(EnemyChaseState)
+    @state_machine.enterState(DemonChaseState)
     self
   end
 
