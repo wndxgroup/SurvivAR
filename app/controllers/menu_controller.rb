@@ -61,7 +61,6 @@ class MenuController < UIViewController
   end
 
   def toggle_recording
-    puts 'toggle'
     Player.first.record = @record_switch.isOn
     cdq.save
   end
