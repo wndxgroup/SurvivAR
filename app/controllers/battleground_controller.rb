@@ -56,7 +56,7 @@ class BattlegroundController < UIViewController
     @location_manager.startUpdatingHeading
     @bullets = []
     @scene_view.session.runWithConfiguration(@scene_config, options: ARSessionRunOptionResetTracking)
-    @scene.rootNode.paused = false if @account.time_froze_at && time_frozen_for < 5
+    @scene.rootNode.paused = false if @account.time_froze_at && time_frozen_for < 10
     @currently_killing_player = false
     if @account.savedEnemies.count > 0
       display_demons
