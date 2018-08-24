@@ -23,7 +23,8 @@ class LeaderboardController < UIViewController
     @longest_life_button.addTarget(self, action: 'filter_by_survival_time', forControlEvents: UIControlEventTouchUpInside)
   end
 
-  def viewDidLoad
+  def viewWillAppear(animated)
+    super
     filter_by_kills
   end
 
@@ -42,13 +43,13 @@ class LeaderboardController < UIViewController
 
   def filter_by_kills
     @filter = 'most kills'
-    determine_kills_rankings unless @most_kills
+    determine_kills_rankings
     set_filter_buttons
   end
 
   def filter_by_survival_time
     @filter = 'survival time'
-    determine_life_rankings unless @longest_life
+    determine_life_rankings
     set_filter_buttons
   end
 
