@@ -1,5 +1,5 @@
 class LeaderboardController < UIViewController
-  include Rankings
+  include Rankings, Colors
 
   def init
     super
@@ -29,8 +29,6 @@ class LeaderboardController < UIViewController
   end
 
   def set_filter_buttons
-    on_color  = UIColor.colorWithRed(1.0, green: 0, blue: 0, alpha: 1)
-    off_color = UIColor.colorWithRed(0.5, green: 0, blue: 0, alpha: 1)
     if @filter == 'most kills'
       @most_kills_button  .backgroundColor = on_color
       @longest_life_button.backgroundColor = off_color
