@@ -56,7 +56,8 @@ class MyAccountController < UIViewController
     cell = tableView.dequeueReusableCellWithIdentifier(CELLID) || begin
       UITableViewCell.alloc.initWithStyle(UITableViewCellStyleDefault, reuseIdentifier: CELLID)
     end
-    round = @account.sorted_rounds[indexPath.row]
+    num_rounds = @account.sorted_rounds.count - 1
+    round = @account.sorted_rounds[num_rounds - indexPath.row]
     cell.textLabel.text = "#{round.kills} kills in #{round.survival_time}"
     cell
   end
