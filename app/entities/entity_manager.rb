@@ -34,7 +34,7 @@ class EntityManager
     bullet.add_entity_manager(self)
   end
 
-  def move_components
+  def demons
     @entities.map { |entity| entity[0].componentForClass(DemonAgent) }
   end
 

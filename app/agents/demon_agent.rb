@@ -44,12 +44,11 @@ class DemonAgent < GKAgent3D
     agent = @entity_manager.survivor.componentForClass(SurvivorAgent)
     PositionUpdater.scn_vec_to_float(agent, toPosition: loc)
 
-    allied_move_component = @entity_manager.move_components
     current_state = entity.state_machine.currentState
     if current_state.is_a?(DemonChaseState)
-      self.behavior ||= MoveBehavior.new.setupGoals(agent, avoid: allied_move_component)
+      self.behavior ||= MoveBehavior.new.setupGoals(agent, avoid: @entity_manager.demons)
     elsif self.behavior.is_a?(MoveBehavior) && current_state.is_a?(DemonFleeState)
-      self.behavior = EvadeBehavior.new.setupGoals(agent, avoid_agents: allied_move_component)
+      self.behavior = EvadeBehavior.new.setupGoals(agent, avoid_agents: @entity_manager.demons)
     end
 
     if distance_between_nodes(entity.node.presentationNode, @entity_manager.scene_view.pointOfView) > spawn_radius + 5
