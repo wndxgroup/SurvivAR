@@ -49,7 +49,7 @@ class BattlegroundController < UIViewController
     super
     @account.battling = @account.alive = true
     @account.start_survival_session
-    play_wave_sound if survival_time(@account).split(':')[-1].to_i < 1
+    play_wave_sound if @account.seconds < 0.5
 
     navigationController.setNavigationBarHidden(true, animated: true)
     add_ui
