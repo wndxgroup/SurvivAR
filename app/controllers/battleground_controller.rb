@@ -247,6 +247,7 @@ class BattlegroundController < UIViewController
       controller = UIApplication.sharedApplication.delegate.death_controller
       navigationController.setNavigationBarHidden(false, animated: true)
       navigationController.setViewControllers([controller], animated: true)
+      play_death_sound
     end
   end
 

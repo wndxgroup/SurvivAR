@@ -1,5 +1,5 @@
 class DeathController < UIViewController
-  include Rankings, Recorder, Sounds
+  include Rankings, Recorder
 
   def init
     super
@@ -62,7 +62,6 @@ class DeathController < UIViewController
       end
     end
     RPScreenRecorder.sharedRecorder.stopRecordingWithHandler(handler)
-    play_death_sound
   end
 
   def viewWillDisappear(animated)
