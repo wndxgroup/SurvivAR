@@ -40,7 +40,7 @@ class DemonAgent < GKAgent3D
   def updateWithDeltaTime(seconds)
     super
     loc = @entity_manager.scene_view.pointOfView.position
-    @entity_manager.survivor.componentForClass(SurvivorComponent).node.position = loc
+    @entity_manager.survivor.node.position = loc
     agent = @entity_manager.survivor.componentForClass(SurvivorAgent)
     PositionUpdater.scn_vec_to_float(agent, toPosition: loc)
 

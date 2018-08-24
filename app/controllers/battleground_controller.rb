@@ -37,8 +37,7 @@ class BattlegroundController < UIViewController
     @scene_view.scene = @scene
 
     @survivor = Survivor.new
-    node = @survivor.survivor_node
-    @scene.rootNode.addChildNode(node)
+    @scene.rootNode.addChildNode(@survivor.node)
     @entity_manager.assign_survivor(@survivor)
 
     player = Player.first
@@ -391,9 +390,8 @@ class BattlegroundController < UIViewController
   def physicsWorld(_, didBeginContact: contact)
     @entity_manager.entities.each {|demon| @demon = demon[0] if demon[0].node == contact.nodeA || demon[0].node == contact.nodeB}
     @entity_manager.bullets.each {|bullet| @bullet = bullet if bullet.node == contact.nodeA || bullet.node == contact.nodeB}
-    survivor_node = @survivor.componentForClass(SurvivorComponent).node
-    user_touch  = survivor_node == contact.nodeA || survivor_node == contact.nodeB
-    ammo_touch  = @ammo_node    == contact.nodeA || @ammo_node    == contact.nodeB
+    user_touch  = @survivor.node == contact.nodeA || @survivor.node == contact.nodeB
+    ammo_touch  = @ammo_node     == contact.nodeA || @ammo_node     == contact.nodeB
     user_hits_ammo = user_touch && ammo_touch
     demon_hits_user = user_touch && @demon && !@currently_killing_player
     bullet_hits_chasing_demon = @demon && @bullet && !@currently_killing_player &&

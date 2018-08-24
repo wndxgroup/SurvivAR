@@ -27,7 +27,7 @@ class Demon < GKEntity
       x = -x if rand < 0.5
       z = Math.sqrt(spawn_radius**2 - x**2)
       z = -z if rand < 0.5
-      survivor_position = @entity_manager.survivor.survivor_node.position
+      survivor_position = @entity_manager.survivor.node.position
       x += survivor_position.x
       z += survivor_position.z
     end
