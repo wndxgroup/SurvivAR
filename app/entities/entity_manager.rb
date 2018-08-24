@@ -1,9 +1,7 @@
 class EntityManager
-  attr_accessor :entities, :scene, :survivor, :scene_view, :bullets, :battleground_controller
+  attr_accessor :entities, :survivor, :scene_view, :bullets
 
-  def init(scene, scene_view, battleground_controller)
-    @battleground_controller = battleground_controller
-    @scene = scene
+  def init(scene_view)
     @scene_view = scene_view
     @entities  = []
     @to_remove = []

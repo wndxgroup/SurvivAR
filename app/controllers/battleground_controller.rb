@@ -1,6 +1,5 @@
 class BattlegroundController < UIViewController
   include Map, SurvivalTime, Sounds, Colors
-  attr_accessor :mini_map_view
 
   def demon_radius; 1.0; end
   def map_icon_diameter; 10; end
@@ -33,7 +32,7 @@ class BattlegroundController < UIViewController
 
     @scene = SCNScene.scene
     @scene.physicsWorld.contactDelegate = self
-    @entity_manager = EntityManager.alloc.init(@scene, @scene_view, self)
+    @entity_manager = EntityManager.alloc.init(@scene_view)
     @scene_view.scene = @scene
 
     @survivor = Survivor.new

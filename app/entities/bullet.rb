@@ -1,5 +1,5 @@
 class Bullet < GKEntity
-  attr_accessor :entity_manager, :node
+  attr_accessor :node
 
   def add_entity_manager(entity_manager)
     @entity_manager = entity_manager
@@ -25,6 +25,6 @@ class Bullet < GKEntity
 
   def delete_entity
     @node.removeFromParentNode
-    entity_manager.bullets -= [self]
+    @entity_manager.bullets -= [self]
   end
 end

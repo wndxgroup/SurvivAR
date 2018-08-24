@@ -1,5 +1,5 @@
 class MyAccountController < UIViewController
-  include Recorder, Colors
+  include Recorder
 
   def init
     super
@@ -63,7 +63,7 @@ class MyAccountController < UIViewController
   end
 
   def overall_kills
-    kills = @account.rounds.map {|acct| acct.kills} .inject(0) {|sum, x| sum + x}
+    kills = @account.rounds.map{|acct| acct.kills}.inject(0){|sum, x| sum + x}
     kills += @account.kills if @account.alive?
     kills
   end
