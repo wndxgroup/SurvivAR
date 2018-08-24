@@ -23,6 +23,10 @@ module Sounds
     play('spawn-ammo', ext: 'mp3')
   end
 
+  def play_death_sound
+    play('death', ext: 'mp3')
+  end
+
   def play(filename, ext: extension)
     path = NSBundle.mainBundle.pathForResource(filename, ofType: extension)
     pathURL = NSURL.fileURLWithPath(path)
