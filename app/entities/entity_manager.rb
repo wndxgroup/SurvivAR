@@ -23,7 +23,7 @@ class EntityManager
 
   def remove(entity)
     index = @entities.index{ |x| x[0] == entity }
-    entity.componentForClass(DemonComponent).node.removeFromParentNode
+    entity.node.removeFromParentNode
     @entities[index][1].removeFromSuperview
     @to_remove << entity
     @entities.delete_at(index)

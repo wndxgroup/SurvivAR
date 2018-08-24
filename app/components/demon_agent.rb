@@ -15,19 +15,19 @@ class DemonAgent < GKAgent3D
   end
 
   def agentWillUpdate(agent)
-    PositionUpdater.scn_vec_to_float(agent, toPosition: entity.componentForClass(DemonComponent).node.position)
+    PositionUpdater.scn_vec_to_float(agent, toPosition: entity.node.position)
   end
 
   def agentDidUpdate(agent)
-    entity.componentForClass(DemonComponent).node.position = [agent.position.x, agent.position.y, agent.position.z]
+    entity.node.position = [agent.position.x, agent.position.y, agent.position.z]
   end
 
   def distance_between_components(a, b)
-    a_x = a.entity.componentForClass(DemonComponent).node.position.x
-    a_z = a.entity.componentForClass(DemonComponent).node.position.z
+    a_x = a.entity.node.position.x
+    a_z = a.entity.node.position.z
 
-    b_x = b.entity.componentForClass(DemonComponent).node.position.x
-    b_z = b.entity.componentForClass(DemonComponent).node.position.z
+    b_x = b.entity.node.position.x
+    b_z = b.entity.node.position.z
     Math.sqrt((a_x - b_x)**2 + (a_z - b_z)**2)
   end
 
@@ -45,7 +45,7 @@ class DemonAgent < GKAgent3D
     PositionUpdater.scn_vec_to_float(agent, toPosition: loc)
 
     allied_move_component = @entity_manager.move_components
-    current_state = entity.componentForClass(DemonComponent).state_machine.currentState
+    current_state = entity.state_machine.currentState
     if current_state.is_a?(DemonChaseState)
       self.behavior ||= MoveBehavior.new.setupGoals(agent, avoid: allied_move_component)
     elsif self.behavior.is_a?(MoveBehavior) && current_state.is_a?(DemonFleeState)

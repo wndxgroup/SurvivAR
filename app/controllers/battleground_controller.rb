@@ -260,7 +260,7 @@ class BattlegroundController < UIViewController
 
   def save_demon_data
     @entity_manager.entities.each do |entity|
-      if entity[0].componentForClass(DemonComponent).state_machine.currentState.is_a?(DemonChaseState)
+      if entity[0].state_machine.currentState.is_a?(DemonChaseState)
         position = entity[0].node.presentationNode.position
         @account.savedEnemies.create(x: position.x, z: position.z)
         cdq.save
@@ -360,7 +360,7 @@ class BattlegroundController < UIViewController
   def update_icon_positions
     Dispatch::Queue.main.async do
       @entity_manager.entities.each do |demon|
-        demon[1].frame = calc_map_frame(demon[0].componentForClass(DemonComponent).node.position) if demon[1]
+        demon[1].frame = calc_map_frame(demon[0].node.position) if demon[1]
       end
     end
   end
@@ -397,15 +397,15 @@ class BattlegroundController < UIViewController
     user_hits_ammo = user_touch && ammo_touch
     demon_hits_user = user_touch && @demon && !@currently_killing_player
     bullet_hits_chasing_demon = @demon && @bullet && !@currently_killing_player &&
-        @demon.componentForClass(DemonComponent).state_machine.currentState.is_a?(DemonChaseState)
+        @demon.state_machine.currentState.is_a?(DemonChaseState)
     if user_hits_ammo
       pickup_ammo
     elsif demon_hits_user
       @currently_killing_player = true
       player_dies
     elsif bullet_hits_chasing_demon
-      @demon.componentForClass(DemonComponent).state_machine.enterState(DemonFleeState)
-      @demon.componentForClass(DemonComponent).node.geometry.materials[0].diffuse.contents = UIColor.grayColor
+      @demon.state_machine.enterState(DemonFleeState)
+      @demon.node.geometry.materials[0].diffuse.contents = UIColor.grayColor
       demon_index = @entity_manager.entities.index{|x| x[0] == @demon}
       @entity_manager.entities[demon_index][1].backgroundColor = UIColor.grayColor
       increment_kill_count
