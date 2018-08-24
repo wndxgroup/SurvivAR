@@ -8,13 +8,8 @@ class EntityManager
     @entities  = []
     @to_remove = []
     @bullets   = []
-    @component_systems = [GKComponentSystem.alloc.initWithComponentClass(DemonAgent)]
-    @bullet_component_system = [GKComponentSystem.alloc.initWithComponentClass(BulletAgent)]
+    @component_system = GKComponentSystem.alloc.initWithComponentClass(DemonAgent)
     self
-  end
-
-  def bullet_component_system
-    @bullet_component_system
   end
 
   def assign_survivor(survivor)
@@ -23,7 +18,7 @@ class EntityManager
 
   def add(entity, map_icon)
     @entities << [entity, map_icon]
-    @component_systems.each {|comp_system| comp_system.addComponentWithEntity(entity)}
+    @component_system.addComponentWithEntity(entity)
   end
 
   def remove(entity)
@@ -37,7 +32,6 @@ class EntityManager
   def add_bullet(bullet)
     @bullets << bullet
     bullet.add_entity_manager(self)
-    @bullet_component_system.each {|comp_system| comp_system.addComponentWithEntity(bullet)}
   end
 
   def move_components
@@ -45,17 +39,10 @@ class EntityManager
   end
 
   def updateWithDeltaTime(seconds)
-    entities.each { |entity| entity[0].componentForClass(DemonComponent).updateWithDeltaTime(seconds) }
     @survivor.updateWithDeltaTime(seconds)
-    @component_systems.each { |comp_system| comp_system.updateWithDeltaTime(seconds) }
-    if @bullets.count > 0
-      @bullet_component_system.each { |comp_system| comp_system.updateWithDeltaTime(seconds) }
-    end
-    @to_remove.each do |current_remove|
-      @component_systems.each do |comp_system|
-        comp_system.removeComponentWithEntity(current_remove)
-      end
-    end
+    @component_system.updateWithDeltaTime(seconds)
+    @bullets.each { |bullet| bullet.updateWithDeltaTime(seconds) } if @bullets.count > 0
+    @to_remove.each { |current_remove| @component_system.removeComponentWithEntity(current_remove) }
     @to_remove = []
   end
 end
