@@ -53,6 +53,7 @@ class BattlegroundController < UIViewController
 
     navigationController.setNavigationBarHidden(true, animated: true)
     add_ui
+    add_target_node
     @location_manager.startUpdatingHeading
     @bullets = []
     @scene_view.session.runWithConfiguration(@scene_config, options: ARSessionRunOptionResetTracking)
@@ -150,6 +151,12 @@ class BattlegroundController < UIViewController
     menu_button.setImage(UIImage.imageNamed('menu-button'), forState: UIControlStateNormal)
     view.addSubview(menu_button)
     menu_button.addTarget(self, action: 'go_to_menu', forControlEvents: UIControlEventTouchUpInside)
+  end
+
+  def add_target_node
+    @target_node = SCNNode.node
+    @target_node.position = [0, 0, -80]
+    @scene_view.pointOfView.addChildNode(@target_node)
   end
 
   def viewWillDisappear(animated)
@@ -268,23 +275,24 @@ class BattlegroundController < UIViewController
       @ammo_icon = nil
     end
     @mini_map_view.subviews.each_with_index {|view, index| view.removeFromSuperview if index > 0} if @mini_map_view
+    remove_target_node
     @scene.rootNode.childNodes.each {|node| node.removeFromParentNode}
     @scene_view.session.pause
+  end
+
+  def remove_target_node
+    index = @scene_view.pointOfView.childNodes.index(@target_node)
+    @scene_view.pointOfView.childNodes[index].removeFromParentNode
+    @target_node = nil
   end
 
   def shoot
     play_shoot_sound
     @bullet_queue.async do
-      target = SCNNode.node
-      target.position = [0, 0, -80]
-      @scene_view.pointOfView.addChildNode(target)
-      user_position = @scene_view.pointOfView.position
-      target_position = @scene_view.pointOfView.convertPosition(target.position, toNode: nil)
-      @scene_view.pointOfView.childNodes[0].removeFromParentNode
-
       bullet = Bullet.new
       @entity_manager.add_bullet(bullet)
-      node = bullet.set_firing_location(user_position)
+      node = bullet.set_firing_location(@scene_view.pointOfView.position)
+      target_position = @scene_view.pointOfView.convertPosition(@target_node.position, toNode: nil)
       force = [target_position.x, target_position.y, target_position.z]
       node.physicsBody.applyForce(force, atPosition: [0, 0, 0], impulse: true)
       @scene.rootNode.addChildNode(node)
@@ -310,7 +318,7 @@ class BattlegroundController < UIViewController
 
   def renderer(_, updateAtTime: time)
     update_survival_clock_display
-    unfreeze_time if @account.time_froze_at && time_frozen_for >= 5
+    unfreeze_time if @account.time_froze_at && time_frozen_for >= 10
     if !@spawned_ammo && @account.ammo <= 8 && @mini_map_view
       @spawned_ammo = true
       spawn_ammo_crate

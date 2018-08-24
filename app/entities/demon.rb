@@ -6,7 +6,7 @@ class Demon < GKEntity
   def add_components(entity_manager)
     addComponent(DemonComponent.new)
     move_component = DemonAgent.new
-    move_component.assign_properties(0.0000007, maxAcceleration: 5, radius: 1, entityManager: entity_manager)
+    move_component.assign_properties(0.0000006, maxAcceleration: 5, radius: 1, entityManager: entity_manager)
     @entity_manager = entity_manager
     addComponent(move_component)
   end
