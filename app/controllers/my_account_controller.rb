@@ -64,12 +64,12 @@ class MyAccountController < UIViewController
 
   def overall_kills
     kills = @account.rounds.map{|acct| acct.kills}.inject(0){|sum, x| sum + x}
-    kills += @account.kills if @account.alive?
+    kills += @account.kills
     kills
   end
 
   def overall_survival_time
-    completed_survival_times = @account.rounds.map{|acct| acct.survival_time}
+    completed_survival_times = @account.rounds.map{|round| round.survival_time}
     hours = minutes = seconds = 0
     completed_survival_times.each do |time|
       survival_time = time.split(':')
