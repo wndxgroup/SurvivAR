@@ -15,7 +15,6 @@ class CreateAnAccountController < UIViewController
     @start_button   = layout.get(:start_button)
     @username_field = layout.get(:username)
     @username_field.delegate = self
-    @username_field.becomeFirstResponder
   end
 
   def viewDidLoad
