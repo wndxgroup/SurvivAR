@@ -72,7 +72,7 @@ class DeathController < UIViewController
   def show_replay
     unless @replay_controller
       alert = UIAlertController.alertControllerWithTitle('Recording Unavailable',
-                                                         message: 'An error occured while trying to replay the recording',
+                                                         message: 'An error occurred while trying to replay the recording',
                                                          preferredStyle: UIAlertControllerStyleAlert)
       action = UIAlertAction.actionWithTitle('Ok', style: UIAlertActionStyleDefault, handler: nil)
       alert.addAction(action)
