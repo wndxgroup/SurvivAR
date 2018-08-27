@@ -327,7 +327,7 @@ class BattlegroundController < UIViewController
       @spawning_demon = true
       spawn_demon
     end
-    recharge_freeze_ability if @account.time_froze_at && time_frozen_for >= 30
+    recharge_freeze_ability if @account.time_froze_at && time_frozen_for >= 60
     update_icon_positions if @entity_manager.entities.count > 0
     @entity_manager.updateWithDeltaTime(time)
   end
