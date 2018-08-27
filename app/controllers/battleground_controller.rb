@@ -293,7 +293,7 @@ class BattlegroundController < UIViewController
       node = bullet.set_firing_location(@scene_view.pointOfView.position)
       target_position = @scene_view.pointOfView.convertPosition(@target_node.position, toNode: nil)
       force = [target_position.x, target_position.y, target_position.z]
-      node.physicsBody.applyForce(force, atPosition: [0, 0, 0], impulse: true)
+      node.physicsBody.applyForce(force, atPosition: @scene_view.pointOfView.position, impulse: true)
       @scene.rootNode.addChildNode(node)
 
       @account.ammo -= 1
