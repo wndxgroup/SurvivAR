@@ -40,7 +40,7 @@ class MenuController < UIViewController
       navigationController.pushViewController(controller, animated: true)
     else
       alert = UIAlertController.alertControllerWithTitle('Not Logged In',
-                                                         message: 'Log into  an account before starting a battleground',
+                                                         message: 'Log into an account before starting a battleground',
                                                          preferredStyle: UIAlertControllerStyleAlert)
       action = UIAlertAction.actionWithTitle('Log me in',
                                              style: UIAlertActionStyleDefault,
