@@ -15,7 +15,7 @@ schema "0001 initial" do
     double :seconds
     integer16 :kills, default: 0
     integer16 :ammo, default: 20
-    boolean :alive, default: true
+    boolean :alive, default: false
     boolean :battling
     datetime :start_time, default: nil
     string :time_froze_at, default: nil
