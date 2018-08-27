@@ -15,6 +15,7 @@ class CreateAnAccountController < UIViewController
     @start_button   = layout.get(:start_button)
     @username_field = layout.get(:username)
     @username_field.delegate = self
+    @username_field.becomeFirstResponder
   end
 
   def viewDidLoad
@@ -31,10 +32,6 @@ class CreateAnAccountController < UIViewController
     cdq.save
     controller = UIApplication.sharedApplication.delegate.menu_controller
     navigationController.setViewControllers([controller], animated: true)
-  end
-
-  def didMoveToParentViewController(_)
-    @username_field.becomeFirstResponder
   end
 
   def textFieldShouldReturn(_)
