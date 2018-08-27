@@ -39,7 +39,7 @@ class EntityManager
   def updateWithDeltaTime(seconds)
     @survivor.updateWithDeltaTime(seconds)
     @component_system.updateWithDeltaTime(seconds)
-    @bullets.each { |bullet| bullet.updateWithDeltaTime(seconds) } if @bullets.count > 0
+    @bullets.each { |bullet| bullet.updateWithDeltaTime(seconds) }
     @to_remove.each { |current_remove| @component_system.removeComponentWithEntity(current_remove) }
     @to_remove = []
   end
