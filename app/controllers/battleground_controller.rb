@@ -309,7 +309,7 @@ class BattlegroundController < UIViewController
     z = Math.sqrt(ammo_spawn_radius**2 - x**2)
     z = -z if rand < 0.5
     position = @scene_view.pointOfView.convertPosition([x, 0, z], toNode: nil)
-    @ammo_node = ammo.set_spawning_location([position.x, 0, position.z])
+    @ammo_node = ammo.set_spawning_location([position.x, -0.5, position.z])
     @scene.rootNode.addChildNode(@ammo_node)
     add_ammo_map_icon(@ammo_node)
     play_spawn_ammo_sound
