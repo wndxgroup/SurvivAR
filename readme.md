@@ -8,6 +8,7 @@ If you find yourself in a sticky situation, you have one special ability: you ca
 You start the battleground with 20 bullets. Every time that you drop to 8 or less bullets, a blue ammo crate is spawned around you. Simply run towards it and touch the crate with your device to pickup the ammo. Just a heads up - you can't pickup ammo while the demons are frozen.
 
 ## Battleground Demo ##
+Click the screenshot below to view the gameplay on YouTube.
 [![SurvivAR Gameplay](http://img.youtube.com/vi/eA8TgbR5NhU/0.jpg)](https://www.youtube.com/watch?v=eA8TgbR5NhU)
 
 ## Leaderboard Rankings ##
