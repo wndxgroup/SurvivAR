@@ -297,9 +297,11 @@ class BattlegroundController < UIViewController
       @scene.rootNode.addChildNode(node)
 
       @account.ammo -= 1
-      Dispatch::Queue.main.sync { @ammo_counter.text = "⚪ #{@account.ammo}" }
+      Dispatch::Queue.main.sync do
+        @ammo_counter.text = "⚪ #{@account.ammo}"
+        cdq.save
+      end
     end
-    cdq.save
   end
 
   def spawn_ammo_crate
