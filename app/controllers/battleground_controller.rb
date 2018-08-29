@@ -161,6 +161,7 @@ class BattlegroundController < UIViewController
     super
     @location_manager.stopUpdatingHeading
     self.view.subviews.makeObjectsPerformSelector('removeFromSuperview')
+    @mini_map_view = nil
   end
 
   def stop_time
