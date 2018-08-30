@@ -363,6 +363,7 @@ class BattlegroundController < UIViewController
       @entity_manager.entities.each do |demon|
         demon[1].frame = calc_map_frame(demon[0].node.position) if demon[1]
       end
+      @ammo_icon.frame = calc_map_frame(@ammo_node.position) if @ammo_icon
     end
   end
 
