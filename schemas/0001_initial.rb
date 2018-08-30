@@ -14,7 +14,7 @@ schema "0001 initial" do
     integer16 :minutes
     double :seconds
     integer16 :kills, default: 0
-    integer16 :ammo, default: 20
+    integer16 :ammo, default: 18
     boolean :alive, default: false
     boolean :battling
     datetime :start_time, default: nil

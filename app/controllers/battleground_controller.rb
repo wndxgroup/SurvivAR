@@ -239,7 +239,7 @@ class BattlegroundController < UIViewController
       @account.time_froze_at = nil
       @account.rounds.create(kills: @account.kills, survival_time: survival_time(@account), completed_on: Time.now)
       @account.kills = @account.seconds = @account.minutes = @account.hours = 0
-      @account.ammo = 20
+      @account.ammo = 18
       @account.savedEnemies.array.each {|e| e.destroy}
       cdq.save
       pause_session
