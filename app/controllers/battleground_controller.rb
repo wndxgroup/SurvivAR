@@ -136,7 +136,7 @@ class BattlegroundController < UIViewController
     toggle_button_width = 60
     @freeze_button = UIButton.new
     @freeze_button.frame = [[@scene_view.frame.size.width / 2.0 - toggle_button_width / 2.0,
-                             @scene_view.frame.size.height - toggle_button_width * 2],
+                             @scene_view.frame.size.height - view.safeAreaInsets.bottom - toggle_button_width * 2 - 5],
                             [toggle_button_width, toggle_button_width]]
     @freeze_button.setImage(UIImage.imageNamed('pause'), forState: UIControlStateNormal)
     view.addSubview(@freeze_button) unless @account.time_froze_at
@@ -144,7 +144,7 @@ class BattlegroundController < UIViewController
 
     menu_button = UIButton.new
     menu_button.frame = [[@scene_view.frame.size.width / 2.0 - toggle_button_width / 2.0,
-                          @scene_view.frame.size.height - toggle_button_width],
+                          @scene_view.frame.size.height - view.safeAreaInsets.bottom - toggle_button_width],
                          [toggle_button_width, toggle_button_width]]
     menu_button.setImage(UIImage.imageNamed('menu-button'), forState: UIControlStateNormal)
     view.addSubview(menu_button)
