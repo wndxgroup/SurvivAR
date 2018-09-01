@@ -121,4 +121,10 @@ class DeathController < UIViewController
     @replay_seen = true
     hide_replay_button
   end
+
+  def previewControllerDidFinish(previewController, didFinishWithActivityTypes:activityTypes)
+    previewController.dismissViewControllerAnimated(true, completion: nil)
+    @replay_seen = true
+    hide_replay_button
+  end
 end

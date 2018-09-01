@@ -136,7 +136,7 @@ class BattlegroundController < UIViewController
     toggle_button_width = 60
     @freeze_button = UIButton.new
     @freeze_button.frame = [[@scene_view.frame.size.width / 2.0 - toggle_button_width / 2.0,
-                             @scene_view.frame.size.height - toggle_button_width * 2],
+                             @scene_view.frame.size.height - view.safeAreaInsets.bottom - toggle_button_width * 2 - 5],
                             [toggle_button_width, toggle_button_width]]
     @freeze_button.setImage(UIImage.imageNamed('pause'), forState: UIControlStateNormal)
     view.addSubview(@freeze_button) unless @account.time_froze_at
@@ -144,7 +144,7 @@ class BattlegroundController < UIViewController
 
     menu_button = UIButton.new
     menu_button.frame = [[@scene_view.frame.size.width / 2.0 - toggle_button_width / 2.0,
-                          @scene_view.frame.size.height - toggle_button_width],
+                          @scene_view.frame.size.height - view.safeAreaInsets.bottom - toggle_button_width],
                          [toggle_button_width, toggle_button_width]]
     menu_button.setImage(UIImage.imageNamed('menu-button'), forState: UIControlStateNormal)
     view.addSubview(menu_button)
@@ -161,6 +161,7 @@ class BattlegroundController < UIViewController
     super
     @location_manager.stopUpdatingHeading
     self.view.subviews.makeObjectsPerformSelector('removeFromSuperview')
+    @mini_map_view = nil
   end
 
   def stop_time
@@ -238,7 +239,7 @@ class BattlegroundController < UIViewController
       @account.time_froze_at = nil
       @account.rounds.create(kills: @account.kills, survival_time: survival_time(@account), completed_on: Time.now)
       @account.kills = @account.seconds = @account.minutes = @account.hours = 0
-      @account.ammo = 20
+      @account.ammo = 18
       @account.savedEnemies.array.each {|e| e.destroy}
       cdq.save
       pause_session
@@ -297,9 +298,11 @@ class BattlegroundController < UIViewController
       @scene.rootNode.addChildNode(node)
 
       @account.ammo -= 1
-      Dispatch::Queue.main.sync { @ammo_counter.text = "⚪ #{@account.ammo}" }
+      Dispatch::Queue.main.sync do
+        @ammo_counter.text = "⚪ #{@account.ammo}"
+        cdq.save
+      end
     end
-    cdq.save
   end
 
   def spawn_ammo_crate
@@ -360,6 +363,7 @@ class BattlegroundController < UIViewController
       @entity_manager.entities.each do |demon|
         demon[1].frame = calc_map_frame(demon[0].node.position) if demon[1]
       end
+      @ammo_icon.frame = calc_map_frame(@ammo_node.position) if @ammo_icon
     end
   end
 
@@ -411,6 +415,8 @@ class BattlegroundController < UIViewController
   end
 
   def locationManager(_, didUpdateHeading: new_heading)
-    @mini_map_view.layer.transform = CATransform3DMakeRotation(-new_heading.trueHeading / 180.0  * Math::PI, 0.0, 0.0, 1.0)
+    if @mini_map_view
+      @mini_map_view.layer.transform = CATransform3DMakeRotation(-new_heading.trueHeading / 180.0  * Math::PI, 0.0, 0.0, 1.0)
+    end
   end
 end

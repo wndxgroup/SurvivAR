@@ -20,7 +20,7 @@ class Bullet < GKEntity
   end
 
   def updateWithDeltaTime(_)
-    delete_entity if @node.presentationNode.position.y < -10
+    delete_entity if @node && @node.presentationNode.position.y < -10
   end
 
   def delete_entity
