@@ -2,7 +2,7 @@ GEM
   remote: https://rubygems.org/
   specs:
     CFPropertyList (3.0.0)
-    activesupport (4.2.10)
+    activesupport (4.2.11.1)
       i18n (~> 0.7)
       minitest (~> 5.1)
       thread_safe (~> 0.3, >= 0.3.4)
@@ -12,15 +12,15 @@ GEM
     atomos (0.1.2)
     babosa (1.0.2)
     builder (3.2.3)
-    cdq (1.0.8)
-      motion-yaml (= 1.4)
+    cdq (2.0.0)
+      motion-yaml (>= 1.6)
       ruby-xcdm (>= 0.0.9)
     claide (1.0.2)
     colored (1.2)
     colored2 (3.1.2)
     commander-fastlane (4.4.6)
       highline (~> 1.7.2)
-    concurrent-ruby (1.0.5)
+    concurrent-ruby (1.1.5)
     dbt (1.2.0)
     declarative (0.0.10)
     declarative-option (0.1.0)
@@ -101,13 +101,13 @@ GEM
       mime-types-data (~> 3.2015)
     mime-types-data (3.2016.0521)
     mini_magick (4.5.1)
-    minitest (5.11.3)
+    minitest (5.13.0)
     motion-kit (1.1.1)
       dbt (~> 1.1, >= 1.1.5)
     motion-provisioning (1.0.0)
       fastlane (~> 2.85)
       highline (>= 1.7.2, < 2.0.0)
-    motion-yaml (1.4)
+    motion-yaml (1.6.4)
     multi_json (1.13.1)
     multi_xml (0.6.0)
     multipart-post (2.0.0)
@@ -123,7 +123,7 @@ GEM
       uber (< 0.2.0)
     retriable (3.1.2)
     rouge (2.0.7)
-    ruby-xcdm (0.0.10)
+    ruby-xcdm (0.0.11)
       activesupport (~> 4.1)
       builder (~> 3.2)
       plist (~> 3.1)
@@ -175,4 +175,4 @@ DEPENDENCIES
   rake
 
 BUNDLED WITH
-   1.16.2
+   1.17.3
