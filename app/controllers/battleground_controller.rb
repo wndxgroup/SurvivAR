@@ -191,13 +191,13 @@ class BattlegroundController < UIViewController
   end
 
   def add_demon_map_icon(node)
-    demon_icon = UIView.new
-    demon_icon.frame = calc_map_frame(node.position)
-    demon_icon.backgroundColor = UIColor.redColor
-    demon_icon.layer.cornerRadius = map_icon_diameter / 2.0
-    demon_icon.layer.masksToBounds = true
-    @mini_map_view.addSubview(demon_icon)
-    demon_icon
+    UIView.new.tap do |view|
+      view.frame = calc_map_frame(node.position)
+      view.backgroundColor = UIColor.redColor
+      view.layer.cornerRadius = map_icon_diameter / 2.0
+      view.layer.masksToBounds = true
+      Dispatch::Queue.main.async { @mini_map_view.addSubview(view) }
+    end
   end
 
   def add_ammo_map_icon(node)
@@ -206,7 +206,7 @@ class BattlegroundController < UIViewController
     @ammo_icon.backgroundColor = ammo_color
     @ammo_icon.layer.cornerRadius = map_icon_diameter / 2.0
     @ammo_icon.layer.masksToBounds = true
-    @mini_map_view.addSubview(@ammo_icon)
+    Dispatch::Queue.main.async { @mini_map_view.addSubview(@ammo_icon) }
   end
 
   def calc_map_frame(position)
