@@ -16,7 +16,8 @@ class Demon < GKEntity
 
   def add_components(entity_manager)
     agent = DemonAgent.new
-    agent.assign_properties(0.0000002, maxAcceleration: 5, radius: 1, entityManager: entity_manager)
+    # TODO: Figure out why max speed needs to be tweaked all the time
+    agent.assign_properties(0.0000007, maxAcceleration: 5, radius: 1, entityManager: entity_manager)
     @entity_manager = entity_manager
     addComponent(agent)
   end
